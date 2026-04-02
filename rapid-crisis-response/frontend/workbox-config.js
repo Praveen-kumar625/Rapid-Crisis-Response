@@ -19,6 +19,14 @@ module.exports = {
             }
         },
         {
+            urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/api'),
+            handler: 'NetworkOnly',
+            options: {
+                cacheName: 'app-api',
+                networkTimeoutSeconds: 10
+            }
+        },
+        {
             urlPattern: ({ url }) => url.origin === self.location.origin,
             handler: 'NetworkFirst',
             options: {

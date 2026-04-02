@@ -11,8 +11,18 @@ const redisClient = new Redis({
 });
 
 function initSocket(httpServer) {
+    const allowedOrigins = (process.env.SOCKET_ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+
     const io = new Server(httpServer, {
-        cors: { origin: '*', methods: ['GET', 'POST'] },
+        cors: {
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    return callback(null, true);
+                }
+                return callback(new Error('Forbidden by CORS'));
+            },
+            methods: ['GET', 'POST'],
+        },
         path: '/crisis',
     });
 

@@ -51,6 +51,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - OFFLINE_EMERGENCY_MODE=${OFFLINE_EMERGENCY_MODE:-false}
     ports:
       - "${PORT_API}:${PORT_API}"
     volumes:
@@ -71,6 +72,7 @@ services:
       - NODE_ENV=development
       - REDIS_HOST=redis
       - REDIS_PORT=${REDIS_PORT}
+      - OFFLINE_EMERGENCY_MODE=${OFFLINE_EMERGENCY_MODE:-false}
     volumes:
       - ./backend/src:/app/src
     command: npm run worker

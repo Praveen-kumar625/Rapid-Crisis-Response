@@ -14,7 +14,13 @@ async function jwtAuth(req, res, next) {
     }
 
     const authHeader = req.headers.authorization || '';
-    if (!authHeader.startsWith('Bearer ')) return res.status(401).json({ message: 'Missing token' });
+    if (!authHeader.startsWith('Bearer ')) {
+        if (process.env.OFFLINE_EMERGENCY_MODE === 'true') {
+            req.user = { sub: 'anonymous', email: 'anonymous@offline.local', role: 'ANONYMOUS' };
+            return next();
+        }
+        return res.status(401).json({ message: 'Missing token' });
+    }
 
     const token = authHeader.split(' ')[1];
 
@@ -24,6 +30,10 @@ async function jwtAuth(req, res, next) {
         next();
     } catch (error) {
         console.error('[Auth] Firebase token verification failed:', error);
+        if (process.env.OFFLINE_EMERGENCY_MODE === 'true') {
+            req.user = { sub: 'anonymous', email: 'anonymous@offline.local', role: 'ANONYMOUS' };
+            return next();
+        }
         return res.status(401).json({ message: 'Invalid token' });
     }
 }
