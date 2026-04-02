@@ -241,6 +241,7 @@ async function analyzeReport({
             panic_level: String(data.panic_level || 'Low'),
             action_plan: actionPlan,
             requiredResources,
+            ai_verified: true,
         };
     } catch (err) {
         console.error('[AI Service] analyzeReport failed; falling back:', err);
@@ -259,6 +260,7 @@ async function analyzeReport({
             panic_level: /panic|help|emergency|urgent/i.test(`${title} ${description}`) ? 'High' : 'Low',
             action_plan: [inferActionByCategory(normalizedCategory)],
             requiredResources: inferResourcesByCategory(normalizedCategory),
+            ai_verified: false,
         };
     }
 }

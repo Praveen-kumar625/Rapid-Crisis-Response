@@ -42,6 +42,7 @@ exports.up = async function(knex) {
         table.string('hospitality_category');
         table.string('media_type');
         table.text('media_base64');
+        table.boolean('ai_verified').notNullable().defaultTo(true);
         table
             .enu('status', ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])
             .defaultTo('OPEN');

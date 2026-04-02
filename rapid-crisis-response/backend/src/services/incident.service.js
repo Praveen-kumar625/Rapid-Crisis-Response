@@ -40,10 +40,15 @@ exports.list = async({ bbox, wingId, floorLevel, roomNumber } = {}) => {
         );
 
     if (bbox) {
-        const [minLng, minLat, maxLng, maxLat] = bbox.split(',').map(Number);
-        query = query.whereRaw(
-            `ST_Intersects(location, ST_MakeEnvelope(?, ?, ?, ?, 4326))`, [minLng, minLat, maxLng, maxLat]
-        );
+        const coords = bbox.split(',').map((s) => Number(s.trim()));
+        if (coords.length === 4 && !coords.some((c) => Number.isNaN(c))) {
+            const [minLng, minLat, maxLng, maxLat] = coords;
+            query = query.whereRaw(
+                `ST_Intersects(location, ST_MakeEnvelope(?, ?, ?, ?, 4326))`, [minLng, minLat, maxLng, maxLat]
+            );
+        } else {
+            throw new Error('Invalid BBox coordinates, expected 4 numeric values');
+        }
     }
 
     if (wingId) query = query.where('wing_id', wingId);

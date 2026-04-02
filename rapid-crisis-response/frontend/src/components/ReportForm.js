@@ -69,35 +69,49 @@ function ReportForm() {
     // ---------------------------------------------------------
     // Sync any pending reports when we regain a network connection
     // ---------------------------------------------------------
+    let isSyncing = false;
+
     useEffect(() => {
         async function syncPending() {
-            const pending = await getPendingReports();
-            if (!pending.length) return;
+            if (isSyncing) {
+                return;
+            }
+            isSyncing = true;
 
-            for (const rpt of pending) {
-                try {
-                    await api.post('/incidents', {
-                        title: rpt.title,
-                        description: rpt.description,
-                        severity: rpt.severity,
-                        category: rpt.category,
-                        lng: rpt.lng,
-                        lat: rpt.lat,
-                        mediaType: rpt.mediaType,
-                        mediaBase64: rpt.mediaBase64,
-                    });
-                    await markReportSynced(rpt.localId);
-                    toast.success(`✅ Offline report "${rpt.title}" synced`);
-                } catch (err) {
-                    console.error('⛔ Failed to sync pending report', err);
-                    if (Notification.permission === 'granted') {
-                        navigator.serviceWorker.ready.then((registration) => {
-                            registration.showNotification('Crisis sync failed', {
-                                body: 'Some offline reports could not be sent; they will retry later.',
-                            });
+            try {
+                const pending = await getPendingReports();
+                if (!pending.length) return;
+
+                for (const rpt of pending) {
+                    try {
+                        await api.post('/incidents', {
+                            title: rpt.title,
+                            description: rpt.description,
+                            severity: rpt.severity,
+                            category: rpt.category,
+                            lng: rpt.lng,
+                            lat: rpt.lat,
+                            mediaType: rpt.mediaType,
+                            mediaBase64: rpt.mediaBase64,
+                            floorLevel: rpt.floorLevel,
+                            roomNumber: rpt.roomNumber,
+                            wingId: rpt.wingId,
                         });
+                        await markReportSynced(rpt.localId);
+                        toast.success(`✅ Offline report "${rpt.title}" synced`);
+                    } catch (err) {
+                        console.error('⛔ Failed to sync pending report', err);
+                        if (Notification.permission === 'granted') {
+                            navigator.serviceWorker.ready.then((registration) => {
+                                registration.showNotification('Crisis sync failed', {
+                                    body: 'Some offline reports could not be sent; they will retry later.',
+                                });
+                            });
+                        }
                     }
                 }
+            } finally {
+                isSyncing = false;
             }
         }
 

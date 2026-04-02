@@ -16,18 +16,30 @@ function CrisisMap() {
         api.get('/incidents').then((res) => setIncidents(res.data)).catch(console.error);
 
         let cancelled = false;
+        let socketInstance;
+
+        const handleCreated = (payload) => {
+            if (!cancelled) setIncidents((prev) => [...prev, payload.incident]);
+        };
+        const handleStatusUpdated = (payload) => {
+            if (!cancelled) {
+                setIncidents((prev) => prev.map((i) => (i.id === payload.incident.id ? payload.incident : i)));
+            }
+        };
+
         (async() => {
-            const socket = await getSocket();
-            socket.on('incident.created', (payload) => {
-                if (!cancelled) setIncidents((prev) => [...prev, payload.incident]);
-            });
-            socket.on('incident.status-updated', (payload) => {
-                if (!cancelled) {
-                    setIncidents((prev) => prev.map((i) => (i.id === payload.incident.id ? payload.incident : i)));
-                }
-            });
+            socketInstance = await getSocket();
+            socketInstance.on('incident.created', handleCreated);
+            socketInstance.on('incident.status-updated', handleStatusUpdated);
         })();
-        return () => { cancelled = true; };
+
+        return () => {
+            cancelled = true;
+            if (socketInstance) {
+                socketInstance.off('incident.created', handleCreated);
+                socketInstance.off('incident.status-updated', handleStatusUpdated);
+            }
+        };
     }, []);
 
     const calculateRoute = async(lat, lng) => {
@@ -101,26 +113,34 @@ function CrisisMap() {
         {
             selectedIncident && ( <
                 div style = {
-                    { position: 'absolute', bottom: 12, left: 12, right: 12, background: 'rgba(255,255,255,0.95)', borderRadius: 8, padding: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' } } >
+                    { position: 'absolute', bottom: 12, left: 12, right: 12, background: 'rgba(255,255,255,0.95)', borderRadius: 8, padding: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
+                } >
                 <
                 h3 style = {
-                    { margin: 0 } } > { selectedIncident.title } < /h3> <
+                    { margin: 0 }
+                } > { selectedIncident.title } < /h3> <
                 p style = {
-                    { margin: '4px 0' } } > { selectedIncident.description } < /p> <
+                    { margin: '4px 0' }
+                } > { selectedIncident.description } < /p> <
                 p style = {
-                    { margin: '4px 0' } } > < strong > Severity: < /strong> {selectedIncident.severity}</p >
+                    { margin: '4px 0' }
+                } > < strong > Severity: < /strong> {selectedIncident.severity}</p >
                 <
                 p style = {
-                    { margin: '4px 0' } } > < strong > Action plan: < /strong> {selectedIncident.actionPlan || 'N/A
+                    { margin: '4px 0' }
+                } > < strong > Action plan: < /strong> {selectedIncident.actionPlan || 'N/A
                 '}</p> <
                 p style = {
-                    { margin: '4px 0' } } > < strong > Resources: < /strong> {(selectedIncident.requiredResources || []).join(', ')}</p >
+                    { margin: '4px 0' }
+                } > < strong > Resources: < /strong> {(selectedIncident.requiredResources || []).join(', ')}</p >
                 <
                 button onClick = {
-                    () => setSelectedIncident(null) }
+                    () => setSelectedIncident(null)
+                }
                 style = {
-                    { marginTop: 4, padding: '4px 8px' } } > Dismiss < /button> <
-                /div>
+                    { marginTop: 4, padding: '4px 8px' }
+                } > Dismiss < /button> < /
+                div >
             )
         }
         /div>
