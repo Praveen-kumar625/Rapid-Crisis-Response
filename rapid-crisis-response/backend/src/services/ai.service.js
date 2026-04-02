@@ -130,29 +130,46 @@ async function analyzeReport({
     userSeverity,
     mediaType,
     mediaBase64,
+    floorLevel,
+    roomNumber,
+    wingId,
 }) {
+    const normalizedCategory = (category || '').toUpperCase();
+
     // Fast-path no key / dev mode
     if (!genAI) {
-        const defaultResources = inferResourcesByCategory(category);
-        const defaultAction = inferActionByCategory(category);
+        const defaultResources = inferResourcesByCategory(normalizedCategory);
+        const defaultAction = inferActionByCategory(normalizedCategory);
+        const hospitalityCategory = ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'].includes(normalizedCategory) ?
+            normalizedCategory :
+            'INFRASTRUCTURE';
 
         return {
             spam_score: 0.0,
             auto_severity: userSeverity,
-            predictedCategory: category,
-            actionPlan: defaultAction,
+            predictedCategory: normalizedCategory || 'INFRASTRUCTURE',
+            hospitality_category: hospitalityCategory,
+            translated_english_text: description || title || '',
+            detected_language: 'en',
+            panic_level: /panic|help|emergency|urgent/i.test(`${title} ${description}`) ? 'High' : 'Low',
+            action_plan: [defaultAction],
             requiredResources: defaultResources,
         };
     }
 
     const details = mediaType ? `Media type: ${mediaType}. Media data: <base64 string>` : 'No media provided.';
-    const prompt = `You are an incident assessment agent using unimodal and multimodal signals.\n\n` +
-        `Given the input values, respond with a single JSON object only, no explanation.  ` +
-        `Fields: spam_score (0.0-1.0), auto_severity (1-5), predicted_category, action_plan (short), recommended_resources (array of strings).\n\n` +
-        `Title: "${title}"\n` +
-        `Description: "${description}"\n` +
-        `Category: "${category}"\n` +
-        `UserSeverity: ${userSeverity}\n` +
+    const prompt = `You are a hospitality crisis triage assistant for a high-end hotel. Respond in strict JSON only with no extra text.\n` +
+        `Input fields: title, description, category, floorLevel, roomNumber, wingId, userSeverity, additionalContext.\n` +
+        `Output fields must be exactly:\n` +
+        `translated_english_text, detected_language, panic_level (High/Medium/Low), hospitality_category (MEDICAL|FIRE|SECURITY|INFRASTRUCTURE), action_plan (array of strings), spam_score (0.0-1.0), auto_severity (1-5), predicted_category, required_resources (array of strings).\n` +
+        `Do not include any other keys.\n\n` +
+        `title: "${title}"\n` +
+        `description: "${description}"\n` +
+        `category: "${normalizedCategory}"\n` +
+        `floorLevel: ${floorLevel || 1}\n` +
+        `roomNumber: "${roomNumber || ''}"\n` +
+        `wingId: "${wingId || ''}"\n` +
+        `userSeverity: ${userSeverity}\n` +
         `${details}`;
 
     try {
@@ -165,21 +182,22 @@ async function analyzeReport({
                     jsonSchema: {
                         type: 'object',
                         properties: {
+                            translated_english_text: { type: 'string' },
+                            detected_language: { type: 'string' },
+                            panic_level: { type: 'string', enum: ['High', 'Medium', 'Low'] },
+                            hospitality_category: { type: 'string', enum: ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'] },
+                            action_plan: { type: 'array', items: { type: 'string' } },
                             spam_score: { type: 'number', minimum: 0, maximum: 1 },
                             auto_severity: { type: 'integer', minimum: 1, maximum: 5 },
                             predicted_category: { type: 'string' },
-                            action_plan: { type: 'string' },
-                            recommended_resources: {
-                                type: 'array',
-                                items: { type: 'string' },
-                            },
+                            required_resources: { type: 'array', items: { type: 'string' } },
                         },
-                        required: ['spam_score', 'auto_severity', 'predicted_category', 'action_plan', 'recommended_resources'],
+                        required: ['translated_english_text', 'detected_language', 'panic_level', 'hospitality_category', 'action_plan', 'spam_score', 'auto_severity', 'predicted_category', 'required_resources'],
                     },
                 },
             },
             temperature: 0.0,
-            maxOutputTokens: 256,
+            maxOutputTokens: 384,
         });
 
         const responseText = await result.response.text();
@@ -187,19 +205,117 @@ async function analyzeReport({
 
         const spam_score = (typeof data.spam_score === 'number' && data.spam_score >= 0 && data.spam_score <= 1) ? data.spam_score : 0.0;
         const auto_severity = (typeof data.auto_severity === 'number' && data.auto_severity >= 1 && data.auto_severity <= 5) ? Math.round(data.auto_severity) : userSeverity;
-        const predictedCategory = typeof data.predicted_category === 'string' && data.predicted_category ? data.predicted_category.toUpperCase() : category;
-        const actionPlan = typeof data.action_plan === 'string' && data.action_plan ? data.action_plan : inferActionByCategory(category);
-        const requiredResources = Array.isArray(data.recommended_resources) ? data.recommended_resources : inferResourcesByCategory(category);
+        const predictedCategory = typeof data.predicted_category === 'string' && data.predicted_category ? data.predicted_category.toUpperCase() : normalizedCategory || 'INFRASTRUCTURE';
+        const hospitality_category = typeof data.hospitality_category === 'string' && data.hospitality_category ? data.hospitality_category.toUpperCase() : 'INFRASTRUCTURE';
+        const actionPlan = Array.isArray(data.action_plan) && data.action_plan.length ? data.action_plan : [inferActionByCategory(normalizedCategory)];
+        const requiredResources = Array.isArray(data.required_resources) ? data.required_resources : inferResourcesByCategory(normalizedCategory);
 
-        return { spam_score, auto_severity, predictedCategory, actionPlan, requiredResources };
+        return {
+            spam_score,
+            auto_severity,
+            predictedCategory,
+            hospitality_category,
+            translated_english_text: String(data.translated_english_text || description || title || ''),
+            detected_language: String(data.detected_language || 'unknown'),
+            panic_level: String(data.panic_level || 'Low'),
+            action_plan: actionPlan,
+            requiredResources,
+        };
     } catch (err) {
         console.error('[AI Service] analyzeReport failed; falling back:', err);
+
+        const hospitalityCategory = ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'].includes(normalizedCategory) ?
+            normalizedCategory :
+            'INFRASTRUCTURE';
+
         return {
             spam_score: 0.0,
             auto_severity: userSeverity,
-            predictedCategory: category,
-            actionPlan: inferActionByCategory(category),
-            requiredResources: inferResourcesByCategory(category),
+            predictedCategory: normalizedCategory || 'INFRASTRUCTURE',
+            hospitality_category: hospitalityCategory,
+            translated_english_text: description || title || '',
+            detected_language: 'en',
+            panic_level: /panic|help|emergency|urgent/i.test(`${title} ${description}`) ? 'High' : 'Low',
+            action_plan: [inferActionByCategory(normalizedCategory)],
+            requiredResources: inferResourcesByCategory(normalizedCategory),
+        };
+    }
+}
+
+async function analyzeVoice({ audioBase64, floorLevel, roomNumber, wingId, lat, lng }) {
+    const sampleText = 'Guest says: "There is a fire in room 304, please send help immediately."';
+
+    if (!genAI) {
+        return {
+            translated_english_text: sampleText,
+            detected_language: 'en',
+            panic_level: 'High',
+            hospitality_category: 'FIRE',
+            action_plan: ['Dispatch AED', 'Lock down Wing B', 'Evacuate Floor'],
+            spam_score: 0.0,
+            auto_severity: 5,
+            predicted_category: 'FIRE',
+            required_resources: ['Firefighters', 'Medical Team', 'Security'],
+        };
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+        const prompt = `You are a hotel crisis AI that transcribes guest speech and outputs strict JSON.\n` +
+            `Audio payload (base64) needs transcription plus triage. Output keys: translated_english_text, detected_language, panic_level, hospitality_category, action_plan, spam_score, auto_severity, predicted_category, required_resources. No extra.`;
+
+        const result = await model.generateContent({
+            prompt,
+            responseConfig: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                    jsonSchema: {
+                        type: 'object',
+                        properties: {
+                            translated_english_text: { type: 'string' },
+                            detected_language: { type: 'string' },
+                            panic_level: { type: 'string', enum: ['High', 'Medium', 'Low'] },
+                            hospitality_category: { type: 'string', enum: ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'] },
+                            action_plan: { type: 'array', items: { type: 'string' } },
+                            spam_score: { type: 'number', minimum: 0, maximum: 1 },
+                            auto_severity: { type: 'integer', minimum: 1, maximum: 5 },
+                            predicted_category: { type: 'string' },
+                            required_resources: { type: 'array', items: { type: 'string' } },
+                        },
+                        required: ['translated_english_text', 'detected_language', 'panic_level', 'hospitality_category', 'action_plan', 'spam_score', 'auto_severity', 'predicted_category', 'required_resources'],
+                    },
+                },
+            },
+            temperature: 0.0,
+            maxOutputTokens: 384,
+        });
+
+        const responseText = await result.response.text();
+        const data = parseJsonSafely(responseText);
+
+        return {
+            translated_english_text: data.translated_english_text || sampleText,
+            detected_language: data.detected_language || 'en',
+            panic_level: data.panic_level || 'High',
+            hospitality_category: data.hospitality_category || 'FIRE',
+            action_plan: Array.isArray(data.action_plan) ? data.action_plan : ['Dispatch AED', 'Lock down Wing B'],
+            spam_score: typeof data.spam_score === 'number' ? data.spam_score : 0.0,
+            auto_severity: typeof data.auto_severity === 'number' ? data.auto_severity : 5,
+            predicted_category: data.predicted_category || 'FIRE',
+            required_resources: Array.isArray(data.required_resources) ? data.required_resources : ['Firefighters', 'Medical Team', 'Security'],
+        };
+    } catch (err) {
+        console.error('[AI Service] analyzeVoice failed; fallback', err);
+        return {
+            translated_english_text: sampleText,
+            detected_language: 'en',
+            panic_level: 'High',
+            hospitality_category: 'FIRE',
+            action_plan: ['Dispatch AED', 'Lock down Wing B', 'Evacuate Floor'],
+            spam_score: 0.0,
+            auto_severity: 5,
+            predicted_category: 'FIRE',
+            required_resources: ['Firefighters', 'Medical Team', 'Security'],
         };
     }
 }

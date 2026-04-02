@@ -13,7 +13,7 @@ function geometryToGeoJSON(geom) {
 /**
  * List incidents – optional bbox filtering
  */
-exports.list = async(bbox) => {
+exports.list = async({ bbox, wingId, floorLevel, roomNumber } = {}) => {
     let query = db('incidents')
         .select(
             'id',
@@ -22,6 +22,10 @@ exports.list = async(bbox) => {
             'severity',
             'category',
             'status',
+            'floor_level as floorLevel',
+            'room_number as roomNumber',
+            'wing_id as wingId',
+            'hospitality_category as hospitalityCategory',
             'spam_score',
             'auto_severity',
             'ai_action_plan as actionPlan',
@@ -29,6 +33,7 @@ exports.list = async(bbox) => {
             'media_type as mediaType',
             'media_base64 as mediaBase64',
             db.raw('ST_AsGeoJSON(location) as location'),
+            db.raw('ST_AsGeoJSON(indoor_location) as indoorLocation'),
             'reported_by as reportedBy',
             'created_at as createdAt',
             'updated_at as updatedAt'
@@ -41,10 +46,15 @@ exports.list = async(bbox) => {
         );
     }
 
+    if (wingId) query = query.where('wing_id', wingId);
+    if (typeof floorLevel !== 'undefined') query = query.where('floor_level', Number(floorLevel));
+    if (roomNumber) query = query.where('room_number', roomNumber);
+
     const rows = await query;
     return rows.map((r) => ({
         ...r,
         location: geometryToGeoJSON(r.location),
+        indoorLocation: geometryToGeoJSON(r.indoorLocation),
     }));
 };
 
@@ -60,7 +70,11 @@ exports.getById = async(id) => {
             'description',
             'severity',
             'category',
+            'hospitality_category as hospitalityCategory',
             'status',
+            'floor_level as floorLevel',
+            'room_number as roomNumber',
+            'wing_id as wingId',
             'spam_score',
             'auto_severity',
             'ai_action_plan as actionPlan',
@@ -68,6 +82,7 @@ exports.getById = async(id) => {
             'media_type as mediaType',
             'media_base64 as mediaBase64',
             db.raw('ST_AsGeoJSON(location) as location'),
+            db.raw('ST_AsGeoJSON(indoor_location) as indoorLocation'),
             'reported_by as reportedBy',
             'created_at as createdAt',
             'updated_at as updatedAt'
@@ -90,10 +105,19 @@ exports.create = async({
     category,
     lat,
     lng,
+    floorLevel,
+    roomNumber,
+    wingId,
+    indoorLocation,
     reportedBy,
     mediaType,
     mediaBase64,
 }) => {
+    // enforce indoor context data
+    const validatedFloor = Number.isInteger(Number(floorLevel)) ? Number(floorLevel) : 1;
+    const validatedRoom = roomNumber ? String(roomNumber) : 'unknown';
+    const validatedWing = wingId ? String(wingId) : 'unknown';
+
     // -------------------------------------------------
     // 1️⃣  Call the AI verification + recommendation service
     // -------------------------------------------------
@@ -103,6 +127,7 @@ exports.create = async({
         actionPlan,
         requiredResources,
         predictedCategory,
+        hospitality_category,
     } = await AIService.analyzeReport({
         title,
         description,
@@ -110,10 +135,13 @@ exports.create = async({
         userSeverity: severity,
         mediaType,
         mediaBase64,
+        floorLevel: validatedFloor,
+        roomNumber: validatedRoom,
+        wingId: validatedWing,
     });
 
-    // If AI gives a better category, accept it (optional)
     const finalCategory = predictedCategory || category;
+    const finalHospitalityCategory = hospitality_category || (category ? category.toUpperCase() : 'INFRASTRUCTURE');
 
     // -------------------------------------------------
     // 2️⃣ Determine final status and severity
@@ -122,23 +150,23 @@ exports.create = async({
     let status = 'OPEN';
 
     if (spam_score > 0.8) {
-        // Mark as rejected – do NOT store in the DB as a normal incident
         status = 'REJECTED';
-        // For a rejected incident we keep the original severity (or set to 0)
         finalSeverity = severity;
     } else {
-        // If the AI suggested a higher severity, respect it
         if (auto_severity && auto_severity > severity) {
             finalSeverity = auto_severity;
         }
     }
 
     // -------------------------------------------------
-    // 3️⃣ Persist (unless status is REJECTED – we still store for audit)
+    // 3️⃣ Persist
     // -------------------------------------------------
     const location = db.raw(
         `ST_SetSRID(ST_MakePoint(?, ?), 4326)::geometry`, [lng, lat]
     );
+    const indoor = indoorLocation ?
+        db.raw(`ST_SetSRID(ST_MakePoint(?, ?), 4326)::geometry`, [indoorLocation.lng, indoorLocation.lat]) :
+        location;
 
     const [incident] = await db('incidents')
         .insert({
@@ -146,7 +174,12 @@ exports.create = async({
             description,
             severity: finalSeverity,
             category: finalCategory,
+            hospitality_category: finalHospitalityCategory,
+            floor_level: validatedFloor,
+            room_number: validatedRoom,
+            wing_id: validatedWing,
             location,
+            indoor_location: indoor,
             reported_by: reportedBy,
             status,
             spam_score,
@@ -159,12 +192,35 @@ exports.create = async({
         .returning('*');
 
     // -------------------------------------------------
-    // 4️⃣ Publish to Redis (the WS and alert listeners will receive it)
+    // 4️⃣ Publish to Redis (global and role-selected)
     // -------------------------------------------------
     await SocketService.publish('incidents', {
         type: 'created',
         incident,
     });
+
+    const roleChannels = [];
+    switch (finalHospitalityCategory) {
+        case 'FIRE':
+            roleChannels.push('staff_fire', 'staff_medical', 'staff_infrastructure');
+            break;
+        case 'MEDICAL':
+            roleChannels.push('staff_medical');
+            break;
+        case 'SECURITY':
+        case 'INTRUDER':
+            roleChannels.push('staff_security');
+            break;
+        default:
+            roleChannels.push('staff_general');
+    }
+
+    for (const ch of roleChannels) {
+        await SocketService.publish(ch, {
+            type: 'created',
+            incident,
+        });
+    }
 
     return incident;
 };
@@ -174,6 +230,31 @@ exports.create = async({
  */
 exports.analyze = async({ title, description, category, userSeverity, mediaType, mediaBase64 }) => {
     return AIService.analyzeReport({ title, description, category, userSeverity, mediaType, mediaBase64 });
+};
+
+exports.analyzeVoice = async({ audioBase64, floorLevel, roomNumber, wingId, lat, lng, reportedBy }) => {
+    // Requires ai service to transcribe and materialize text
+    const analysis = await AIService.analyzeVoice({ audioBase64, floorLevel, roomNumber, wingId, lat, lng });
+
+    const incident = await exports.create({
+        title: analysis.translated_english_text ? `Voice report: ${analysis.hospitality_category}` : 'Voice Incident',
+        description: analysis.translated_english_text || '',
+        severity: analysis.auto_severity || 3,
+        category: analysis.hospitality_category || 'INFRASTRUCTURE',
+        lat,
+        lng,
+        floorLevel,
+        roomNumber,
+        wingId,
+        mediaType: 'audio/base64',
+        mediaBase64: audioBase64,
+        reportedBy,
+    });
+
+    return {
+        analysis,
+        incident,
+    };
 };
 
 /**

@@ -9,6 +9,7 @@ router.get('/:id', incidentsController.getOne);
 
 // Protected write endpoints (JWT required)
 router.post('/analyze', jwtAuth, incidentsController.analyze);
+router.post('/voice', jwtAuth, incidentsController.createFromVoice);
 router.post('/', jwtAuth, incidentsController.create);
 router.patch('/:id/status', jwtAuth, incidentsController.updateStatus);
 

@@ -27,11 +27,19 @@ exports.up = async function(knex) {
             .specificType('location', 'GEOMETRY(Point,4326)')
             .notNullable()
             .index('incidents_location_idx', null, 'GIST');
+        table.integer('floor_level').notNullable().defaultTo(1);
+        table.string('room_number').notNullable().defaultTo('unknown');
+        table.string('wing_id').notNullable().defaultTo('unknown');
+        table
+            .specificType('indoor_location', 'GEOMETRY(Point,4326)')
+            .notNullable()
+            .index('incidents_indoor_location_idx', null, 'GIST');
         table.uuid('reported_by').references('id').inTable('users');
         table.float('spam_score').defaultTo(0.0);
         table.integer('auto_severity').defaultTo(1);
         table.text('ai_action_plan');
         table.jsonb('ai_required_resources');
+        table.string('hospitality_category');
         table.string('media_type');
         table.text('media_base64');
         table

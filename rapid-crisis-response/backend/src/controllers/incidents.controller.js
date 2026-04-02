@@ -2,8 +2,8 @@
 const IncidentService = require('../services/incident.service');
 
 exports.getAll = async(req, res) => {
-    const { bbox } = req.query;
-    const incidents = await IncidentService.list(bbox);
+    const { bbox, wingId, floorLevel, roomNumber } = req.query;
+    const incidents = await IncidentService.list({ bbox, wingId, floorLevel, roomNumber });
     res.json(incidents);
 };
 
@@ -21,11 +21,14 @@ exports.create = async(req, res) => {
         category,
         lat,
         lng,
+        floorLevel,
+        roomNumber,
+        wingId,
         mediaType,
         mediaBase64,
     } = req.body;
 
-    const reporterId = req.user.sub; // JWT auth middleware ensured this exists
+    const reporterId = req.user.sub;
 
     const incident = await IncidentService.create({
         title,
@@ -34,6 +37,9 @@ exports.create = async(req, res) => {
         category,
         lat,
         lng,
+        floorLevel,
+        roomNumber,
+        wingId,
         mediaType,
         mediaBase64,
         reportedBy: reporterId,
@@ -64,6 +70,31 @@ exports.analyze = async(req, res) => {
     });
 
     res.json(analysis);
+};
+
+exports.createFromVoice = async(req, res) => {
+    try {
+        const { audioBase64, lat, lng, floorLevel, roomNumber, wingId, reportedBy } = req.body;
+
+        if (!audioBase64) {
+            return res.status(400).json({ error: 'audioBase64 is required' });
+        }
+
+        const analysis = await IncidentService.analyzeVoice({
+            audioBase64,
+            floorLevel,
+            roomNumber,
+            wingId,
+            lat,
+            lng,
+            reportedBy: req.user ? req.user.sub : 'anonymous',
+        });
+
+        res.status(201).json(analysis);
+    } catch (err) {
+        console.error('[IncidentsController] createFromVoice failed:', err);
+        res.status(500).json({ error: 'Voice incident creation failed.' });
+    }
 };
 
 exports.updateStatus = async(req, res) => {
