@@ -21,6 +21,12 @@ module.exports = {
     // ------------------- Gemini AI -------------------
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 
+    // ------------------- CORS ------------------------
+    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || '')
+        .split(',')
+        .map((u) => u.trim())
+        .filter(Boolean),
+
     // ------------------- Twilio ----------------------
     TWILIO: {
         accountSid: process.env.TWILIO_ACCOUNT_SID,

@@ -11,8 +11,12 @@ const redisClient = new Redis({
 });
 
 function initSocket(httpServer) {
+    const { ALLOWED_ORIGINS } = require('../config/env');
+
+    const corsOrigin = ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS : '*';
+
     const io = new Server(httpServer, {
-        cors: { origin: '*', methods: ['GET', 'POST'] },
+        cors: { origin: corsOrigin, methods: ['GET', 'POST'] },
         path: '/crisis',
     });
 

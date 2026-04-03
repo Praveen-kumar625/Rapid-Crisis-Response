@@ -8,7 +8,22 @@ const incidentRoutes = require('./routes/incidents.routes');
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+const { ALLOWED_ORIGINS } = require('./config/env');
+
+app.use(
+    cors({
+        origin: function(origin, callback) {
+            if (!origin || ALLOWED_ORIGINS.length === 0) {
+                return callback(null, true);
+            }
+            if (ALLOWED_ORIGINS.includes(origin)) {
+                return callback(null, true);
+            }
+            return callback(new Error('CORS policy does not allow this origin.'), false);
+        },
+        credentials: true,
+    })
+);
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
