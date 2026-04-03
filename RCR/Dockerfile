@@ -1,25 +1,20 @@
-# Dockerfile for Rapid Crisis Response Monorepo (Backend)
+# Simple Dockerfile for RCR Backend (skip monorepo complexity)
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy root package files (monorepo with workspaces)
-COPY package*.json ./
+# Copy only backend folder
+COPY backend/package*.json ./
 
-# Copy backend and frontend package files (for workspace resolution)
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
+# Install backend dependencies only
+RUN npm ci --only=production
 
-# Install all dependencies (including both workspaces)
-RUN npm install --production
+# Copy backend source
+COPY backend/src ./src
+COPY backend/knexfile.js ./
 
-# Copy backend source code
-COPY backend/src ./backend/src
-COPY backend/knexfile.js ./backend/
-COPY backend/.env ./backend/
-
-# Expose backend port
+# Expose port
 EXPOSE 5000
 
-# Start backend from workspace
-CMD ["npm", "--workspace=backend", "start"]
+# Start backend directly
+CMD ["node", "src/index.js"]
