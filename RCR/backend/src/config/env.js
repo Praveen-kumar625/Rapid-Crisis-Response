@@ -2,7 +2,7 @@
 require('dotenv').config();
 
 module.exports = {
-    PORT: process.env.PORT_API || 3001,
+    PORT: process.env.PORT || process.env.PORT_API || 3001,
     DB: {
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT),
@@ -11,8 +11,8 @@ module.exports = {
         password: process.env.DB_PASS,
     },
     REDIS: {
-        host: process.env.REDIS_HOST,
-        port: Number(process.env.REDIS_PORT),
+        host: process.env.REDIS_HOST || process.env.REDISHOST || 'localhost',
+        port: Number(process.env.REDIS_PORT || process.env.REDISPORT || 6379),
     },
     AUTH0: {
         domain: process.env.AUTH0_DOMAIN,

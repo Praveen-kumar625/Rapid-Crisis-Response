@@ -1,20 +1,29 @@
-# Simple Dockerfile for RCR Backend (skip monorepo complexity)
+# Workspace-aware Dockerfile for RCR Backend
+# Assumes build context is the 'RCR' directory
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/RCR
 
-# Copy backend package files
-COPY backend/package.json backend/package-lock.json ./
+# 1. Copy root workspace files
+COPY package*.json ./
 
-# Install backend dependencies (reproducible)
-RUN npm ci --only=production
+# 2. Copy workspace package files
+COPY backend/package*.json ./backend/
+COPY frontend/package*.json ./frontend/
 
-# Copy backend project files
-COPY backend/ ./
+# 3. Install production dependencies for backend
+RUN npm ci -w backend --omit=dev
 
-# Ensure we are using production .env from Render env vars (do not commit secrets)
-# Expose port
+# 4. Copy backend source
+COPY backend/ ./backend/
+
+# Set environment
+ENV NODE_ENV=production
 EXPOSE 5000
 
-# Start backend
-CMD ["npm", "--prefix", "./", "start"]
+# Use non-root user
+USER node
+
+# Start from backend directory
+WORKDIR /app/RCR/backend
+CMD ["npm", "start"]
