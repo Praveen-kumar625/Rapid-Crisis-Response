@@ -12,7 +12,7 @@ COPY backend/package*.json ./backend/
 COPY frontend/package*.json ./frontend/
 
 # 3. Install production dependencies for backend
-RUN npm ci -w backend --omit=dev
+RUN npm install -w backend --omit=dev --no-audit --no-fund
 
 # 4. Copy backend source
 COPY backend/ ./backend/
