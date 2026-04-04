@@ -1,0 +1,11 @@
+{
+  "name": "rcr-monorepo-root",
+  "private": true,
+  "workspaces": [
+    "RCR/backend",
+    "RCR/frontend"
+  ],
+  "scripts": {
+    "build:web": "npm run build --workspace=RCR/frontend"
+  }
+}
