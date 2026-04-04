@@ -1,34 +1,26 @@
-# Final Robust Production Dockerfile for RCR Backend
+# Proxy Dockerfile for Root Deployment (Railway/Render)
 FROM node:18-alpine
 
 WORKDIR /app
 
-# 1. Copy workspace root package files
-# We expect the build context to be the absolute root of the repository.
+# Copy root and workspace package files
 COPY RCR/package*.json ./
-
-# 2. Copy workspace definitions
-# npm workspaces need the sub-package files to calculate dependencies correctly.
 COPY RCR/backend/package*.json ./backend/
 COPY RCR/frontend/package*.json ./frontend/
 
-# 3. Install production dependencies for the backend workspace
-# We use npm install instead of ci because sub-directories lack their own lockfiles.
-RUN npm install -w backend --omit=dev --no-audit --no-fund
+# Install only backend dependencies from workspace
+RUN npm install -w RCR/backend --omit=dev --no-audit --no-fund
 
-# 4. Copy the backend source code
+# Copy backend source
 COPY RCR/backend/ ./backend/
 
-# Set environment variables
+# Set environment
 ENV NODE_ENV=production
-# Cloud providers (Railway/Render) will set the PORT environment variable.
 EXPOSE 5000
 
 # Use non-root user
 USER node
 
-# Start the application from the backend directory
+# Start from backend directory
 WORKDIR /app/backend
-
-# Run migrations and then start the API
 CMD ["sh", "-c", "npx knex migrate:latest && npm start"]

@@ -6,7 +6,7 @@ on:
 
 jobs:
   # -----------------------------------------------------------------
-  # 1. Backend & Frontend Tests (Run in parallel)
+  # 1. Backend & Frontend Tests
   # -----------------------------------------------------------------
   test-backend:
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
       - name: Build & Push API
         uses: docker/build-push-action@v5
         with:
-          context: ./RCR # 🚀 FIXED: Build directly from RCR folder
+          context: ./RCR
           file: ./RCR/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/rcr-api:latest
@@ -71,22 +71,3 @@ jobs:
           file: ./RCR/Dockerfile.worker
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/rcr-worker:latest
-
-  # -----------------------------------------------------------------
-  # 3. Vercel Deployment (Optional/Bypass)
-  # -----------------------------------------------------------------
-  # NOTE: If Vercel is already linked to your GitHub, it will auto-deploy.
-  # We keep this only if you want a specific CI-driven deployment.
-  deploy-vercel:
-    needs: [test-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: RCR
