@@ -3,23 +3,27 @@ require('dotenv').config();
 // Determine if we should use SSL (required for Railway/Render/AWS)
 const isProduction = process.env.NODE_ENV === 'production' || !!process.env.DATABASE_URL;
 
-// Debugging helper (logs to container stdout)
-if (process.env.DATABASE_URL) {
-    console.log('[Knex] Using DATABASE_URL for connection');
-} else if (process.env.PGHOST || process.env.DB_HOST) {
-    console.log('[Knex] Using individual PG variables for connection');
+// Deep Environment Variable Check
+const dbUrl = process.env.DATABASE_URL;
+const pgHost = process.env.PGHOST || process.env.DB_HOST;
+
+if (dbUrl) {
+    console.log('[Knex] ✅ Found DATABASE_URL. Connection secured.');
+} else if (pgHost) {
+    console.log('[Knex] ⚠️ DATABASE_URL missing, using individual PG variables.');
 } else {
-    console.warn('[Knex] No database environment variables found, falling back to 127.0.0.1');
+    console.error('[Knex] ❌ CRITICAL: No database environment variables found!');
+    console.log('[Knex] Fallback to 127.0.0.1 (This will likely fail in production)');
 }
 
-const connection = process.env.DATABASE_URL 
-    ? { connectionString: process.env.DATABASE_URL }
+const connection = dbUrl 
+    ? { connectionString: dbUrl }
     : {
-        host: process.env.DB_HOST || process.env.PGHOST || '127.0.0.1',
-        port: Number(process.env.DB_PORT || process.env.PGPORT || 5432),
-        database: process.env.DB_NAME || process.env.PGDATABASE,
-        user: process.env.DB_USER || process.env.PGUSER,
-        password: process.env.DB_PASS || process.env.PGPASSWORD,
+        host: pgHost || '127.0.0.1',
+        port: Number(process.env.PGPORT || process.env.DB_PORT || 5432),
+        database: process.env.PGDATABASE || process.env.DB_NAME,
+        user: process.env.PGUSER || process.env.DB_USER,
+        password: process.env.PGPASSWORD || process.env.DB_PASS,
     };
 
 // Inject SSL configuration if in production environment
@@ -33,8 +37,8 @@ module.exports = {
     pool: {
         min: 2,
         max: 10,
-        // Wait for connection to be available (Railway DB might be waking up)
-        acquireTimeoutMillis: 30000,
+        acquireTimeoutMillis: 60000, // Increased to 60s for slow DB wakeups
+        idleTimeoutMillis: 30000,
     },
     migrations: {
         directory: __dirname + '/src/migrations',
