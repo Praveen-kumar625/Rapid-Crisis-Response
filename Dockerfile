@@ -9,7 +9,8 @@ COPY RCR/backend/package*.json ./backend/
 COPY RCR/frontend/package*.json ./frontend/
 
 # Install only backend dependencies from workspace
-RUN npm install -w RCR/backend --omit=dev --no-audit --no-fund
+# 🚀 FIX: Workspace name is "backend", not the path "RCR/backend"
+RUN npm install -w backend --omit=dev --no-audit --no-fund
 
 # Copy backend source
 COPY RCR/backend/ ./backend/
@@ -23,4 +24,6 @@ USER node
 
 # Start from backend directory
 WORKDIR /app/backend
-CMD ["sh", "-c", "npx knex migrate:latest && npm start"]
+
+# 🚀 FIX: Use npm run migrate instead of npx for consistency
+CMD ["sh", "-c", "npm run migrate && npm start"]
