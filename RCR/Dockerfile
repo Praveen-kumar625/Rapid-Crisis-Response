@@ -1,20 +1,17 @@
-# Workspace-aware Dockerfile for RCR Backend
-# Assumes build context is the 'RCR' directory
+# Robust Workspace-aware Dockerfile for Backend
 FROM node:18-alpine
 
-WORKDIR /app/RCR
+WORKDIR /app
 
-# 1. Copy root workspace files
+# 1. Copy package files
 COPY package*.json ./
-
-# 2. Copy workspace package files
 COPY backend/package*.json ./backend/
 COPY frontend/package*.json ./frontend/
 
-# 3. Install production dependencies for backend
+# 2. Install production dependencies for the backend workspace
 RUN npm install -w backend --omit=dev --no-audit --no-fund
 
-# 4. Copy backend source
+# 3. Copy the rest of the backend source
 COPY backend/ ./backend/
 
 # Set environment
@@ -25,5 +22,7 @@ EXPOSE 5000
 USER node
 
 # Start from backend directory
-WORKDIR /app/RCR/backend
-CMD ["npm", "start"]
+WORKDIR /app/backend
+
+# 🚨 AUTO-MIGRATE: Ensure database is ready before starting the API
+CMD ["sh", "-c", "npm run migrate && npm start"]
