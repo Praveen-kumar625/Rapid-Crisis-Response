@@ -36,7 +36,7 @@ export const Navbar = ({ user, login }) => {
                     <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-danger to-red-900 rounded-xl border border-danger/30 shadow-danger group-hover:shadow-[0_0_30px_rgba(255,51,102,0.5)] transition-all duration-500">
                         <Shield className="text-white w-5 h-5" />
                     </div>
-                    <div className="hidden lg:flex flex-col">
+                    <div className="hidden md:flex flex-col">
                         <h1 className="text-lg font-bold tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
                             Rapid <span className="text-danger font-black">Crisis</span> Response
                         </h1>

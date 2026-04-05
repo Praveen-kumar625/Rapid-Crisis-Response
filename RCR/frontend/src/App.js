@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { auth, googleProvider } from './firebase';
 import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import toast, { Toaster } from 'react-hot-toast';
-import Home from './pages/Home';
-import MapPage from './pages/MapPage';
-import Dashboard from './pages/Dashboard';
-import ReportPage from './pages/ReportPage';
 import { joinHotelRoom } from './socket';
 import api from './api';
 import { AppLayout } from './components/layout/AppLayout';
+
+// Lazy loaded pages
+const Home = lazy(() => import('./pages/Home'));
+const MapPage = lazy(() => import('./pages/MapPage'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ReportPage = lazy(() => import('./pages/ReportPage'));
+
+const PageLoader = () => (
+    <div className="flex-1 flex items-center justify-center bg-navy-950">
+        <div className="w-12 h-12 border-4 border-electric/20 border-t-electric rounded-full animate-spin"></div>
+    </div>
+);
 
 function App() {
     const [user, setUser] = useState(null);
@@ -54,12 +62,14 @@ function App() {
             />
             
             <AppLayout user={user} login={login}>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/map" element={<MapPage />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/report" element={<ReportPage />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/map" element={<MapPage />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/report" element={<ReportPage />} />
+                    </Routes>
+                </Suspense>
             </AppLayout>
         </Router>
     );

@@ -9,13 +9,13 @@ if (!admin.apps.length) {
 }
 
 async function jwtAuth(req, res, next) {
-    // ------------------- Demo Mode -------------------
-    if (process.env.DEMO_MODE === 'true') {
+    // ------------------- Demo Mode (Guard Protected) -------------------
+    if (process.env.DEMO_MODE === 'true' && process.env.NODE_ENV !== 'production') {
         const demoUser = await db('users').first();
         req.user = { 
             sub: demoUser?.id || 'demo-admin-1', 
             email: demoUser?.email || 'demo@google.com',
-            role: demoUser?.role || 'ADMIN',
+            role: 'ADMIN',
             hotelId: demoUser?.hotel_id || null
         };
         return next();

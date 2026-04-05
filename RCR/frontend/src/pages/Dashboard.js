@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { getSocket } from '../socket';
 import {
-    BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area
+    PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { ShieldAlert, Activity, AlertTriangle, CheckCircle2, Clock, Zap, Target, TrendingUp } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Clock, Zap, Target, TrendingUp } from 'lucide-react';
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Card } from '../components/ui/Card';

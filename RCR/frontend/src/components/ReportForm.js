@@ -258,7 +258,7 @@ function ReportForm() {
 
     return (
         <Card className="w-full overflow-hidden shadow-2xl">
-            <div className="bg-white/[0.02] p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="bg-white/[0.02] p-6 sm:p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
                     <h3 className="text-xl font-bold uppercase tracking-widest text-white">Incident Manifest</h3>
                     <p className="text-electric text-[9px] font-mono tracking-[0.2em] mt-1 uppercase">Node: {position.lat.toFixed(2)}, {position.lng.toFixed(2)}</p>
@@ -268,7 +268,7 @@ function ReportForm() {
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-10">
+            <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-10">
                 
                 {/* EMERGENCY CONTROLS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

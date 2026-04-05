@@ -5,11 +5,6 @@
  */
 
 exports.up = async function(knex) {
-    // 0. Clean up existing tables to prevent "Already Exists" errors during initial deployment fixes
-    await knex.schema.dropTableIfExists('incidents');
-    await knex.schema.dropTableIfExists('users');
-    await knex.schema.dropTableIfExists('hotels');
-
     // 1. Create Hotels Table (Multi-tenancy root)
     await knex.schema.createTable('hotels', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
@@ -59,9 +54,9 @@ exports.up = async function(knex) {
         table.string('hospitality_category').defaultTo('INFRASTRUCTURE');
         table.string('triage_method').defaultTo('Cloud AI (Gemini)');
         
-        // Media
+        // Media (Refactored: store URLs, not raw base64 for DB scalability)
         table.string('media_type');
-        table.text('media_base64');
+        table.string('media_url');
         
         // Status
         table.enu('status', ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED']).defaultTo('OPEN');

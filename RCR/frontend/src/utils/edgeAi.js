@@ -4,18 +4,18 @@
  */
 
 const CATEGORY_KEYWORDS = {
-    FIRE: ['fire', 'smoke', 'burning', 'explosion', 'flame', 'spark'],
-    MEDICAL: ['hurt', 'blood', 'bleeding', 'unconscious', 'faint', 'pain', 'breathing', 'heart', 'injury'],
-    SECURITY: ['intruder', 'gun', 'weapon', 'fight', 'theft', 'stolen', 'broken', 'suspicious'],
-    INFRASTRUCTURE: ['leak', 'water', 'pipe', 'electric', 'power', 'elevator', 'lift', 'ac', 'hvac']
+    FIRE: ['fire', 'smoke', 'burning', 'explosion', 'flame', 'spark', 'gas leak'],
+    MEDICAL: ['hurt', 'blood', 'bleeding', 'unconscious', 'faint', 'pain', 'breathing', 'heart', 'injury', 'attack', 'stroke'],
+    SECURITY: ['intruder', 'gun', 'weapon', 'fight', 'theft', 'stolen', 'broken', 'suspicious', 'threat', 'assault'],
+    INFRASTRUCTURE: ['leak', 'water', 'pipe', 'electric', 'power', 'elevator', 'lift', 'ac', 'hvac', 'structural', 'collapse']
 };
 
 const SEVERITY_KEYWORDS = {
-    5: ['trapped', 'explosion', 'unconscious', 'active', 'immediate', 'dying', 'cannot breathe'],
-    4: ['bleeding', 'large', 'major', 'urgent', 'danger'],
-    3: ['pain', 'stolen', 'broken', 'leak', 'issue'],
-    2: ['slow', 'small', 'minor', 'checking'],
-    1: ['test', 'check', 'normal']
+    5: ['trapped', 'explosion', 'unconscious', 'active', 'immediate', 'dying', 'cannot breathe', 'weapon', 'gun', 'fire'],
+    4: ['bleeding', 'large', 'major', 'urgent', 'danger', 'broken', 'stroke', 'attack'],
+    3: ['pain', 'stolen', 'leak', 'issue', 'malfunction'],
+    2: ['slow', 'small', 'minor', 'checking', 'maintenance'],
+    1: ['test', 'check', 'normal', 'drill']
 };
 
 export function localAnalyze(title, description) {
@@ -43,15 +43,20 @@ export function localAnalyze(title, description) {
         }
     }
 
-    // Heuristic boost: Fire/Security with major keywords gets a boost
-    if ((predictedCategory === 'FIRE' || predictedCategory === 'SECURITY') && text.includes('help')) {
+    // Heuristic boost: High-risk categories with emergency markers
+    const emergencyMarkers = ['help', 'sos', 'emergency', 'now', 'quick', 'fast'];
+    if (emergencyMarkers.some(m => text.includes(m))) {
         autoSeverity = Math.min(5, autoSeverity + 1);
+    }
+
+    if ((predictedCategory === 'FIRE' || predictedCategory === 'MEDICAL') && autoSeverity < 4) {
+        autoSeverity = 4; // Floor for critical categories
     }
 
     return {
         category: predictedCategory,
         severity: autoSeverity,
         isLocal: true,
-        triageMethod: 'Edge AI (Offline)'
+        triageMethod: 'Edge AI (Heuristic V2)'
     };
 }

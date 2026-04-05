@@ -1,0 +1,18 @@
+const { z } = require('zod');
+
+const incidentSchema = z.object({
+    title: z.string().min(5).max(100),
+    description: z.string().max(1000).optional(),
+    severity: z.number().int().min(1).max(5),
+    category: z.enum(['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE']),
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    floorLevel: z.number().int().default(1),
+    roomNumber: z.string().min(1),
+    wingId: z.string().min(1),
+    mediaType: z.string().optional(),
+    mediaBase64: z.string().optional(), // In production, this would be a multipart/form-data or S3 URL
+    triageMethod: z.string().optional(),
+});
+
+module.exports = { incidentSchema };

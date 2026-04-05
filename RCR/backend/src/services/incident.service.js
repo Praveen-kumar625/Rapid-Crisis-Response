@@ -13,7 +13,7 @@ exports.list = async({ bbox, wingId, floorLevel, roomNumber, hotelId } = {}) => 
             'floor_level as floorLevel', 'room_number as roomNumber', 'wing_id as wingId',
             'hospitality_category as hospitalityCategory', 'spam_score', 'auto_severity',
             'triage_method as triageMethod', 'ai_action_plan as actionPlan',
-            'ai_required_resources as requiredResources', 'media_type as mediaType', 'media_base64 as mediaBase64',
+            'ai_required_resources as requiredResources', 'media_type as mediaType', 'media_url as mediaUrl',
             'lat', 'lng', 'indoor_lat as indoorLat', 'indoor_lng as indoorLng',
             'reported_by as reportedBy', 'hotel_id as hotelId',
             'created_at as createdAt', 'updated_at as updatedAt'
@@ -55,6 +55,9 @@ exports.create = async({
 
     const { spam_score = 0, auto_severity = severity, hospitality_category } = analysis;
 
+    // TODO: Integrate with S3/GCS here. For now, we simulate a URL storage.
+    const mediaUrl = mediaBase64 ? `https://storage.rcr-platform.com/incidents/${Date.now()}.bin` : null;
+
     let finalSeverity = severity;
     let status = 'OPEN';
     if (spam_score > 0.8) status = 'REJECTED';
@@ -79,7 +82,7 @@ exports.create = async({
             ai_action_plan: analysis.actionPlan,
             ai_required_resources: analysis.requiredResources || [],
             media_type: mediaType,
-            media_base64: mediaBase64
+            media_url: mediaUrl
         })
         .returning('*');
 

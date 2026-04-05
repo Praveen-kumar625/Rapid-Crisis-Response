@@ -55,7 +55,7 @@ function Home() {
 
                     <motion.h1 
                         variants={fadeInUp}
-                        className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.95] mb-8 lg:mb-12"
+                        className="text-4xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.95] mb-8 lg:mb-12"
                     >
                         <span className="block text-white">THE GOLDEN</span>
                         <span className="block text-gradient-danger drop-shadow-[0_0_40px_rgba(255,51,102,0.4)]">
