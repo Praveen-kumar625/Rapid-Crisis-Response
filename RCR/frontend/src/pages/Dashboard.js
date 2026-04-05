@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { getSocket } from '../socket';
 import {
@@ -48,6 +49,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 function Dashboard() {
+    const navigate = useNavigate();
     const [incidents, setIncidents] = useState([]);
     const [stats, setStats] = useState({ categoryData: [], severityData: [], timelineData: [] });
     const [pulses, setPulses] = useState({});
@@ -101,7 +103,7 @@ function Dashboard() {
                                 </Badge>
                             </div>
                             <h2 className="text-4xl lg:text-5xl font-black uppercase tracking-tight">Intelligence <span className="text-electric">Terminal</span></h2>
-                            <p className="text-slate-500 font-mono text-[10px] tracking-[0.3em] uppercase mt-3">Node: DC-EAST-01 // Auth: Administrator</p>
+                            <p className="text-slate-500 font-mono text-[10px] tracking-[0.3em] uppercase mt-3">Node: DC-EAST-01 {'//'} Auth: Administrator</p>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -214,7 +216,7 @@ function Dashboard() {
                             </div>
                             <div className="flex items-center gap-2 px-4 py-2 bg-emerald/10 border border-emerald/20 rounded-full">
                                 <span className="w-2 h-2 rounded-full bg-emerald animate-pulse"></span>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-emerald">System Secure // All Nodes Active</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-emerald">System Secure {'//'} All Nodes Active</span>
                             </div>
                         </div>
 
@@ -234,7 +236,7 @@ function Dashboard() {
                                         <tr 
                                             key={inc.id} 
                                             className="hover:bg-white/[0.03] transition-all group cursor-pointer"
-                                            onClick={() => window.location.href = `/incidents/${inc.id}`}
+                                            onClick={() => navigate(`/incidents/${inc.id}`)}
                                         >
                                             <td className="px-8 py-6">
                                                 <Badge 
@@ -284,7 +286,7 @@ function Dashboard() {
                                     </div>
                                     <h4 className="text-sm font-bold text-white uppercase tracking-tight mb-2">{inc.title}</h4>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Wing {inc.wingId} // L{inc.floorLevel}</span>
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Wing {inc.wingId} {'//'} L{inc.floorLevel}</span>
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${inc.severity >= 4 ? 'text-danger' : 'text-slate-400'}`}>Lvl {inc.severity}</span>
                                     </div>
                                 </Link>

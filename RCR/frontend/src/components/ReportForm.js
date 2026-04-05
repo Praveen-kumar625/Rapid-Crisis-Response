@@ -406,7 +406,7 @@ function ReportForm() {
                             <Camera size={28} className="text-slate-500 group-hover:text-electric transition-colors" />
                         </div>
                         <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-300">Attach Visual Evidence</span>
-                        <span className="text-[10px] text-slate-500 mt-2 font-mono">JPG, PNG, MP4 // Max 20MB</span>
+                        <span className="text-[10px] text-slate-500 mt-2 font-mono">JPG, PNG, MP4 {'//'} Max 20MB</span>
                     </div>
                     
                     {mediaPreview && (
