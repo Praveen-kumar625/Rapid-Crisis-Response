@@ -20,6 +20,7 @@ import { Section } from '../components/layout/Section';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { Skeleton } from '../components/ui/Skeleton';
 import toast from 'react-hot-toast';
 
 function IncidentDetail() {
@@ -77,11 +78,38 @@ function IncidentDetail() {
     };
 
     if (loading) return (
-        <div className="flex-1 flex items-center justify-center bg-navy-950">
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-electric/20 border-t-electric rounded-full animate-spin"></div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Decrypting Intel...</p>
-            </div>
+        <div className="flex-1 w-full bg-navy-950 pb-24 pt-8 lg:pt-12">
+            <Container>
+                <div className="flex items-center gap-2 mb-10">
+                    <Skeleton className="h-3 w-4" />
+                    <Skeleton className="h-3 w-32" />
+                </div>
+                
+                <Card className="p-8 lg:p-12 mb-8">
+                    <div className="flex gap-3 mb-8">
+                        <Skeleton className="h-6 w-28" />
+                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-24" />
+                    </div>
+                    <Skeleton className="h-12 lg:h-16 w-3/4 mb-8" />
+                    <div className="space-y-3">
+                        <Skeleton className="h-4 w-full opacity-50" />
+                        <Skeleton className="h-4 w-5/6 opacity-30" />
+                    </div>
+                </Card>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-8">
+                        <Skeleton className="h-[400px] w-full" />
+                        <Skeleton className="h-[300px] w-full opacity-50" />
+                    </div>
+                    <div className="space-y-8">
+                        <Skeleton className="h-64 w-full" />
+                        <Skeleton className="h-48 w-full opacity-50" />
+                        <Skeleton className="h-40 w-full opacity-30" />
+                    </div>
+                </div>
+            </Container>
         </div>
     );
 
@@ -111,7 +139,7 @@ function IncidentDetail() {
                     </Link>
 
                     {/* Incident Header Card */}
-                    <Card className="p-8 lg:p-12 mb-8 border-t-4 border-t-danger relative overflow-hidden">
+                    <Card className="p-8 lg:p-12 mb-8 border-t-4 border-t-danger relative overflow-hidden" glowing={isCritical}>
                         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
                             <ShieldAlert size={200} strokeWidth={1} />
                         </div>
@@ -123,7 +151,7 @@ function IncidentDetail() {
                                         {isCritical && <span className="w-2 h-2 rounded-full bg-danger animate-pulse"></span>}
                                         Priority Level {incident.severity}
                                     </Badge>
-                                    <Badge variant="neutral" className="py-1.5 px-3">{incident.category}</Badge>
+                                    <Badge variant="neutral" className="py-1.5 px-3 uppercase">{incident.category}</Badge>
                                     <Badge variant={incident.status === 'OPEN' ? 'danger' : 'emerald'} className="py-1.5 px-3">Status: {incident.status}</Badge>
                                 </div>
                                 <h1 className="text-4xl lg:text-6xl font-black tracking-tight text-white uppercase leading-[1.1] mb-6">

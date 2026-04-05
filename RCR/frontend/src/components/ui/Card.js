@@ -4,6 +4,7 @@ export const Card = ({
     children, 
     className = '', 
     variant = 'glass',
+    glowing = false,
     ...props 
 }) => {
     const variants = {
@@ -11,9 +12,11 @@ export const Card = ({
         panel: 'glass-panel',
     };
 
+    const glowClass = glowing ? 'shadow-[0_0_30px_rgba(255,51,102,0.15)] border-danger/30' : '';
+
     return (
         <div 
-            className={`${variants[variant]} ${className}`}
+            className={`${variants[variant]} ${glowClass} ${className}`}
             {...props}
         >
             {children}

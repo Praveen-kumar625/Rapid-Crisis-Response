@@ -119,35 +119,75 @@ export const Navbar = ({ user, login }) => {
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div 
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="lg:hidden absolute top-20 left-0 w-full bg-navy-900/95 backdrop-blur-xl border-b border-white/5 p-6 flex flex-col gap-6"
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="lg:hidden fixed inset-0 top-20 z-40 bg-navy-900/95 backdrop-blur-2xl p-6 flex flex-col gap-8"
                     >
-                        <nav className="flex flex-col gap-2">
-                            <NavLink to="/" icon={Activity} currentPath={location.pathname} onClick={() => setIsMobileMenuOpen(false)}>Overview</NavLink>
-                            <NavLink to="/map" icon={MapIcon} currentPath={location.pathname} onClick={() => setIsMobileMenuOpen(false)}>Live Map</NavLink>
-                            <NavLink to="/dashboard" icon={BarChart2} currentPath={location.pathname} onClick={() => setIsMobileMenuOpen(false)}>Analytics</NavLink>
-                            <Link to="/report" onClick={() => setIsMobileMenuOpen(false)} className="mt-4 flex items-center justify-center gap-2 bg-danger/20 text-danger border border-danger/50 px-5 py-4 rounded-xl text-sm font-bold uppercase tracking-wider">
-                                <ShieldAlert size={18} /> Report SOS
-                            </Link>
-                        </nav>
+                        <motion.nav 
+                            initial="initial"
+                            animate="animate"
+                            variants={{
+                                animate: {
+                                    transition: { staggerChildren: 0.1 }
+                                }
+                            }}
+                            className="flex flex-col gap-4"
+                        >
+                            {[
+                                { to: "/", icon: Activity, label: "Overview" },
+                                { to: "/map", icon: MapIcon, label: "Live Map" },
+                                { to: "/dashboard", icon: BarChart2, label: "Analytics" }
+                            ].map((link, i) => (
+                                <motion.div 
+                                    key={i}
+                                    variants={{
+                                        initial: { opacity: 0, x: 20 },
+                                        animate: { opacity: 1, x: 0 }
+                                    }}
+                                >
+                                    <NavLink to={link.to} icon={link.icon} currentPath={location.pathname} onClick={() => setIsMobileMenuOpen(false)}>
+                                        {link.label}
+                                    </NavLink>
+                                </motion.div>
+                            ))}
+                            
+                            <motion.div
+                                variants={{
+                                    initial: { opacity: 0, x: 20 },
+                                    animate: { opacity: 1, x: 0 }
+                                }}
+                            >
+                                <Link to="/report" onClick={() => setIsMobileMenuOpen(false)} className="mt-4 flex items-center justify-center gap-3 bg-danger/20 text-danger border border-danger/50 px-5 py-5 rounded-2xl text-sm font-black uppercase tracking-widest shadow-danger/20">
+                                    <ShieldAlert size={20} /> Report SOS Signal
+                                </Link>
+                            </motion.div>
+                        </motion.nav>
                         
-                        {user ? (
-                            <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
-                                <div className="flex items-center gap-3">
-                                    <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=0D8ABC&color=fff`} alt="Profile" className="w-10 h-10 rounded-full" />
-                                    <span className="text-sm font-medium text-slate-300 truncate">{user.email}</span>
+                        <div className="mt-auto pb-10">
+                            <NetworkStatus />
+                            <div className="h-px bg-white/5 my-8"></div>
+                            
+                            {user ? (
+                                <div className="flex items-center justify-between bg-white/5 p-5 rounded-3xl border border-white/5">
+                                    <div className="flex items-center gap-4">
+                                        <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=0D8ABC&color=fff`} alt="Profile" className="w-12 h-12 rounded-full border-2 border-white/10" />
+                                        <div>
+                                            <p className="text-xs font-black text-white uppercase tracking-tight truncate max-w-[150px]">{user.email}</p>
+                                            <p className="text-[10px] text-slate-500 font-mono">Authenticated Node</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => { signOut(auth); setIsMobileMenuOpen(false); }} className="p-3 bg-danger/10 text-danger rounded-2xl hover:bg-danger/20 transition-all">
+                                        <LogOut size={24} />
+                                    </button>
                                 </div>
-                                <button onClick={() => { signOut(auth); setIsMobileMenuOpen(false); }} className="p-2 text-slate-400 hover:text-danger">
-                                    <LogOut size={20} />
-                                </button>
-                            </div>
-                        ) : (
-                            <Button variant="secondary" onClick={() => { login(); setIsMobileMenuOpen(false); }} className="w-full">
-                                <LogIn size={20} /> Sign In
-                            </Button>
-                        )}
+                            ) : (
+                                <Button variant="secondary" onClick={() => { login(); setIsMobileMenuOpen(false); }} className="w-full py-5">
+                                    <LogIn size={20} /> Sign In to Terminal
+                                </Button>
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

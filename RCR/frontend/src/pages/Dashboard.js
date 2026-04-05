@@ -155,7 +155,7 @@ function Dashboard() {
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 mb-8 flex items-center gap-2">
                                 <AlertTriangle size={16} className="text-amber" /> Severity Matrix
                             </h3>
-                            <div className="h-[240px]">
+                            <div className="h-[280px] lg:h-[240px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie 
@@ -181,7 +181,7 @@ function Dashboard() {
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 mb-8 flex items-center gap-2">
                                 <TrendingUp size={16} className="text-electric" /> Incident Velocity
                             </h3>
-                            <div className="h-[240px]">
+                            <div className="h-[280px] lg:h-[240px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={stats.timelineData}>
                                         <defs>
@@ -218,7 +218,8 @@ function Dashboard() {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        {/* DESKTOP TABLE VIEW */}
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[800px]">
                                 <thead>
                                     <tr className="bg-navy-900/50 text-slate-500 text-[10px] font-black uppercase tracking-widest">
@@ -230,7 +231,11 @@ function Dashboard() {
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
                                     {incidents.slice(0, 15).map((inc) => (
-                                        <tr key={inc.id} className="hover:bg-white/[0.03] transition-all group cursor-pointer">
+                                        <tr 
+                                            key={inc.id} 
+                                            className="hover:bg-white/[0.03] transition-all group cursor-pointer"
+                                            onClick={() => window.location.href = `/incidents/${inc.id}`}
+                                        >
                                             <td className="px-8 py-6">
                                                 <Badge 
                                                     variant={inc.status === 'OPEN' ? 'danger' : inc.status === 'IN_PROGRESS' ? 'amber' : 'emerald'}
@@ -257,16 +262,40 @@ function Dashboard() {
                                             </td>
                                         </tr>
                                     ))}
-                                    {incidents.length === 0 && (
-                                        <tr>
-                                            <td colSpan="4" className="px-8 py-20 text-center text-slate-600 italic text-sm font-light">
-                                                No incident signals currently detected in this hotel sector.
-                                            </td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* MOBILE CARD VIEW */}
+                        <div className="md:hidden divide-y divide-white/5">
+                            {incidents.slice(0, 15).map((inc) => (
+                                <Link 
+                                    key={inc.id} 
+                                    to={`/incidents/${inc.id}`}
+                                    className="block p-6 hover:bg-white/[0.02] active:bg-white/[0.05] transition-colors"
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <Badge variant={inc.status === 'OPEN' ? 'danger' : inc.status === 'IN_PROGRESS' ? 'amber' : 'emerald'}>
+                                            {inc.status}
+                                        </Badge>
+                                        <span className="text-[10px] font-mono text-slate-500">
+                                            {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                        </span>
+                                    </div>
+                                    <h4 className="text-sm font-bold text-white uppercase tracking-tight mb-2">{inc.title}</h4>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Wing {inc.wingId} // L{inc.floorLevel}</span>
+                                        <span className={`text-[9px] font-black uppercase tracking-widest ${inc.severity >= 4 ? 'text-danger' : 'text-slate-400'}`}>Lvl {inc.severity}</span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {incidents.length === 0 && (
+                            <div className="px-8 py-20 text-center text-slate-600 italic text-sm font-light">
+                                No incident signals currently detected in this hotel sector.
+                            </div>
+                        )}
                     </Card>
                 </Container>
             </Section>

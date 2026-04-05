@@ -1,11 +1,12 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { auth, googleProvider } from './firebase';
 import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import toast, { Toaster } from 'react-hot-toast';
 import { joinHotelRoom } from './socket';
 import api from './api';
 import { AppLayout } from './components/layout/AppLayout';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -19,6 +20,33 @@ const PageLoader = () => (
         <div className="w-12 h-12 border-4 border-electric/20 border-t-electric rounded-full animate-spin"></div>
     </div>
 );
+
+const PageTransition = ({ children }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="flex-1 flex flex-col"
+    >
+        {children}
+    </motion.div>
+);
+
+function AnimatedRoutes() {
+    const location = useLocation();
+    return (
+        <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+                <Route path="/map" element={<PageTransition><MapPage /></PageTransition>} />
+                <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+                <Route path="/report" element={<PageTransition><ReportPage /></PageTransition>} />
+                <Route path="/incidents/:id" element={<PageTransition><IncidentDetail /></PageTransition>} />
+            </Routes>
+        </AnimatePresence>
+    );
+}
 
 function App() {
     const [user, setUser] = useState(null);
@@ -64,13 +92,7 @@ function App() {
             
             <AppLayout user={user} login={login}>
                 <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/map" element={<MapPage />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/report" element={<ReportPage />} />
-                        <Route path="/incidents/:id" element={<IncidentDetail />} />
-                    </Routes>
+                    <AnimatedRoutes />
                 </Suspense>
             </AppLayout>
         </Router>
