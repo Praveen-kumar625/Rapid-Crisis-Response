@@ -175,15 +175,15 @@ function CrisisMap() {
             )}
 
             {/* Map Legend Bar */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex p-1 rounded-2xl z-10 glass-card bg-navy-950/80">
+            <div className="absolute bottom-6 left-4 right-6 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 flex flex-col sm:flex-row p-1 rounded-2xl z-10 glass-card bg-navy-950/80 max-w-[calc(100%-2rem)]">
                 {[
                     { color: 'bg-danger', label: 'Fire / Critical', shadow: 'shadow-danger' },
                     { color: 'bg-secondary', label: 'Medical', shadow: 'shadow-secondary/50' },
                     { color: 'bg-accent', label: 'Security', shadow: 'shadow-accent/50' },
                 ].map((item, i) => (
-                    <div key={i} className={`flex items-center gap-3 px-5 py-2.5 ${i !== 2 ? 'border-r border-white/5' : ''}`}>
-                        <div className={`w-2.5 h-2.5 ${item.color} rounded-full ${item.shadow}`}></div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{item.label}</span>
+                    <div key={i} className={`flex items-center gap-3 px-4 sm:px-5 py-2 sm:py-2.5 ${i !== 2 ? 'border-b sm:border-b-0 sm:border-r border-white/5' : ''}`}>
+                        <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 ${item.color} rounded-full ${item.shadow}`}></div>
+                        <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">{item.label}</span>
                     </div>
                 ))}
             </div>

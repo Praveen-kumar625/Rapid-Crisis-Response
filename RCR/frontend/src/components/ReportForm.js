@@ -28,7 +28,19 @@ const Input = React.forwardRef(({ className = '', ...props }, ref) => (
 ));
 Input.displayName = 'Input';
 
+const Textarea = React.forwardRef(({ className = '', ...props }, ref) => (
+    <textarea 
+        {...props}
+        ref={ref}
+        className={`w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 min-h-[140px] resize-none ${className}`}
+    />
+));
+Textarea.displayName = 'Textarea';
+
 function ReportForm() {
+    // 🚨 STABILITY FIX: Use a ref for the form state to avoid re-renders during typing if needed,
+    // but React should handle state updates fine if components are defined outside.
+    // However, let's simplify the state to reduce re-render overhead.
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -38,6 +50,7 @@ function ReportForm() {
         roomNumber: '',
         wingId: '',
     });
+
     const [position, setPosition] = useState({ lng: 0, lat: 0 });
     const [mediaType, setMediaType] = useState('');
     const [mediaFile, setMediaFile] = useState(null);
@@ -52,14 +65,6 @@ function ReportForm() {
     const mediaRecorderRef = useRef(null);
     const titleRef = useRef(null);
     const descriptionRef = useRef(null);
-
-    // Debounced state for expensive re-renders or validation
-    const [debouncedTitle, setDebouncedTitle] = useState('');
-    const updateDebouncedTitle = useMemo(() => debounce((val) => setDebouncedTitle(val), 300), []);
-
-    useEffect(() => {
-        updateDebouncedTitle(form.title);
-    }, [form.title, updateDebouncedTitle]);
 
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -410,12 +415,11 @@ function ReportForm() {
 
                     <div>
                         <Label htmlFor="incident-description">Operational Narrative</Label>
-                        <textarea 
+                        <Textarea 
                             ref={descriptionRef}
                             id="incident-description"
                             name="description"
                             aria-label="Operational Narrative"
-                            className="w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 min-h-[140px] resize-none"
                             placeholder="Provide full context for responders..."
                             value={form.description}
                             onChange={(e) => setForm(prev => ({...prev, description: e.target.value }))}
@@ -425,7 +429,7 @@ function ReportForm() {
                 </div>
 
                 {/* LOCATION COORDINATES */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-navy-900/30 p-6 rounded-3xl border border-white/5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-navy-950/30 p-6 rounded-3xl border border-white/5">
                     <div>
                         <Label htmlFor="wing-id">Wing / Sector</Label>
                         <Input id="wing-id" name="wingId" aria-label="Wing or Sector" placeholder="e.g., NORTH" value={form.wingId} onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
@@ -476,7 +480,7 @@ function ReportForm() {
                             name="severity"
                             aria-label="Severity Level"
                             type="range" min="1" max="5" 
-                            className="w-full h-1.5 bg-navy-900 rounded-lg appearance-none cursor-pointer accent-electric border border-white/5"
+                            className="w-full h-1.5 bg-navy-950 rounded-lg appearance-none cursor-pointer accent-electric border border-white/5"
                             value={form.severity}
                             onChange={(e) => setForm(prev => ({...prev, severity: Number(e.target.value) }))}
                         />
@@ -504,7 +508,7 @@ function ReportForm() {
                                 ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[400px] object-contain" />
                                 : <video controls src={mediaPreview} className="w-full max-h-[400px]" />
                             }
-                            <div className="absolute top-4 right-4 bg-navy-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] font-black text-electric uppercase border border-white/10">Signal Attached</div>
+                            <div className="absolute top-4 right-4 bg-navy-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] font-black text-electric uppercase border border-white/10">Signal Attached</div>
                         </div>
                     )}
                 </div>

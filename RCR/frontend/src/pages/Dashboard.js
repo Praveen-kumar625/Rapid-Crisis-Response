@@ -57,7 +57,6 @@ function Dashboard() {
     useEffect(() => {
         api.get('/incidents').then(({ data }) => {
             setIncidents(data);
-            setStats(computeAggregates(data));
         }).catch(console.error);
 
         let isMounted = true;
