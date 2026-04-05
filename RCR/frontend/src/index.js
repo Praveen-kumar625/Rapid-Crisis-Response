@@ -13,7 +13,13 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 // Auth0Provider deleted. Firebase manages state internally.
-root.render( < App / > );
+root.render(
+    <ErrorBoundary>
+        <App />
+    </ErrorBoundary>
+);

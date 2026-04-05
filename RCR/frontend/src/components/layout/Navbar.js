@@ -141,9 +141,9 @@ export const Navbar = ({ user, login }) => {
                                 { to: "/", icon: Activity, label: "Overview" },
                                 { to: "/map", icon: MapIcon, label: "Live Map" },
                                 { to: "/dashboard", icon: BarChart2, label: "Analytics" }
-                            ].map((link, i) => (
+                            ].map((link) => (
                                 <motion.div 
-                                    key={i}
+                                    key={link.to}
                                     variants={{
                                         initial: { opacity: 0, x: 20 },
                                         animate: { opacity: 1, x: 0 }

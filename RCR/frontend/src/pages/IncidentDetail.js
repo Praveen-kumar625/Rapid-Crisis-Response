@@ -39,8 +39,10 @@ function IncidentDetail() {
                 }
             } catch (err) {
                 console.error('Failed to fetch incident intel', err);
-                toast.error('Failed to load intelligence data');
-                setLoading(false);
+                if (isMounted) {
+                    toast.error('Failed to load intelligence data');
+                    setLoading(false);
+                }
             }
         };
 
@@ -259,6 +261,7 @@ function IncidentDetail() {
                                         <img 
                                             src={incident.mediaUrl} 
                                             alt="Incident Evidence" 
+                                            loading="lazy"
                                             className="w-full h-auto max-h-[600px] object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700" 
                                         />
                                     ) : (
@@ -336,17 +339,22 @@ function IncidentDetail() {
                                     <ShieldAlert size={16} className="text-danger" /> Required Units
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {incident.requiredResources ? (
-                                        typeof incident.requiredResources === 'string' 
-                                            ? JSON.parse(incident.requiredResources).map((res, i) => (
-                                                <Badge key={i} variant="neutral" className="bg-danger/5 border-danger/20 text-danger/80">{res}</Badge>
-                                            ))
-                                            : incident.requiredResources.map((res, i) => (
-                                                <Badge key={i} variant="neutral" className="bg-danger/5 border-danger/20 text-danger/80">{res}</Badge>
-                                            ))
-                                    ) : (
-                                        <p className="text-xs text-slate-500 italic">No resource requirements generated.</p>
-                                    )}
+                                    {(() => {
+                                        try {
+                                            const resources = typeof incident.requiredResources === 'string' 
+                                                ? JSON.parse(incident.requiredResources) 
+                                                : incident.requiredResources;
+                                            
+                                            if (Array.isArray(resources) && resources.length > 0) {
+                                                return resources.map((res, i) => (
+                                                    <Badge key={i} variant="neutral" className="bg-danger/5 border-danger/20 text-danger/80">{res}</Badge>
+                                                ));
+                                            }
+                                            return <p className="text-xs text-slate-500 italic">No resource requirements generated.</p>;
+                                        } catch (e) {
+                                            return <p className="text-xs text-slate-500 italic">Error parsing resources.</p>;
+                                        }
+                                    })()}
                                 </div>
                             </Card>
                         </div>

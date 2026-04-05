@@ -6,10 +6,23 @@ require('express-async-errors'); // auto‑forward async errors
 const healthRoutes = require('./routes/health.routes');
 const incidentRoutes = require('./routes/incidents.routes');
 
+const { aiVerificationLimiter } = require('./middleware/rateLimiter');
+const rateLimit = require('express-rate-limit');
+
 const app = express();
 
 // Fix for reverse proxies so rate-limiter reads the real user IP
 app.set('trust proxy', 1);
+
+// Global Rate Limiter
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: { error: 'Too many requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use(globalLimiter);
 
 const { ALLOWED_ORIGINS } = require('./config/env');
 

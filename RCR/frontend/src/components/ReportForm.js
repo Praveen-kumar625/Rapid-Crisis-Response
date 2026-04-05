@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import api from '../api';
 import toast from 'react-hot-toast';
 import { queueReport, getPendingReports, markReportSynced } from '../idb';
 import { localAnalyze } from '../utils/edgeAi';
+import { debounce } from '../utils/debounce';
 import { Mic, MicOff, Camera, AlertTriangle, Cpu, Info, ShieldCheck } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -31,34 +32,49 @@ function ReportForm() {
     
     const mediaRecorderRef = useRef(null);
 
+    const titleRef = useRef(null);
+    const descriptionRef = useRef(null);
+
+    // Debounced state for expensive re-renders or validation (demonstrative)
+    const [debouncedTitle, setDebouncedTitle] = useState('');
+    const updateDebouncedTitle = useMemo(() => debounce((val) => setDebouncedTitle(val), 300), []);
+
+    useEffect(() => {
+        updateDebouncedTitle(form.title);
+    }, [form.title, updateDebouncedTitle]);
+
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         setIsSpeechSupported(!!SpeechRecognition);
     }, []);
 
     useEffect(() => {
+        let isMounted = true;
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    if (isMounted) setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
                 },
                 (err) => {
                     console.warn('[ReportForm] Geolocation FAILED:', err.message);
-                    toast.error(`📍 Location Error: ${err.message}`);
+                    if (isMounted) toast.error(`📍 Location Error: ${err.message}`);
                 }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
             );
         }
+        return () => { isMounted = false; };
     }, []);
 
     useEffect(() => {
+        let isMounted = true;
         let isSyncing = false;
         async function syncPending() {
-            if (isSyncing) return;
+            if (isSyncing || !isMounted) return;
             isSyncing = true;
             try {
                 const pending = await getPendingReports();
                 if (!pending.length) return;
                 for (const rpt of pending) {
+                    if (!isMounted) break;
                     try {
                         let mediaBase64 = '';
                         if (rpt.mediaFile) {
@@ -81,8 +97,12 @@ function ReportForm() {
             }
         }
         if (navigator.onLine) syncPending();
-        window.addEventListener('online', syncPending);
-        return () => window.removeEventListener('online', syncPending);
+        const handleOnline = () => syncPending();
+        window.addEventListener('online', handleOnline);
+        return () => {
+            isMounted = false;
+            window.removeEventListener('online', handleOnline);
+        };
     }, []);
 
     const handleVoiceToggle = () => {
@@ -192,6 +212,18 @@ function ReportForm() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+
+        // Basic front-end validation check
+        if (!form.title.trim()) {
+            toast.error('Subject identifier is required');
+            titleRef.current?.focus();
+            return;
+        }
+        if (!form.description.trim()) {
+            toast.error('Operational narrative is required');
+            descriptionRef.current?.focus();
+            return;
+        }
         
         let finalForm = { ...form };
         let triageMethod = 'Cloud AI (Gemini)';
@@ -297,12 +329,13 @@ function ReportForm() {
         </label>
     );
 
-    const Input = (props) => (
+    const Input = React.forwardRef((props, ref) => (
         <input 
             {...props}
+            ref={ref}
             className={`w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 ${props.className || ''}`}
         />
-    );
+    ));
 
     return (
         <Card className="w-full overflow-hidden shadow-2xl">
@@ -354,6 +387,10 @@ function ReportForm() {
                     <div>
                         <Label>Incident Identifier</Label>
                         <Input 
+                            ref={titleRef}
+                            id="incident-title"
+                            name="title"
+                            aria-label="Incident Identifier"
                             placeholder="Brief subject of the emergency..."
                             value={form.title}
                             onChange={(e) => setForm(prev => ({...prev, title: e.target.value }))}
@@ -364,6 +401,10 @@ function ReportForm() {
                     <div>
                         <Label>Operational Narrative</Label>
                         <textarea 
+                            ref={descriptionRef}
+                            id="incident-description"
+                            name="description"
+                            aria-label="Operational Narrative"
                             className="w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 min-h-[140px] resize-none"
                             placeholder="Provide full context for responders..."
                             value={form.description}
@@ -377,15 +418,15 @@ function ReportForm() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-navy-900/30 p-6 rounded-3xl border border-white/5">
                     <div>
                         <Label>Wing / Sector</Label>
-                        <Input placeholder="e.g., NORTH" value={form.wingId} onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
+                        <Input id="wing-id" name="wingId" aria-label="Wing or Sector" placeholder="e.g., NORTH" value={form.wingId} onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
                     </div>
                     <div>
                         <Label>Floor Level</Label>
-                        <Input type="number" value={form.floorLevel} onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
+                        <Input id="floor-level" name="floorLevel" aria-label="Floor Level" type="number" value={form.floorLevel} onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
                     </div>
                     <div>
                         <Label>Room / Area</Label>
-                        <Input placeholder="e.g., SUITE 402" value={form.roomNumber} onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value.toUpperCase() }))} required />
+                        <Input id="room-number" name="roomNumber" aria-label="Room or Area" placeholder="e.g., SUITE 402" value={form.roomNumber} onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value.toUpperCase() }))} required />
                     </div>
                 </div>
 
@@ -395,6 +436,9 @@ function ReportForm() {
                         <Label>Classification Protocol</Label>
                         <div className="relative">
                             <select 
+                                id="incident-category"
+                                name="category"
+                                aria-label="Classification Protocol"
                                 className="w-full bg-navy-900/80 border border-white/5 text-slate-200 p-4 rounded-2xl outline-none appearance-none cursor-pointer focus:border-electric transition-all text-sm uppercase font-bold tracking-widest"
                                 value={form.category}
                                 onChange={(e) => setForm(prev => ({...prev, category: e.target.value }))}
@@ -418,6 +462,9 @@ function ReportForm() {
                             <Badge variant={form.severity >= 4 ? 'danger' : 'electric'} className="py-1">LEVEL {form.severity}</Badge>
                         </div>
                         <input 
+                            id="severity-slider"
+                            name="severity"
+                            aria-label="Severity Level"
                             type="range" min="1" max="5" 
                             className="w-full h-1.5 bg-navy-900 rounded-lg appearance-none cursor-pointer accent-electric border border-white/5"
                             value={form.severity}
