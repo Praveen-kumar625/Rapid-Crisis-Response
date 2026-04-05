@@ -13,12 +13,26 @@ module.exports = {
           800: '#0f172a',
           700: '#1e293b'
         },
-        electric: '#00f0ff',
-        emerald: '#10b981',
-        amber: '#f59e0b',
+        electric: {
+          DEFAULT: '#00f0ff',
+          hover: '#00d8e6',
+          glow: 'rgba(0, 240, 255, 0.3)'
+        },
+        emerald: {
+          DEFAULT: '#10b981',
+          glow: 'rgba(16, 185, 129, 0.3)'
+        },
+        amber: {
+          DEFAULT: '#f59e0b',
+          glow: 'rgba(245, 158, 11, 0.3)'
+        },
+        danger: {
+          DEFAULT: '#ff3366',
+          hover: '#e62e5c',
+          glow: 'rgba(255, 51, 102, 0.3)'
+        },
         cyan: '#22d3ee',
         teal: '#14b8a6',
-        danger: '#ff3366',
         surface: 'rgba(15, 23, 42, 0.6)',
         surfaceBorder: 'rgba(255, 255, 255, 0.08)'
       },
@@ -34,6 +48,7 @@ module.exports = {
         'slow-drift': 'drift 20s ease-in-out infinite',
         'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
         'float': 'float 6s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
       },
       keyframes: {
         drift: {
@@ -47,7 +62,16 @@ module.exports = {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-20px)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         }
+      },
+      boxShadow: {
+        'electric': '0 0 20px rgba(0, 240, 255, 0.3)',
+        'danger': '0 0 20px rgba(255, 51, 102, 0.3)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
       }
     },
   },

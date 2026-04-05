@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-import { X, Navigation, AlertCircle, Info, LocateFixed } from 'lucide-react';
+import { X, Navigation, AlertCircle, Info, LocateFixed, Zap, Shield } from 'lucide-react';
 import api from '../api';
 import { getSocket } from '../socket';
+import { Card } from './ui/Card';
+import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
 
 const RESPONDER_HQ = { lat: 28.6139, lng: 77.2090 };
 
@@ -52,32 +55,31 @@ function CrisisMap() {
     };
 
     return (
-        <div className="relative w-full h-full bg-navy-900 overflow-hidden flex-1 flex">
-            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'dummy_for_layout_if_missing'}>
+        <div className="relative w-full h-full bg-navy-950 overflow-hidden flex-1 flex">
+            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
                 <Map
                     defaultCenter={RESPONDER_HQ}
                     defaultZoom={15}
-                    mapId="f260000000000000" // Premium dark mode map ID
+                    mapId="f260000000000000"
                     disableDefaultUI={true}
                     gestureHandling="greedy"
                     className="w-full h-full outline-none"
-                    // Inline dark styles as fallback
                     styles={[
-                        { "elementType": "geometry", "stylers": [{ "color": "#0a0f1c" }] },
+                        { "elementType": "geometry", "stylers": [{ "color": "#050810" }] },
                         { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
                         { "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
-                        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#0a0f1c" }] },
+                        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#050810" }] },
                         { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
                         { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
                         { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#1e293b" }] },
-                        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#0f172a" }] },
+                        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#050810" }] },
                         { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
                     ]}
                 >
                     <AdvancedMarker position={RESPONDER_HQ}>
                         <div className="relative flex items-center justify-center">
                             <div className="absolute w-12 h-12 bg-electric/20 rounded-full animate-ping"></div>
-                            <div className="w-6 h-6 bg-navy-900 rounded-full border-2 border-electric flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.5)] z-10">
+                            <div className="w-6 h-6 bg-navy-950 rounded-full border-2 border-electric flex items-center justify-center shadow-electric z-10">
                                 <div className="w-2 h-2 bg-electric rounded-full"></div>
                             </div>
                         </div>
@@ -91,86 +93,92 @@ function CrisisMap() {
                             className="z-10"
                         >
                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center transform transition-all duration-300 hover:scale-125 cursor-pointer border-2 ${getMarkerColor(inc.severity, inc.category)}`}>
-                                <span className="text-white text-[10px] font-black">{inc.category?.[0] || '!'}</span>
+                                <span className="text-white text-[10px] font-black uppercase">{inc.category?.[0] || '!'}</span>
                             </div>
                         </AdvancedMarker>
                     ))}
                 </Map>
             </APIProvider>
 
-            {/* Floating Top Controls */}
-            <div className="absolute top-6 left-6 flex gap-3 z-10">
-                <div className="glass-card flex items-center px-4 py-2 gap-2 text-xs font-bold uppercase tracking-widest text-slate-300">
-                    <LocateFixed size={16} className="text-electric" />
-                    Tracking {incidents.length} Active Zones
-                </div>
+            {/* Floating Operations Header */}
+            <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
+                <Card variant="panel" className="flex items-center px-5 py-3 gap-4 border border-white/10 shadow-2xl backdrop-blur-2xl">
+                    <div className="flex items-center gap-2">
+                        <Shield size={18} className="text-danger" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Active Operational Zones</span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10"></div>
+                    <div className="flex items-center gap-2">
+                        <LocateFixed size={16} className="text-electric" />
+                        <span className="text-xs font-mono font-bold text-electric">{incidents.length}</span>
+                    </div>
+                </Card>
             </div>
 
             {/* Premium Overlay Info */}
             {selectedIncident && (
-                <div className="absolute top-6 right-6 w-[380px] z-20 animate-in slide-in-from-right-8 fade-in duration-300">
-                    <div className="glass-card p-6 shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex flex-col gap-2">
+                <div className="absolute top-6 right-6 w-full max-w-[400px] z-20 px-6 sm:px-0 animate-in slide-in-from-right-8 fade-in duration-500">
+                    <Card className="p-8 shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-t-2 border-t-white/10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                            <Shield size={160} strokeWidth={1} />
+                        </div>
+
+                        <div className="flex justify-between items-start mb-6 relative z-10">
+                            <div className="flex flex-col gap-3">
                                 <div className="flex gap-2">
-                                    <span className={`px-2.5 py-1 text-[9px] font-black rounded uppercase tracking-widest border ${
-                                        selectedIncident.severity >= 4 ? 'bg-danger/20 text-danger border-danger/30' : 'bg-amber/20 text-amber border-amber/30'
-                                    }`}>Level {selectedIncident.severity}</span>
-                                    <span className="px-2.5 py-1 text-[9px] font-black rounded uppercase tracking-widest bg-white/5 border border-white/10 text-slate-300">
-                                        {selectedIncident.category}
-                                    </span>
+                                    <Badge variant={selectedIncident.severity >= 4 ? 'danger' : 'amber'}>LVL {selectedIncident.severity} IMPACT</Badge>
+                                    <Badge>{selectedIncident.category}</Badge>
                                 </div>
-                                <h3 className="text-lg font-bold tracking-wide text-slate-100 uppercase mt-1 leading-tight">{selectedIncident.title}</h3>
+                                <h3 className="text-2xl font-black tracking-tight text-white uppercase leading-tight">{selectedIncident.title}</h3>
                             </div>
-                            <button onClick={() => setSelectedIncident(null)} className="p-1 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors">
-                                <X size={18} />
+                            <button onClick={() => setSelectedIncident(null)} className="p-2 text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all">
+                                <X size={20} />
                             </button>
                         </div>
                         
-                        <p className="text-slate-400 text-sm font-light leading-relaxed mb-6">{selectedIncident.description}</p>
+                        <p className="text-slate-400 text-sm font-light leading-relaxed mb-8 relative z-10">{selectedIncident.description}</p>
                         
-                        <div className="grid grid-cols-2 gap-3 mb-6">
-                            <div className="bg-navy-900/50 p-3 rounded-xl border border-surfaceBorder">
-                                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-1 flex items-center gap-1"><Navigation size={10} /> Zone</p>
-                                <p className="text-xs font-bold uppercase text-slate-200">Wing {selectedIncident.wingId}</p>
+                        <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+                            <div className="bg-navy-950/50 p-4 rounded-2xl border border-white/5 shadow-inner">
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><Navigation size={10} /> ZONE_ID</p>
+                                <p className="text-xs font-bold uppercase text-slate-200 font-mono">WING_{selectedIncident.wingId}</p>
                             </div>
-                            <div className="bg-navy-900/50 p-3 rounded-xl border border-surfaceBorder">
-                                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-1 flex items-center gap-1"><Info size={10} /> Location</p>
-                                <p className="text-xs font-bold uppercase text-slate-200">Fl {selectedIncident.floorLevel} - Rm {selectedIncident.roomNumber}</p>
+                            <div className="bg-navy-950/50 p-4 rounded-2xl border border-white/5 shadow-inner">
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><Info size={10} /> COORDS</p>
+                                <p className="text-xs font-bold uppercase text-slate-200 font-mono">FL_{selectedIncident.floorLevel} // RM_{selectedIncident.roomNumber}</p>
                             </div>
                         </div>
 
-                        <div className="space-y-3 mb-6">
-                            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-electric flex items-center gap-2">
-                                <AlertCircle size={12} />
-                                Edge AI Plan
+                        <div className="space-y-4 mb-8 relative z-10">
+                            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-electric flex items-center gap-2">
+                                <Zap size={12} className="animate-pulse" /> Edge AI Resolution Plan
                             </p>
-                            <div className="bg-electric/5 border border-electric/20 p-3.5 rounded-xl shadow-inner">
-                                <p className="text-xs text-electric/90 leading-relaxed font-mono">{selectedIncident.actionPlan || "Analyzing optimal route..."}</p>
+                            <div className="bg-electric/5 border border-electric/20 p-5 rounded-2xl shadow-inner">
+                                <p className="text-xs text-electric/90 leading-relaxed font-mono italic">
+                                    {selectedIncident.actionPlan || "ANALYZING OPTIMAL DEPLOYMENT ROUTE..."}
+                                </p>
                             </div>
                         </div>
 
-                        <button className="w-full py-3.5 bg-white text-navy-900 text-xs font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-electric hover:text-navy-900 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)]">
-                            Deploy Units
-                        </button>
-                    </div>
+                        <Button className="w-full py-5 text-xs font-black shadow-electric">
+                            Acknowledge & Deploy
+                        </Button>
+                    </Card>
                 </div>
             )}
 
             {/* Map Legend Bar */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 glass-card flex p-1.5 rounded-2xl z-10">
-                <div className="flex items-center gap-2 px-4 py-2 border-r border-surfaceBorder">
-                    <div className="w-2.5 h-2.5 bg-danger rounded shadow-[0_0_10px_rgba(255,51,102,0.5)]"></div>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.15em]">Fire / Critical</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 border-r border-surfaceBorder">
-                    <div className="w-2.5 h-2.5 bg-electric rounded shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.15em]">Medical</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2">
-                    <div className="w-2.5 h-2.5 bg-amber rounded shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.15em]">Security</span>
-                </div>
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex p-1 rounded-2xl z-10 glass-card bg-navy-950/80">
+                {[
+                    { color: 'bg-danger', label: 'Fire / Critical', shadow: 'shadow-danger' },
+                    { color: 'bg-electric', label: 'Medical', shadow: 'shadow-electric' },
+                    { color: 'bg-amber', label: 'Security', shadow: 'shadow-amber/50' },
+                ].map((item, i) => (
+                    <div key={i} className={`flex items-center gap-3 px-5 py-2.5 ${i !== 2 ? 'border-r border-white/5' : ''}`}>
+                        <div className={`w-2.5 h-2.5 ${item.color} rounded-full ${item.shadow}`}></div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{item.label}</span>
+                    </div>
+                ))}
             </div>
         </div>
     );

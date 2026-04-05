@@ -3,7 +3,10 @@ import api from '../api';
 import toast from 'react-hot-toast';
 import { queueReport, getPendingReports, markReportSynced } from '../idb';
 import { localAnalyze } from '../utils/edgeAi';
-import { Mic, MicOff, Camera, Video, AlertTriangle, ShieldCheck, ShieldAlert, Cpu } from 'lucide-react';
+import { Mic, MicOff, Camera, AlertTriangle, Cpu, Info, Navigation, ShieldCheck } from 'lucide-react';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
 
 function ReportForm() {
     const [form, setForm] = useState({
@@ -156,7 +159,7 @@ function ReportForm() {
         setMediaPreview(previewUrl);
 
         if (navigator.onLine) {
-            toast('Processing Evidence...', { icon: '🧠', duration: 2000 });
+            toast('AI Analysis Initialized', { icon: '🧠' });
             const reader = new FileReader();
             reader.onload = async(e) => {
                 const base64data = e.target.result;
@@ -227,94 +230,83 @@ function ReportForm() {
                     });
                 }
                 await api.post('/incidents', { ...payload, mediaBase64 });
-                toast.success('Incident Reported');
+                toast.success('Incident Signal Dispatched');
                 setForm({ title: '', description: '', severity: 3, category: '', floorLevel: 1, roomNumber: '', wingId: '' });
                 setMediaPreview('');
                 setMediaFile(null);
             } catch (err) {
-                toast.error('Failed to report incident');
+                toast.error('Dispatch Failure');
             }
         } else {
             await queueReport({...payload, mediaFile, synced: false });
-            toast.success('Queued offline (Secure Storage)');
+            toast.success('Queued for secure sync');
         }
     };
 
-    const InputLabel = ({ children }) => (
-        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-2 flex items-center gap-2">
-            <span className="w-1 h-1 bg-electric rounded-full"></span>
-            {children}
+    const Label = ({ children }) => (
+        <label className="block text-[10px] uppercase tracking-[0.3em] font-black text-slate-500 mb-3 flex items-center gap-2">
+            <span className="w-1 h-1 bg-electric rounded-full"></span> {children}
         </label>
     );
 
-    const PremiumInput = (props) => (
+    const Input = (props) => (
         <input 
             {...props}
-            className={`w-full bg-navy-900/50 border border-surfaceBorder rounded-xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-3 px-4 outline-none text-sm text-slate-200 placeholder-slate-600 ${props.className || ''}`}
+            className={`w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 ${props.className || ''}`}
         />
     );
 
     return (
-        <div className="w-full glass-card overflow-hidden">
-            <div className="bg-navy-800/80 p-6 md:p-8 border-b border-surfaceBorder flex justify-between items-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-danger via-amber to-electric"></div>
+        <Card className="w-full overflow-hidden shadow-2xl">
+            <div className="bg-white/[0.02] p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-100 uppercase">System Input</h2>
-                    <p className="text-electric text-[10px] font-mono tracking-widest mt-1">Intelligence Collection Form</p>
+                    <h3 className="text-xl font-bold uppercase tracking-widest text-white">Incident Manifest</h3>
+                    <p className="text-electric text-[9px] font-mono tracking-[0.2em] mt-1 uppercase">Node: {position.lat.toFixed(2)}, {position.lng.toFixed(2)}</p>
                 </div>
                 {!navigator.onLine && (
-                    <div className="flex items-center gap-2 px-3 py-1 bg-amber/10 border border-amber/30 rounded-full">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-amber">Edge Mode</span>
-                    </div>
+                    <Badge variant="amber" className="animate-pulse">Edge Resilience Active</Badge>
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-8 bg-surface backdrop-blur-md">
+            <form onSubmit={handleSubmit} className="p-8 space-y-10">
                 
-                {/* Voice / SOS Controls */}
-                <div className="flex flex-col sm:flex-row gap-4 p-4 bg-navy-900/40 border border-surfaceBorder rounded-2xl">
-                    <button 
+                {/* EMERGENCY CONTROLS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Button 
                         type="button"
+                        variant="danger"
                         onClick={handleAudioSOS}
-                        className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-all duration-500 font-bold text-[10px] uppercase tracking-[0.15em] ${
-                            isAudioRecording 
-                            ? 'bg-danger text-white shadow-[0_0_20px_rgba(255,51,102,0.5)] animate-pulse border border-danger/50' 
-                            : 'bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20 hover:border-danger/50'
-                        }`}
+                        className={`py-5 text-[10px] ${isAudioRecording ? 'animate-pulse shadow-danger' : ''}`}
                     >
                         {isAudioRecording ? <MicOff size={18} /> : <AlertTriangle size={18} />}
                         {isAudioRecording ? 'Recording SOS...' : 'Trigger SOS Audio'}
-                    </button>
+                    </Button>
                     
                     {isSpeechSupported && (
-                        <button 
+                        <Button 
                             type="button"
+                            variant="secondary"
                             onClick={handleVoiceToggle}
-                            className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 font-bold text-[10px] uppercase tracking-[0.15em] border ${
-                                isRecording 
-                                ? 'bg-electric/20 border-electric/50 text-electric shadow-[0_0_15px_rgba(0,240,255,0.3)] animate-pulse' 
-                                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                            }`}
+                            className={`py-5 text-[10px] ${isRecording ? 'border-electric text-electric animate-pulse' : ''}`}
                         >
-                            {isRecording ? <Mic size={18} /> : <Mic size={18} />}
-                            {isRecording ? 'Listening...' : 'Voice Dictation'}
-                        </button>
+                            <Mic size={18} />
+                            {isRecording ? 'System Listening...' : 'Voice Dictation'}
+                        </Button>
                     )}
                 </div>
 
                 {sosMessage && (
-                    <div className="bg-danger/10 border-l-2 border-danger px-4 py-2 text-xs font-mono text-danger animate-pulse">
-                        &gt; {sosMessage}
+                    <div className="bg-danger/10 border-l-2 border-danger px-4 py-3 text-[10px] font-mono text-danger animate-pulse uppercase tracking-widest">
+                        &gt;&gt; {sosMessage}
                     </div>
                 )}
 
-                {/* Core Narrative */}
-                <div className="space-y-6">
+                {/* TEXT INPUTS */}
+                <div className="space-y-8">
                     <div>
-                        <InputLabel>Subject Identifier</InputLabel>
-                        <PremiumInput 
-                            placeholder="e.g., Uncontained Fire in Kitchen Area"
+                        <Label>Incident Identifier</Label>
+                        <Input 
+                            placeholder="Brief subject of the emergency..."
                             value={form.title}
                             onChange={(e) => setForm(prev => ({...prev, title: e.target.value }))}
                             required 
@@ -322,10 +314,10 @@ function ReportForm() {
                     </div>
 
                     <div>
-                        <InputLabel>Detailed Narrative</InputLabel>
+                        <Label>Operational Narrative</Label>
                         <textarea 
-                            className="w-full bg-navy-900/50 border border-surfaceBorder rounded-xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-4 outline-none text-sm text-slate-200 placeholder-slate-600 min-h-[120px] resize-y"
-                            placeholder="Provide operational details..."
+                            className="w-full bg-navy-900/50 border border-white/5 rounded-2xl focus:border-electric focus:ring-1 focus:ring-electric/50 transition-all py-4 px-5 outline-none text-slate-200 placeholder-slate-600 min-h-[140px] resize-none"
+                            placeholder="Provide full context for responders..."
                             value={form.description}
                             onChange={(e) => setForm(prev => ({...prev, description: e.target.value }))}
                             required 
@@ -333,143 +325,141 @@ function ReportForm() {
                     </div>
                 </div>
 
-                {/* Location Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-navy-900/30 p-6 rounded-2xl border border-surfaceBorder">
+                {/* LOCATION COORDINATES */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-navy-900/30 p-6 rounded-3xl border border-white/5">
                     <div>
-                        <InputLabel>Sector / Wing</InputLabel>
-                        <PremiumInput placeholder="e.g., WEST" value={form.wingId} onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
+                        <Label>Wing / Sector</Label>
+                        <Input placeholder="e.g., NORTH" value={form.wingId} onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
                     </div>
                     <div>
-                        <InputLabel>Level</InputLabel>
-                        <PremiumInput type="number" value={form.floorLevel} onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
+                        <Label>Floor Level</Label>
+                        <Input type="number" value={form.floorLevel} onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
                     </div>
                     <div>
-                        <InputLabel>Room</InputLabel>
-                        <PremiumInput placeholder="e.g., 402" value={form.roomNumber} onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value }))} required />
+                        <Label>Room / Area</Label>
+                        <Input placeholder="e.g., SUITE 402" value={form.roomNumber} onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value.toUpperCase() }))} required />
                     </div>
                 </div>
 
-                {/* Classification & Severity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* CATEGORY & SEVERITY */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div>
-                        <InputLabel>Classification Protocol</InputLabel>
-                        <select 
-                            className="w-full bg-navy-900/80 border border-surfaceBorder text-slate-200 p-3.5 rounded-xl outline-none appearance-none cursor-pointer focus:border-electric transition-all text-sm font-medium uppercase tracking-wide"
-                            value={form.category}
-                            onChange={(e) => setForm(prev => ({...prev, category: e.target.value }))}
-                            required
-                        >
-                            <option value="" disabled>Select Category</option>
-                            <option value="MEDICAL">Medical Emergency</option>
-                            <option value="FIRE">Fire Incident</option>
-                            <option value="INTRUDER">Security Breach</option>
-                            <option value="MAINTENANCE">Maintenance</option>
-                        </select>
+                        <Label>Classification Protocol</Label>
+                        <div className="relative">
+                            <select 
+                                className="w-full bg-navy-900/80 border border-white/5 text-slate-200 p-4 rounded-2xl outline-none appearance-none cursor-pointer focus:border-electric transition-all text-sm uppercase font-bold tracking-widest"
+                                value={form.category}
+                                onChange={(e) => setForm(prev => ({...prev, category: e.target.value }))}
+                                required
+                            >
+                                <option value="" disabled>Select Category</option>
+                                <option value="MEDICAL">Medical Emergency</option>
+                                <option value="FIRE">Fire Incident</option>
+                                <option value="INTRUDER">Security Breach</option>
+                                <option value="MAINTENANCE">Utility / Maintenance</option>
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
+                                <Info size={16} />
+                            </div>
+                        </div>
                     </div>
 
                     <div>
-                        <div className="flex justify-between items-center mb-3">
-                            <InputLabel>Severity</InputLabel>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
-                                form.severity >= 4 ? 'bg-danger/20 text-danger border-danger/30' : 'bg-electric/20 text-electric border-electric/30'
-                            }`}>Level {form.severity}</span>
+                        <div className="flex justify-between items-center mb-4">
+                            <Label>Severity Matrix</Label>
+                            <Badge variant={form.severity >= 4 ? 'danger' : 'electric'} className="py-1">LEVEL {form.severity}</Badge>
                         </div>
                         <input 
                             type="range" min="1" max="5" 
-                            className="w-full h-2 bg-navy-900 rounded-lg appearance-none cursor-pointer border border-surfaceBorder"
-                            style={{ accentColor: form.severity >= 4 ? '#ff3366' : '#00f0ff' }}
+                            className="w-full h-1.5 bg-navy-900 rounded-lg appearance-none cursor-pointer accent-electric border border-white/5"
                             value={form.severity}
                             onChange={(e) => setForm(prev => ({...prev, severity: Number(e.target.value) }))}
                         />
-                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-slate-500 mt-2 font-bold">
+                        <div className="flex justify-between text-[8px] uppercase tracking-[0.3em] text-slate-600 mt-3 font-black">
                             <span>Minimal</span>
                             <span>Critical</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Media Upload */}
-                <div className="border border-dashed border-surfaceBorder bg-navy-900/30 hover:bg-navy-900/50 transition-colors p-8 rounded-2xl text-center group">
-                    <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full">
-                        <div className="w-12 h-12 bg-white/5 group-hover:bg-white/10 rounded-full flex items-center justify-center mb-4 transition-colors">
-                            <Camera size={24} className="text-slate-400 group-hover:text-electric transition-colors" />
+                {/* VISUAL EVIDENCE */}
+                <div className="border-2 border-dashed border-white/5 bg-navy-900/20 hover:bg-white/[0.03] transition-all p-10 rounded-3xl text-center group cursor-pointer relative overflow-hidden">
+                    <input type="file" accept="image/*,video/*" capture="environment" onChange={handleMediaChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    <div className="flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-white/5 group-hover:bg-electric/10 rounded-full flex items-center justify-center mb-6 transition-all duration-500 border border-white/5 group-hover:border-electric/30 shadow-2xl">
+                            <Camera size={28} className="text-slate-500 group-hover:text-electric transition-colors" />
                         </div>
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Upload Visual Evidence</span>
-                        <span className="text-[10px] text-slate-500 mt-2">Images or Video for AI Analysis</span>
-                        <input type="file" accept="image/*,video/*" capture="environment" onChange={handleMediaChange} className="hidden" />
-                    </label>
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-300">Attach Visual Evidence</span>
+                        <span className="text-[10px] text-slate-500 mt-2 font-mono">JPG, PNG, MP4 // Max 20MB</span>
+                    </div>
                     
                     {mediaPreview && (
-                        <div className="mt-6 rounded-xl overflow-hidden border border-surfaceBorder bg-black shadow-lg relative">
+                        <div className="mt-8 rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative animate-in fade-in zoom-in duration-500">
                             {mediaType.startsWith('image/') 
-                                ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[300px] object-contain opacity-90" />
-                                : <video controls src={mediaPreview} className="w-full max-h-[300px] bg-black" />
+                                ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[400px] object-contain" />
+                                : <video controls src={mediaPreview} className="w-full max-h-[400px]" />
                             }
-                            <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[8px] font-mono text-electric uppercase border border-white/10">Attached</div>
+                            <div className="absolute top-4 right-4 bg-navy-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] font-black text-electric uppercase border border-white/10">Signal Attached</div>
                         </div>
                     )}
                 </div>
 
-                <button 
+                <Button 
                     type="submit"
-                    className="w-full py-4.5 bg-electric hover:bg-cyan text-navy-900 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full py-6 text-base font-black shadow-[0_0_40px_rgba(0,240,255,0.2)]"
                 >
-                    Dispatch Protocol
-                </button>
+                    <ShieldCheck size={20} />
+                    Submit Terminal Dispatch
+                </Button>
             </form>
 
-            {/* AI Modal */}
+            {/* AI ANALYSIS MODAL */}
             {showAiModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-900/80 backdrop-blur-md">
-                    <div className="w-full max-w-md p-8 glass-card border border-surfaceBorder shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-300 relative overflow-hidden">
-                        {/* Decorative glow */}
-                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-electric/20 rounded-full blur-[50px]"></div>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-navy-950/90 backdrop-blur-xl">
+                    <Card className="w-full max-w-md p-10 shadow-[0_0_100px_rgba(0,240,255,0.15)] animate-in zoom-in-95 duration-500 relative overflow-hidden">
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-electric/10 rounded-full blur-[80px]"></div>
                         
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-8 h-8 rounded-lg bg-electric/10 flex items-center justify-center border border-electric/20">
-                                    <Cpu size={16} className="text-electric" />
-                                </div>
-                                <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-slate-300">Analysis Result</h3>
+                        <div className="relative z-10 text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-electric/10 flex items-center justify-center border border-electric/20 mx-auto mb-8 shadow-electric">
+                                <Cpu size={32} className="text-electric animate-pulse" />
                             </div>
+                            <h3 className="text-2xl font-black tracking-tight uppercase mb-2">Triage Analysis</h3>
+                            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-10">Engine: {aiResult.method}</p>
                             
-                            <div className="space-y-6 bg-navy-900/50 p-6 rounded-xl border border-surfaceBorder">
+                            <div className="space-y-10 bg-navy-950/50 p-8 rounded-3xl border border-white/5 text-left shadow-inner">
                                 <div>
-                                    <p className="text-slate-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-1">Predicted Category</p>
-                                    <p className="text-2xl font-bold tracking-tight text-white">{aiResult.category}</p>
+                                    <p className="text-slate-500 text-[9px] uppercase font-black tracking-[0.2em] mb-3">Predicted Category</p>
+                                    <p className="text-4xl font-black tracking-tighter text-white">{aiResult.category}</p>
                                 </div>
                                 
                                 <div>
-                                    <div className="flex justify-between items-end mb-2">
-                                        <p className="text-slate-500 text-[9px] uppercase font-bold tracking-[0.15em]">Assessed Risk Level</p>
-                                        <span className="text-xl font-bold text-white">{aiResult.severity}<span className="text-slate-500 text-sm">/5</span></span>
+                                    <div className="flex justify-between items-end mb-4">
+                                        <p className="text-slate-500 text-[9px] uppercase font-black tracking-[0.2em]">Risk Assessment</p>
+                                        <span className="text-2xl font-black text-white">{aiResult.severity}<span className="text-slate-500 text-sm">/5</span></span>
                                     </div>
-                                    <div className="flex gap-1.5 h-1.5">
+                                    <div className="flex gap-2 h-2">
                                         {[1, 2, 3, 4, 5].map((s) => (
                                             <div 
                                                 key={s} 
-                                                className={`flex-1 rounded-full ${s <= aiResult.severity ? (aiResult.severity >= 4 ? 'bg-danger' : 'bg-electric') : 'bg-surfaceBorder'}`}
+                                                className={`flex-1 rounded-full transition-all duration-700 ${s <= aiResult.severity ? (aiResult.severity >= 4 ? 'bg-danger shadow-danger' : 'bg-electric shadow-electric') : 'bg-white/5'}`}
+                                                style={{ transitionDelay: `${s * 100}ms` }}
                                             />
                                         ))}
                                     </div>
                                 </div>
-
-                                <div className="pt-4 border-t border-surfaceBorder">
-                                    <p className="text-[9px] font-mono text-slate-400 uppercase">Engine: {aiResult.method}</p>
-                                </div>
                             </div>
                             
-                            <button 
+                            <Button 
                                 onClick={() => setShowAiModal(false)}
-                                className="mt-8 w-full py-3 bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-white/10 transition-all duration-300"
+                                className="mt-12 w-full py-5"
                             >
-                                Confirm & Proceed
-                            </button>
+                                Confirm AI Data
+                            </Button>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }
 
