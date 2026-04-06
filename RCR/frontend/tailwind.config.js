@@ -17,32 +17,32 @@ module.exports = {
         accent: '#F59E0B',    // Amber
         softWhite: '#F8FAFC',
         navy: {
-          950: '#0B1120', // Refined Deep Navy
-          900: '#0a0f1c',
-          800: '#0f172a',
-          700: '#1e293b'
+          950: '#020617', // Solid Slate 950
+          900: '#0f172a', // Solid Slate 900
+          800: '#1e293b', // Solid Slate 800
+          700: '#334155'
         },
         electric: {
-          DEFAULT: '#00f0ff',
-          hover: '#00d8e6',
-          glow: 'rgba(0, 240, 255, 0.3)'
+          DEFAULT: '#06b6d4', // Solid Cyan 500
+          hover: '#0891b2',
+          glow: 'transparent'
         },
         emerald: {
           DEFAULT: '#10b981',
-          glow: 'rgba(16, 185, 129, 0.3)'
+          glow: 'transparent'
         },
         danger: {
-          DEFAULT: '#ff3366',
-          hover: '#e62e5c',
-          glow: 'rgba(255, 51, 102, 0.3)'
+          DEFAULT: '#ef4444', // Solid Red 500
+          hover: '#dc2626',
+          glow: 'transparent'
         },
         warning: {
           DEFAULT: '#f59e0b',
           hover: '#d97706',
-          glow: 'rgba(245, 158, 11, 0.3)'
+          glow: 'transparent'
         },
-        surface: 'rgba(255, 255, 255, 0.1)',
-        surfaceBorder: 'rgba(255, 255, 255, 0.2)'
+        surface: '#0f172a',
+        surfaceBorder: '#334155'
       },
       fontFamily: {
         sans: ['Inter', 'Montserrat', 'system-ui', 'sans-serif'],

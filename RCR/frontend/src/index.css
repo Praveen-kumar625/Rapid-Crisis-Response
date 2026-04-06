@@ -17,27 +17,27 @@
 
 @layer components {
   .glass-card {
-    @apply bg-navy-950/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-glass transition-all duration-500;
+    @apply bg-slate-900 border border-slate-700 rounded-none shadow-none transition-all duration-200;
   }
   
   .glass-panel {
-    @apply bg-navy-950/60 backdrop-blur-2xl border border-white/5 rounded-none;
+    @apply bg-slate-900 border border-slate-700 rounded-none;
   }
 
   .tactical-border {
-    @apply border border-white/10 hover:border-electric/50 hover:shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all duration-300;
+    @apply border border-slate-700 hover:border-slate-500 transition-all duration-200;
   }
 
   .btn-tactical {
-    @apply relative overflow-hidden bg-electric text-navy-950 px-6 py-3 rounded-none text-xs font-black uppercase tracking-[0.2em] transition-all shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] active:scale-[0.98] active:translate-y-0.5 flex items-center justify-center gap-3 border-none;
+    @apply relative overflow-hidden bg-cyan-600 text-white px-6 py-3 rounded-none text-xs font-black uppercase tracking-[0.2em] transition-all shadow-none hover:bg-cyan-500 active:bg-cyan-700 flex items-center justify-center gap-3 border border-cyan-400;
   }
 
   .btn-tactical-outline {
-    @apply relative overflow-hidden bg-transparent text-electric px-6 py-3 rounded-none text-xs font-black uppercase tracking-[0.2em] transition-all border border-electric/30 hover:bg-electric/10 hover:border-electric active:scale-[0.98] flex items-center justify-center gap-3;
+    @apply relative overflow-hidden bg-transparent text-cyan-400 px-6 py-3 rounded-none text-xs font-black uppercase tracking-[0.2em] transition-all border border-cyan-600 hover:bg-slate-800 active:bg-slate-900 flex items-center justify-center gap-3;
   }
 
   .glass-nav {
-    @apply bg-navy-950/80 backdrop-blur-3xl border-b border-white/10;
+    @apply bg-slate-900 border-b border-slate-700 shadow-none;
   }
 
   .text-gradient {

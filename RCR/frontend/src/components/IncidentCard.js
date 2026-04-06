@@ -1,3 +1,4 @@
+// RE-THEMED: Solid Tactical
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
@@ -13,56 +14,58 @@ function IncidentCard({ incident }) {
     
     return (
         <Card 
-            className="group relative overflow-hidden flex flex-col justify-between p-8 hover:bg-white/[0.03] cursor-pointer"
+            className="group relative flex flex-col justify-between p-6 bg-slate-900 border border-slate-700 hover:border-slate-500 cursor-pointer rounded-none shadow-none"
             onClick={() => navigate(`/incidents/${id}`)}
         >
-            {/* Left Accent Line */}
-            <div className={`absolute top-0 left-0 w-1 h-full transition-all duration-500 ${
-                isCritical ? 'bg-danger shadow-[0_0_20px_rgba(255,51,102,0.6)]' : 'bg-secondary shadow-[0_0_20px_rgba(13,148,136,0.4)]'
-            } group-hover:w-2`}></div>
+            {/* Left Accent Stripe */}
+            <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                isCritical ? 'bg-red-600' : 'bg-cyan-600'
+            }`}></div>
             
-            <div className="relative z-10">
-                <div className="flex justify-between items-start mb-6">
+            <div className="relative z-10 pl-2">
+                <div className="flex justify-between items-start mb-4">
                     <div className="flex flex-col gap-2">
                         <StatusBadge status={status} />
-                        <h3 className="text-xl font-black text-white group-hover:text-secondary transition-colors uppercase tracking-tight leading-tight line-clamp-2">
+                        <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight line-clamp-2 font-mono">
                             {title}
                         </h3>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 mb-6">
-                    <span className="bg-navy-950 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border border-white/5">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="bg-slate-800 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-slate-400 border border-slate-700 font-mono">
                         {category}
                     </span>
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-lg border ${
-                        isCritical ? 'text-danger bg-danger/10 border-danger/20' : 'text-accent bg-accent/10 border-accent/20'
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 border-2 font-mono ${
+                        isCritical ? 'text-white bg-red-600 border-red-400' : 'text-black bg-cyan-500 border-cyan-300'
                     }`}>
-                        LVL {severity}
+                        LVL_{severity}
                     </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
-                        <Navigation size={12} />
-                        <span>WING_{wingId}</span>
+                <div className="grid grid-cols-1 gap-2 mb-4 bg-black/20 p-3 border border-slate-800">
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                        <Navigation size={12} className="text-slate-600" />
+                        <span className="font-bold">SECTOR:</span>
+                        <span className="text-slate-200">WING_{wingId} {'//'} L_{floorLevel}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
-                        <MapPin size={12} />
-                        <span>{lat.toFixed(3)}, {lng.toFixed(3)}</span>
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                        <MapPin size={12} className="text-slate-600" />
+                        <span className="font-bold">COORD:</span>
+                        <span className="text-slate-200">{lat.toFixed(4)}N, {lng.toFixed(4)}E</span>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-4 pt-6 border-t border-white/5 flex justify-between items-center relative z-10">
-                <div className="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                    <Cpu size={14} className="text-slate-600" />
-                    {triageMethod || 'Cloud AI'}
+            <div className="mt-2 pt-4 border-t border-slate-800 flex justify-between items-center relative z-10 pl-2">
+                <div className="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">
+                    <Cpu size={14} className="text-slate-700" />
+                    PROC: {triageMethod || 'CLOUD_CORE'}
                 </div>
-                <Link to={`/incidents/${id}`} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    isCritical ? 'text-danger hover:text-red-400' : 'text-secondary hover:text-teal-400'
+                <Link to={`/incidents/${id}`} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all font-mono ${
+                    isCritical ? 'text-red-500 hover:text-red-400' : 'text-cyan-500 hover:text-cyan-400'
                 }`}>
-                    INTEL <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    OPEN_INTEL <ArrowRight size={14} />
                 </Link>
             </div>
         </Card>

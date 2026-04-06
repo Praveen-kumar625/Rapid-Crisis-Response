@@ -1,3 +1,4 @@
+// RE-THEMED: Solid Tactical
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,14 +13,14 @@ const NavLink = ({ to, icon: Icon, children, currentPath, onClick }) => {
         <Link 
             to={to} 
             onClick={onClick}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-none text-xs font-black uppercase tracking-widest transition-all duration-200 ${
                 isActive 
-                ? 'bg-secondary/10 text-secondary-light border border-secondary/20 shadow-[0_0_15px_rgba(13,148,136,0.1)]' 
-                : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
+                ? 'bg-slate-700 text-cyan-400 border border-slate-600' 
+                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800'
             }`}
         >
-            <Icon size={18} className={isActive ? 'text-secondary-light' : ''} />
-            <span className="tracking-wide">{children}</span>
+            <Icon size={16} className={isActive ? 'text-cyan-400' : ''} />
+            <span>{children}</span>
         </Link>
     );
 };
@@ -39,16 +40,15 @@ const NetworkStatus = () => {
     }, []);
 
     return (
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-500 ${
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-none border font-mono ${
             isOnline 
-            ? 'bg-secondary/5 border-secondary/20 text-secondary-light' 
-            : 'bg-danger/5 border-danger/20 text-danger animate-pulse'
+            ? 'bg-slate-900 border-slate-700 text-emerald-500' 
+            : 'bg-red-900 border-red-700 text-red-200 animate-pulse'
         }`}>
             {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
             <span className="text-[9px] font-black uppercase tracking-widest hidden sm:inline">
-                {isOnline ? 'Cloud Sync Active' : 'Edge Mode Active'}
+                {isOnline ? 'CLOUD_SYNC_ACTIVE' : 'EDGE_MODE_ACTIVE'}
             </span>
-            {!isOnline && <DatabaseZap size={12} className="text-accent" />}
         </div>
     );
 };
@@ -58,19 +58,19 @@ export const Navbar = ({ user, login }) => {
     const location = useLocation();
 
     return (
-        <header className="sticky top-0 z-50 glass-nav">
-            <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-20 flex justify-between items-center">
+        <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-700 shadow-none">
+            <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex justify-between items-center">
                 
                 <div className="flex items-center gap-8">
                     <Link to="/" className="flex items-center gap-4 group text-decoration-none" aria-label="RCR Home">
-                        <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl border border-white/10 shadow-lg group-hover:shadow-secondary/20 transition-all duration-500">
-                            <Shield className="text-white w-5 h-5" />
+                        <div className="relative flex items-center justify-center w-8 h-8 bg-slate-800 border border-slate-600 rounded-none transition-all duration-300">
+                            <Shield className="text-cyan-400 w-4 h-4" />
                         </div>
                         <div className="hidden md:flex flex-col">
-                            <h1 className="text-lg font-bold tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                                Rapid <span className="text-secondary-light font-black">Crisis</span> Response
+                            <h1 className="text-sm font-black tracking-widest uppercase text-white">
+                                RAPID <span className="text-cyan-400">CRISIS</span> RESPONSE
                             </h1>
-                            <span className="text-[10px] text-accent tracking-[0.2em] font-mono opacity-80 uppercase">Operations Terminal</span>
+                            <span className="text-[8px] text-amber-500 tracking-[0.2em] font-mono opacity-80 uppercase">OP_TERMINAL_V4</span>
                         </div>
                     </Link>
 
@@ -79,31 +79,30 @@ export const Navbar = ({ user, login }) => {
                     </div>
                 </div>
 
-                <nav className="hidden lg:flex items-center gap-2" aria-label="Main Navigation">
+                <nav className="hidden lg:flex items-center gap-1" aria-label="Main Navigation">
                     <NavLink to="/" icon={Activity} currentPath={location.pathname}>Overview</NavLink>
                     <NavLink to="/map" icon={MapIcon} currentPath={location.pathname}>Live Map</NavLink>
                     <NavLink to="/dashboard" icon={BarChart2} currentPath={location.pathname}>Analytics</NavLink>
-                    <div className="w-px h-8 bg-white/5 mx-2"></div>
+                    <div className="w-px h-6 bg-slate-700 mx-2"></div>
                     <Link to="/report" aria-label="Initiate SOS Report">
-                        <button className="bg-accent/10 text-accent border border-accent/30 hover:bg-accent hover:text-white px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] flex items-center gap-2">
-                            <ShieldAlert size={18} />
-                            SOS Report
+                        <button className="bg-amber-500 text-black border border-amber-300 hover:bg-amber-400 px-4 py-2 rounded-none text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2">
+                            <ShieldAlert size={16} />
+                            SOS_REPORT
                         </button>
                     </Link>
                 </nav>
 
                 <div className="hidden lg:flex items-center gap-4">
                     {user ? (
-                        <div className="flex items-center gap-4 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10">
-                            <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=0D8ABC&color=fff`} alt="Profile" className="w-8 h-8 rounded-full border border-white/10" />
-                            <span className="text-xs font-medium text-slate-300 max-w-[100px] truncate">{user.email}</span>
-                            <button onClick={() => signOut(auth)} className="text-slate-400 hover:text-danger ml-2 transition-colors" aria-label="Logout">
-                                <LogOut size={16} />
+                        <div className="flex items-center gap-4 bg-slate-800 px-3 py-1 rounded-none border border-slate-700">
+                            <span className="text-[10px] font-mono font-bold text-slate-300 max-w-[150px] truncate">{user.email.toUpperCase()}</span>
+                            <button onClick={() => signOut(auth)} className="text-slate-500 hover:text-red-500 transition-colors" aria-label="Logout">
+                                <LogOut size={14} />
                             </button>
                         </div>
                     ) : (
-                        <Button variant="secondary" onClick={login} className="px-6 py-2.5 text-sm" aria-label="Login">
-                            <LogIn size={18} /> Login
+                        <Button variant="primary" onClick={login} className="px-4 py-2 text-[10px]" aria-label="Login">
+                            <LogIn size={16} /> LOGIN
                         </Button>
                     )}
                 </div>
