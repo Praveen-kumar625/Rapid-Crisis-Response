@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Radio, MapPin, Clock } from 'lucide-react';
+import { Activity, Radio, Clock } from 'lucide-react';
 import { Badge } from './ui/Badge';
 
 const SeverityIndicator = ({ level }) => {

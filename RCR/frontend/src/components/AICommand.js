@@ -19,7 +19,7 @@ const StatBar = ({ label, value, color = 'bg-electric' }) => (
     </div>
 );
 
-export const AICommand = ({ selectedIncident, stats }) => {
+export const AICommand = ({ selectedIncident }) => {
     return (
         <aside className="w-1/4 h-full flex flex-col bg-navy-950/40 backdrop-blur-xl border-l border-white/10 overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6 hide-scrollbar">

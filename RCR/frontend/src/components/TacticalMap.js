@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
-import { Layers, Radio, Shield, Plus, Target } from 'lucide-react';
+import { Shield, Plus } from 'lucide-react';
 import { Card } from './ui/Card';
 
 const RESPONDER_HQ = { lat: 28.6139, lng: 77.2090 };
