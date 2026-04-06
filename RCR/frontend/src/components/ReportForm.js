@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // 🚨 FIXED: Removed unused useMemo
 import api from '../api';
 import toast from 'react-hot-toast';
 import { queueReport, getPendingReports, markReportSynced } from '../idb';
 import { localAnalyze } from '../utils/edgeAi';
-import { debounce } from '../utils/debounce';
+// 🚨 FIXED: Removed unused debounce
 import { Mic, MicOff, Camera, AlertTriangle, Cpu, Info, ShieldCheck } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';

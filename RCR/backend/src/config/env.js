@@ -12,7 +12,8 @@ const envSchema = z.object({
     DB_PASS: z.string().optional(),
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.coerce.number().default(6379),
-    GEMINI_API_KEY: z.string().min(1, "GEMINI_API_KEY is required for AI features"),
+    // 🚨 FIXED: Relaxed GEMINI_API_KEY requirement to allow app to start without it (features will gracefully degrade)
+    GEMINI_API_KEY: z.string().optional(), 
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     ALLOWED_ORIGINS: z.string().default(''),
 });
@@ -25,6 +26,10 @@ if (!parsed.success && process.env.NODE_ENV === 'production') {
 }
 
 const env = parsed.data || process.env;
+
+if (!env.GEMINI_API_KEY) {
+    console.warn('⚠️ WARNING: GEMINI_API_KEY is missing. AI features will be disabled.');
+}
 
 module.exports = {
     PORT: env.PORT,

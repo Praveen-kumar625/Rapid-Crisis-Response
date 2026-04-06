@@ -23,11 +23,17 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-const { ALLOWED_ORIGINS } = require('./config/env');
+const { ALLOWED_ORIGINS, NODE_ENV } = require('./config/env');
 
 app.use(
     cors({
         origin: function(origin, callback) {
+            // 🚨 FIXED: Allow requests with no origin during tests and local development
+            // This prevents "CORS policy: Origin not allowed" during backend automated tests.
+            if (!origin && NODE_ENV !== 'production') {
+                return callback(null, true);
+            }
+
             // Strictly validate against ALLOWED_ORIGINS to prevent bypasses
             if (ALLOWED_ORIGINS.includes(origin)) {
                 return callback(null, true);
