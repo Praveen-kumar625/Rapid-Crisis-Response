@@ -2,6 +2,7 @@
 const IncidentService = require('../services/incident.service');
 const StorageService = require('../infrastructure/storage');
 const SocketService = require('../services/socket.service'); // Added import for scaling fix
+const db = require('../db'); // FIXED: Hoisted database import to prevent connection pooling bloat
 
 exports.getUploadUrl = async(req, res) => {
     try {
@@ -198,10 +199,6 @@ exports.updateSafetyStatus = async(req, res) => {
         res.json({ success: true, status: user.safety_status });
     } catch (err) {
         console.error('[IncidentsController] updateSafetyStatus failed:', err);
-        res.status(500).json({ error: 'Pulse failed' });
-    }
-};
-nsole.error('[IncidentsController] updateSafetyStatus failed:', err);
         res.status(500).json({ error: 'Pulse failed' });
     }
 };
