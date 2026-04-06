@@ -3,20 +3,21 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { S3 } = require('../config/env');
 const axios = require('axios');
 
-const s3Client = new S3Client({
+// 🚨 FIXED: Resilience check for S3 config to prevent "Cannot read properties of undefined"
+const s3Client = (S3 && S3.region) ? new S3Client({
     region: S3.region,
     credentials: {
         accessKeyId: S3.accessKeyId,
         secretAccessKey: S3.secretAccessKey,
     },
     ...(S3.endpoint ? { endpoint: S3.endpoint } : {}),
-});
+}) : null;
 
 /**
  * Generates a presigned URL for direct client-to-S3 uploads
  */
 async function getPresignedUploadUrl(fileName, mimeType) {
-    if (!S3.bucketName || !S3.accessKeyId || !S3.secretAccessKey) {
+    if (!s3Client || !S3.bucketName) {
         console.warn('[Storage] AWS S3 not configured. Cannot generate presigned URL.');
         return null;
     }
@@ -45,7 +46,7 @@ async function getPresignedUploadUrl(fileName, mimeType) {
  * Uploads a base64 encoded file to S3
  */
 async function uploadBase64(base64Data, mimeType, fileName) {
-    if (!S3.bucketName || !S3.accessKeyId || !S3.secretAccessKey) {
+    if (!s3Client || !S3.bucketName) {
         console.warn('[Storage] AWS S3 not configured. Skipping upload.');
         return null;
     }

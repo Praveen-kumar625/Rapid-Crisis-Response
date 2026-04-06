@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
-import { X, Navigation, Info, LocateFixed, Zap, Shield } from 'lucide-react';
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'; // 🚨 FIXED: Removed unused Pin
+import { X, Navigation, Info, LocateFixed, Shield } from 'lucide-react'; // 🚨 FIXED: Removed unused Zap
 import api from '../api';
 import { getSocket } from '../socket';
 import { Card } from './ui/Card';

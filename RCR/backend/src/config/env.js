@@ -12,13 +12,18 @@ const envSchema = z.object({
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.coerce.number().default(6379),
     GEMINI_API_KEY: z.string().optional(), 
-    NODE_ENV: z.string().default('development'), // 🚨 FIXED: Allow any string to capture 'test' from Jest
+    NODE_ENV: z.string().default('development'),
     ALLOWED_ORIGINS: z.string().default(''),
+    // AWS S3 variables
+    AWS_S3_BUCKET: z.string().optional(),
+    AWS_REGION: z.string().default('us-east-1'),
+    AWS_ACCESS_KEY_ID: z.string().optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().optional(),
+    AWS_S3_ENDPOINT: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
-// Only crash on invalid env in production
 if (!parsed.success && process.env.NODE_ENV === 'production') {
     console.error('❌ Invalid environment variables:', JSON.stringify(parsed.error.format(), null, 2));
     process.exit(1);
@@ -28,7 +33,7 @@ const env = parsed.data || process.env;
 
 module.exports = {
     PORT: env.PORT,
-    NODE_ENV: process.env.NODE_ENV || env.NODE_ENV || 'development', // 🚨 FIXED: Prioritize process.env
+    NODE_ENV: process.env.NODE_ENV || env.NODE_ENV || 'development',
     DB: {
         host: env.DB_HOST || 'localhost',
         port: env.DB_PORT || 5432,
@@ -43,4 +48,12 @@ module.exports = {
     GEMINI_API_KEY: env.GEMINI_API_KEY,
     ALLOWED_ORIGINS: (env.ALLOWED_ORIGINS || '').split(',').map(u => u.trim()).filter(Boolean),
     DEMO_MODE: process.env.DEMO_MODE === 'true',
+    // 🚨 FIXED: Correctly export S3 config object
+    S3: {
+        bucketName: env.AWS_S3_BUCKET,
+        region: env.AWS_REGION,
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+        endpoint: env.AWS_S3_ENDPOINT,
+    },
 };

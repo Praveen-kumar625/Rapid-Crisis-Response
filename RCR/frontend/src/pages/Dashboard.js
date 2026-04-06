@@ -5,7 +5,7 @@ import { getSocket } from '../socket';
 import {
     PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { Activity, AlertTriangle, CheckCircle2, Zap, Target, TrendingUp, Info, ArrowRight } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Zap, Target, TrendingUp, ArrowRight } from 'lucide-react'; // 🚨 FIXED: Removed unused Info
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Card } from '../components/ui/Card';
