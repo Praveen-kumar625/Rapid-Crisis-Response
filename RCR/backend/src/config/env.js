@@ -11,6 +11,7 @@ const envSchema = z.object({
     DB_PASS: z.string().optional(),
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.coerce.number().default(6379),
+    REDIS_URL: z.string().optional(),
     GEMINI_API_KEY: z.string().optional(), 
     NODE_ENV: z.string().default('development'),
     ALLOWED_ORIGINS: z.string().default(''),
@@ -48,6 +49,7 @@ module.exports = {
     REDIS: {
         host: env.REDIS_HOST || 'localhost',
         port: env.REDIS_PORT || 6379,
+        url: env.REDIS_URL,
     },
     GEMINI_API_KEY: env.GEMINI_API_KEY,
     ALLOWED_ORIGINS: (env.ALLOWED_ORIGINS || '').split(',').map(u => u.trim()).filter(Boolean),

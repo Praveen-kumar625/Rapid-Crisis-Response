@@ -5,10 +5,14 @@ const { REDIS } = require('../config/env');
 const { startAlertListener } = require('../services/alert.service');
 
 let ioInstance = null;
-const redisClient = new Redis({
+const redisConfig = REDIS.url ? REDIS.url : {
     host: REDIS.host,
     port: REDIS.port,
+};
+
+const redisClient = new Redis(redisConfig, {
     retryStrategy: (times) => Math.min(times * 50, 2000), // Don't crash, just retry
+    maxRetriesPerRequest: null, // Essential for BullMQ and long-running subscribers
 });
 
 redisClient.on('error', (err) => {

@@ -3,7 +3,7 @@ const { generateHotelIoTEvent } = require('./feeds/hotel_iot_feed');
 const IncidentService = require('../services/incident.service');
 const db = require('../db');
 
-async function startScheduler(_redisConfig) {
+async function startScheduler(redisConfig) {
     // Ensure system user exists
     try {
         await db('users')
@@ -15,8 +15,7 @@ async function startScheduler(_redisConfig) {
     }
 
     const Redis = require('ioredis');
-    const { REDIS } = require('../config/env');
-    const redis = new Redis({ host: REDIS.host, port: REDIS.port });
+    const redis = new Redis(redisConfig);
 
     cron.schedule('*/1 * * * *', async() => {
         // Distributed Lock: Ensure only one instance runs the scheduler for this minute

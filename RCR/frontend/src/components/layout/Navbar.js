@@ -119,21 +119,21 @@ export const Navbar = ({ user, login }) => {
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div 
-                        initial={{ opacity: 0, x: '100%' }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: '100%' }}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="lg:hidden fixed inset-0 top-20 z-40 bg-primary/95 backdrop-blur-2xl p-6 flex flex-col gap-8"
+                        className="lg:hidden fixed inset-0 top-16 z-40 bg-slate-900/95 backdrop-blur-xl p-6 flex flex-col gap-8 border-t border-slate-700"
                     >
                         <motion.nav 
                             initial="initial"
                             animate="animate"
                             variants={{
                                 animate: {
-                                    transition: { staggerChildren: 0.1 }
+                                    transition: { staggerChildren: 0.05 }
                                 }
                             }}
-                            className="flex flex-col gap-4"
+                            className="flex flex-col gap-2"
                             aria-label="Mobile Navigation"
                         >
                             {[
@@ -144,7 +144,7 @@ export const Navbar = ({ user, login }) => {
                                 <motion.div 
                                     key={link.to}
                                     variants={{
-                                        initial: { opacity: 0, x: 20 },
+                                        initial: { opacity: 0, x: -10 },
                                         animate: { opacity: 1, x: 0 }
                                     }}
                                 >
@@ -156,37 +156,45 @@ export const Navbar = ({ user, login }) => {
                             
                             <motion.div
                                 variants={{
-                                    initial: { opacity: 0, x: 20 },
+                                    initial: { opacity: 0, x: -10 },
                                     animate: { opacity: 1, x: 0 }
                                 }}
+                                className="mt-4"
                             >
-                                <Link to="/report" onClick={() => setIsMobileMenuOpen(false)} className="mt-4 flex items-center justify-center gap-3 bg-accent/20 text-accent border border-accent/50 px-5 py-5 rounded-2xl text-sm font-black uppercase tracking-widest shadow-accent/20">
-                                    <ShieldAlert size={20} /> Report SOS Signal
+                                <Link to="/report" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <button className="w-full bg-amber-500 text-black border border-amber-300 px-4 py-4 rounded-none text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 active:bg-amber-400 transition-colors">
+                                        <ShieldAlert size={20} />
+                                        SOS_REPORT_SIGNAL
+                                    </button>
                                 </Link>
                             </motion.div>
                         </motion.nav>
                         
-                        <div className="mt-auto pb-10">
+                        <div className="mt-auto pb-8 border-t border-slate-800 pt-8">
                             <NetworkStatus />
-                            <div className="h-px bg-white/5 my-8"></div>
                             
                             {user ? (
-                                <div className="flex items-center justify-between bg-white/5 p-5 rounded-3xl border border-white/5">
-                                    <div className="flex items-center gap-4">
-                                        <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=0D8ABC&color=fff`} alt="Profile" className="w-12 h-12 rounded-full border-2 border-white/10" />
-                                        <div>
-                                            <p className="text-xs font-black text-white uppercase tracking-tight truncate max-w-[150px]">{user.email}</p>
-                                            <p className="text-[10px] text-slate-500 font-mono text-gradient-accent uppercase">Authorized Intel</p>
+                                <div className="mt-6 flex items-center justify-between bg-slate-800 p-4 border border-slate-700">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="w-10 h-10 bg-slate-700 border border-slate-600 flex items-center justify-center shrink-0">
+                                            <Shield size={20} className="text-cyan-400" />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <p className="text-[10px] font-black text-white uppercase tracking-tight truncate">{user.email}</p>
+                                            <p className="text-[8px] text-cyan-500 font-mono uppercase tracking-widest">Authorized_Intel</p>
                                         </div>
                                     </div>
-                                    <button onClick={() => { signOut(auth); setIsMobileMenuOpen(false); }} className="p-3 bg-danger/10 text-danger rounded-2xl hover:bg-danger/20 transition-all" aria-label="Sign Out">
-                                        <LogOut size={24} />
+                                    <button onClick={() => { signOut(auth); setIsMobileMenuOpen(false); }} className="p-2 text-slate-400 hover:text-red-500 transition-colors" aria-label="Sign Out">
+                                        <LogOut size={20} />
                                     </button>
                                 </div>
                             ) : (
-                                <Button variant="secondary" onClick={() => { login(); setIsMobileMenuOpen(false); }} className="w-full py-5">
-                                    <LogIn size={20} /> Sign In to Terminal
-                                </Button>
+                                <button 
+                                    onClick={() => { login(); setIsMobileMenuOpen(false); }} 
+                                    className="mt-6 w-full bg-slate-800 border border-slate-600 text-white px-4 py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                                >
+                                    <LogIn size={20} /> LOGIN_TO_TERMINAL
+                                </button>
                             )}
                         </div>
                     </motion.div>

@@ -1,10 +1,11 @@
 require('dotenv').config();
 const { startScheduler } = require('./scheduler');
 require('./processors'); // Starts the BullMQ worker
+const { REDIS } = require('../config/env');
 
-const redisConfig = {
-    host: process.env.REDIS_HOST,
-    port: Number(process.env.REDIS_PORT),
+const redisConfig = REDIS.url ? REDIS.url : {
+    host: REDIS.host,
+    port: REDIS.port,
 };
 
 console.log('[Worker] Starting RCR background orchestration system...');

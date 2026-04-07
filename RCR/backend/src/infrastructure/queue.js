@@ -1,7 +1,7 @@
 const { Queue } = require('bullmq');
 const { REDIS, NODE_ENV } = require('../config/env');
 
-const connection = {
+const connection = REDIS.url ? REDIS.url : {
     host: REDIS.host,
     port: REDIS.port
 };
