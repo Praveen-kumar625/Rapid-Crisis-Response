@@ -25,9 +25,20 @@ app.use(globalLimiter);
 app.use(
     cors({
         origin: function(origin, callback) {
-            // 🚨 FIXED: Broaden exception for non-production environments and Vercel MVP
-            const allowed = ['https://rapid-crisis-response-f4yd.vercel.app', 'http://localhost:3000'];
-            if (!origin || NODE_ENV !== 'production' || allowed.includes(origin)) {
+            // 🚨 ARCHITECTURE FIX: Support Vercel Preview wildcard domains and production URL
+            const allowedPatterns = [
+                /^https:\/\/rapid-crisis-response-.*\.vercel\.app$/,
+                /^https:\/\/rapid-crisis-response-f4yd\.vercel\.app$/
+            ];
+            const allowedOrigins = ['http://localhost:3000', 'https://rapid-crisis-response-f4yd.vercel.app'];
+
+            if (!origin || NODE_ENV !== 'production' || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            // Check against Vercel wildcard patterns
+            const isVercelPreview = allowedPatterns.some(pattern => pattern.test(origin));
+            if (isVercelPreview) {
                 return callback(null, true);
             }
 
