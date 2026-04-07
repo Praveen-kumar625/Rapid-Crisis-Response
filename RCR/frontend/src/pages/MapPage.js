@@ -11,14 +11,14 @@ import { Container } from '../components/layout/Container';
 
 function MapPage() {
     return (
-        <Section className="py-8 bg-[#0B0F19] flex-1 flex flex-col">
-            <Container className="flex-1 flex flex-col h-full">
-                <header className="mb-8 flex justify-between items-end">
+        <Section className="py-4 md:py-8 bg-[#0B0F19] flex-1 flex flex-col min-h-0">
+            <Container className="flex-1 flex flex-col h-full min-h-0">
+                <header className="mb-4 md:mb-8 flex justify-between items-end shrink-0">
                     <div>
-                        <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">
+                        <h2 className="text-xl md:text-3xl font-black uppercase tracking-tight text-white mb-1 md:mb-2">
                             Tactical <span className="text-cyan-400">Map</span>
                         </h2>
-                        <p className="text-slate-500 font-mono text-[10px] tracking-[0.3em] uppercase">
+                        <p className="text-slate-500 font-mono text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase">
                             Real-time visualization of all active signal nodes.
                         </p>
                     </div>
@@ -28,7 +28,7 @@ function MapPage() {
                 </header>
 
                 {/* 🚨 CRITICAL: The map component must be inside a container with 'flex-1' or 'h-[VALUE]' */}
-                <div className="flex-1 w-full min-h-[600px] h-[70vh] rounded-none overflow-hidden border border-slate-800 shadow-tactical">
+                <div className="flex-1 w-full min-h-0 rounded-none overflow-hidden border border-slate-800 shadow-tactical">
                     <CrisisMap />
                 </div>
             </Container>

@@ -125,7 +125,7 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
 
     if (!apiKey) {
         return (
-            <div className="w-full h-full min-h-[600px] flex flex-col items-center justify-center bg-[#0B0F19] p-12 text-center border border-slate-800 rounded-none">
+            <div className="w-full h-full min-h-0 flex flex-col items-center justify-center bg-[#0B0F19] p-12 text-center border border-slate-800 rounded-none">
                 <AlertCircle size={48} className="text-red-600 mb-6" />
                 <h2 className="text-2xl font-black text-slate-100 uppercase mb-4">Map Key Missing</h2>
                 <p className="text-slate-400 max-w-md font-mono text-xs uppercase tracking-widest">
@@ -136,7 +136,7 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
     }
 
     return (
-        <div className="relative w-full h-full min-h-[600px] flex-1 overflow-hidden rounded-none border border-slate-800 bg-[#0B0F19]">
+        <div className="relative w-full h-full min-h-0 flex-1 overflow-hidden rounded-none border border-slate-800 bg-[#0B0F19] touch-none">
             <APIProvider apiKey={apiKey}>
                 {/* 🚨 CRITICAL: Explicit dimensions on the container and mapId for AdvancedMarkers */}
                 <Map 
@@ -146,7 +146,7 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
                     disableDefaultUI={true}
                     gestureHandling="greedy"
                     styles={MAP_STYLES}
-                    className="w-full h-full min-h-[600px] rounded-none"
+                    className="w-full h-full min-h-0 rounded-none"
                 >
                     {/* HQ Marker */}
                     <AdvancedMarker position={RESPONDER_HQ}>
@@ -190,14 +190,14 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
             </APIProvider>
 
             {/* Tactical Overlays */}
-            <div className="absolute top-6 left-6 z-10 pointer-events-none">
+            <div className="absolute top-2 left-2 md:top-6 md:left-6 z-10 pointer-events-none">
                 <Card 
-                    className="flex items-center px-5 py-3 gap-4 border border-slate-700 bg-[#0B0F19]/90 shadow-tactical rounded-none"
+                    className="flex items-center px-3 py-2 md:px-5 md:py-3 gap-2 md:gap-4 border border-slate-700 bg-[#0B0F19]/90 shadow-tactical rounded-none"
                 >
-                    <Shield size={18} className="text-red-600" />
+                    <Shield size={14} className="text-red-600 md:w-[18px] md:h-[18px]" />
                     <div className="flex flex-col">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Live_Grid</span>
-                        <span className="text-xs font-mono font-bold text-cyan-400 tabular-nums">
+                        <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-500">Live_Grid</span>
+                        <span className="text-[10px] md:text-xs font-mono font-bold text-cyan-400 tabular-nums">
                             {incidents.length} SIGNAL_NODES
                         </span>
                     </div>
