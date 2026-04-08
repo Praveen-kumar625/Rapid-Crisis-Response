@@ -18,13 +18,23 @@ In high-pressure environments like luxury hotels and resorts, **seconds save liv
 
 ---
 
+## 🌍 UN Sustainable Development Goals (SDG) Alignment
+RCR is explicitly designed to address key UN SDGs for the **Google Solution Challenge 2026**:
+- **Goal 3: Good Health & Well-being** (Reducing emergency casualties)
+- **Goal 9: Industry, Innovation & Infrastructure** (Resilient safety systems)
+- **Goal 11: Sustainable Cities & Communities** (Disaster-resilient buildings)
+
+[**Read our full SDG Alignment Strategy**](./SDG_ALIGNMENT.md)
+
+---
+
 ## ✨ Key Features
 
 <table width="100%">
   <tr>
     <td width="50%">
-      <h3>🤖 AI-Driven Triage</h3>
-      <p>Automated SOS verification using Google Gemini. Detects severity, allocates resources, and flags spam in milliseconds.</p>
+      <h3>🤖 Hybrid AI Triage</h3>
+      <p>Cloud Gemini 1.5 Flash + <b>On-Device Edge AI</b> (Transformers.js) for instant triage even in zero-connectivity zones.</p>
     </td>
     <td width="50%">
       <h3>📡 Offline-First Sync</h3>
@@ -37,8 +47,8 @@ In high-pressure environments like luxury hotels and resorts, **seconds save liv
       <p>Native-feel audio recording with support for iOS (Safari) and Android (Chrome) MIME types for hands-free emergency alerts.</p>
     </td>
     <td width="50%">
-      <h3>🗺️ Command Intelligence</h3>
-      <p>Live Crisis Mapping with Guest Safety Pulse. Track every guest's status in real-time on a centralized tactical dashboard.</p>
+      <h3>🗺️ Z-Axis Indoor Routing</h3>
+      <p>Multi-story floor level awareness. Generates safe evacuation paths based on real-time hazard floor levels.</p>
     </td>
   </tr>
 </table>

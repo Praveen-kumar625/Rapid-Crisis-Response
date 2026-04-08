@@ -7,10 +7,12 @@ import {
     Zap, 
     ChevronLeft,
     Navigation,
-    Activity
+    Activity,
+    MapPin
 } from 'lucide-react';
 import api from '../api';
 import { getSocket } from '../socket';
+import { getSafeRoute } from '../utils/zAxisRouting';
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Card } from '../components/ui/Card';
@@ -203,6 +205,35 @@ function IncidentDetail() {
                                     ))}
                                     <div className="flex justify-between items-center pt-3"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">GPS_COORD</span><span className="text-[10px] font-bold text-slate-400 uppercase font-mono tabular-nums">{(incident.location.coordinates[1]).toFixed(4)}N, {(incident.location.coordinates[0]).toFixed(4)}E</span></div>
                                 </div>
+                            </Card>
+
+                            <Card className="p-6 lg:p-8 bg-cyan-900/10 border border-cyan-500/20 rounded-none shadow-none">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400 mb-6 flex items-center gap-2 font-mono"><MapPin size={16} /> Z-AXIS_EVAC_PATH</h3>
+                                {(() => {
+                                    const route = getSafeRoute(incident);
+                                    return (
+                                        <div className="space-y-4">
+                                            <div className="p-3 bg-black/40 border border-slate-800">
+                                                <p className="text-[8px] text-slate-500 font-black uppercase mb-1">PRIMARY_ROUTE</p>
+                                                <p className="text-xs text-white leading-relaxed">{route.primaryPath}</p>
+                                            </div>
+                                            <div className="flex justify-between items-center px-1">
+                                                <span className="text-[8px] text-slate-500 font-black uppercase">EST_TIME</span>
+                                                <span className="text-[10px] font-bold text-cyan-400 font-mono">{route.estimatedTime}</span>
+                                            </div>
+                                            {route.hazards.length > 0 && (
+                                                <div className="pt-2">
+                                                    <p className="text-[8px] text-red-500 font-black uppercase mb-2">ACTIVE_HAZARDS</p>
+                                                    {route.hazards.map((h, i) => (
+                                                        <div key={i} className="text-[9px] text-slate-400 flex items-start gap-2 mb-1">
+                                                            <span className="text-red-500 font-bold">•</span> {h}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </Card>
 
                             <Card className="p-6 lg:p-8 bg-black/20 border-slate-800 rounded-none shadow-none">

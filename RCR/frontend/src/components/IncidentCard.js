@@ -59,8 +59,12 @@ function IncidentCard({ incident }) {
 
             <div className="mt-2 pt-4 border-t border-slate-800 flex justify-between items-center relative z-10 pl-2">
                 <div className="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">
-                    <Cpu size={14} className="text-slate-700" />
-                    PROC: {triageMethod || 'CLOUD_CORE'}
+                    <Cpu size={14} className={triageMethod?.includes('Edge') ? 'text-emerald-500 animate-pulse' : 'text-slate-700'} />
+                    {triageMethod?.includes('Edge') ? (
+                        <span className="text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20">EDGE_AI_VERIFIED</span>
+                    ) : (
+                        `PROC: ${triageMethod || 'CLOUD_CORE'}`
+                    )}
                 </div>
                 <Link to={`/incidents/${id}`} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all font-mono ${
                     isCritical ? 'text-red-500 hover:text-red-400' : 'text-cyan-500 hover:text-cyan-400'

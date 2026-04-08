@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Zap, AlertCircle } from 'lucide-react';
+import { Cpu, Zap, AlertCircle, Activity } from 'lucide-react';
 import CrisisMap from '../components/CrisisMap';
 import api from '../api';
 import { getSocket } from '../socket';
@@ -178,6 +178,36 @@ const Dashboard = () => {
                             <p className="text-[8px] lg:text-[9px] mt-2 uppercase font-black tracking-widest text-slate-600 text-center px-4">Waiting for node selection</p>
                         </div>
                     )}
+                </section>
+
+                <section className="pb-4">
+                    <div className="flex items-center gap-2 mb-4 text-emerald-500">
+                        <Activity size={16} />
+                        <h2 className="text-[10px] lg:text-xs font-black uppercase tracking-[0.3em]">SDG Impact Analytics</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 3: Health</span>
+                                <span className="text-[10px] text-emerald-400 font-bold">90% Reduction in Triage Delay</span>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-[10px]">3</div>
+                        </div>
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 9: Resilient Infra</span>
+                                <span className="text-[10px] text-cyan-400 font-bold">Edge-AI Active (Offline Sync)</span>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 font-bold text-[10px]">9</div>
+                        </div>
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 11: Safe Cities</span>
+                                <span className="text-[10px] text-amber-400 font-bold">Z-Axis Routing Operational</span>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-bold text-[10px]">11</div>
+                        </div>
+                    </div>
                 </section>
 
                 <section className="pb-4">
