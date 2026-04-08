@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Layers, Activity, Thermometer, Wind, Navigation, ShieldAlert } from 'lucide-react';
+import { Layers, Navigation, ShieldAlert } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { getSocket } from '../socket';
 
@@ -12,7 +12,6 @@ import { getSocket } from '../socket';
 const IndoorHeatmap = ({ incidents = [] }) => {
     const [activeFloor, setActiveFloor] = useState(1);
     const [liveIotData, setLiveIotData] = useState([]);
-    const [safeRoute, setSafeRoute] = useState(null);
     const floors = [5, 4, 3, 2, 1];
 
     // -----------------------------------------------------------------
