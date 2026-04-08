@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Activity, Thermometer, Wind, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Layers, Activity, Thermometer, Wind } from 'lucide-react';
 import { Badge } from './ui/Badge';
 
 /**
