@@ -63,6 +63,10 @@
     scrollbar-width: none;
   }
 
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 85, 105, 0.5) transparent;
+  }
   .custom-scrollbar::-webkit-scrollbar {
     width: 5px;
   }
@@ -80,6 +84,8 @@
 /* Custom tactical scrollbar - Global */
 html {
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b #0B0F19;
 }
 
 ::-webkit-scrollbar {
