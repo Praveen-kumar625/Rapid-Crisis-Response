@@ -10,48 +10,78 @@ const translateClient = new TranslationServiceClient();
 /**
  * Transcribe audio using Google Cloud Speech-to-Text.
  * Supports auto-detection of the spoken language.
+ * 
+ * PHASE 2: Refactored with optional chaining and robust fallbacks.
  */
 async function transcribeAudio(audioBuffer, mimeType) {
+    // Input validation
+    if (!audioBuffer || audioBuffer.length === 0) {
+        console.warn('[Google STT] Empty audio buffer received');
+        return { transcription: 'Transcription unavailable: No audio data', detectedLanguage: 'unknown' };
+    }
+
     const request = {
         audio: {
             content: audioBuffer.toString('base64'),
         },
         config: {
-            encoding: 'WEBM_OPUS', // Default for many web-based recordings
+            encoding: 'WEBM_OPUS',
             sampleRateHertz: 48000,
             languageCode: 'en-US',
-            alternativeLanguageCodes: ['es-ES', 'fr-FR', 'de-DE', 'zh-CN', 'hi-IN'], // Multi-language support
+            alternativeLanguageCodes: ['es-ES', 'fr-FR', 'de-DE', 'zh-CN', 'hi-IN'],
             enableAutomaticPunctuation: true,
         },
     };
 
-    // Note: In production, you might need to adjust encoding/sampleRate based on actual mimeType
-    if (mimeType.includes('wav')) {
+    if (mimeType && mimeType.includes('wav')) {
         request.config.encoding = 'LINEAR16';
-        delete request.config.sampleRateHertz; // Let Google detect
+        delete request.config.sampleRateHertz;
     }
 
     try {
         const [response] = await speechClient.recognize(request);
-        const transcription = response.results
-            .map(result => result.alternatives[0].transcript)
+        
+        // Defensive Programming: Never assume results is an array or has elements
+        const results = response?.results || [];
+        
+        if (results.length === 0) {
+            console.info('[Google STT] No speech detected in audio');
+            return { 
+                transcription: 'Transcription unavailable: Silence or background noise detected', 
+                detectedLanguage: 'unknown' 
+            };
+        }
+
+        const transcription = results
+            .map(result => result?.alternatives?.[0]?.transcript || '')
+            .filter(text => text !== '')
             .join('\n');
         
-        const detectedLanguage = response.results[0]?.languageCode || 'unknown';
+        const detectedLanguage = results[0]?.languageCode || 'unknown';
         
-        return { transcription, detectedLanguage };
+        return { 
+            transcription: transcription || 'Transcription unavailable: Speech not understood', 
+            detectedLanguage 
+        };
     } catch (err) {
-        console.error('[Google STT] Transcription failed:', err.message);
-        throw err;
+        console.error('[Google STT] Critical Service Error:', err.message);
+        // Fail gracefully by returning a structured object instead of throwing
+        return { 
+            transcription: 'Transcription unavailable: Service error', 
+            detectedLanguage: 'unknown',
+            error: err.message 
+        };
     }
 }
 
 /**
  * Translate text to English using Google Cloud Translation API.
+ * 
+ * PHASE 2: Refactored with optional chaining and robust fallbacks.
  */
 async function translateToEnglish(text, sourceLanguageCode) {
     if (!text || sourceLanguageCode === 'en' || sourceLanguageCode?.startsWith('en-')) {
-        return text;
+        return text || '';
     }
 
     const projectId = process.env.GOOGLE_PROJECT_ID || 'rapid-crisis-response';
@@ -61,16 +91,26 @@ async function translateToEnglish(text, sourceLanguageCode) {
         parent: `projects/${projectId}/locations/${location}`,
         contents: [text],
         mimeType: 'text/plain',
-        sourceLanguageCode: sourceLanguageCode,
+        sourceLanguageCode: sourceLanguageCode === 'unknown' ? undefined : sourceLanguageCode,
         targetLanguageCode: 'en-US',
     };
 
     try {
         const [response] = await translateClient.translateText(request);
-        return response.translations[0].translatedText;
+        
+        // Defensive Programming: Safely access translation results
+        const translations = response?.translations || [];
+        const translatedText = translations[0]?.translatedText;
+
+        if (!translatedText) {
+            console.warn('[Google Translate] No translation returned from API');
+            return text; // Fallback to original
+        }
+
+        return translatedText;
     } catch (err) {
-        console.error('[Google Translate] Translation failed:', err.message);
-        return text; // Fallback to original text
+        console.error('[Google Translate] Critical Service Error:', err.message);
+        return text; // Fallback to original text on any failure
     }
 }
 

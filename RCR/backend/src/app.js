@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-require('express-async-errors');
+require('express-async-errors'); // Note: This already does some lifting for async routes
 const healthRoutes = require('./routes/health.routes');
 const incidentRoutes = require('./routes/incidents.routes');
 const rateLimit = require('express-rate-limit');
@@ -18,14 +18,13 @@ const globalLimiter = rateLimit({
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
-    skip: () => NODE_ENV === 'test' // 🚨 FIXED: Skip rate limit in tests
+    skip: () => NODE_ENV === 'test'
 });
 app.use(globalLimiter);
 
 app.use(
     cors({
         origin: function(origin, callback) {
-            // 🚨 ARCHITECTURE FIX: Support Vercel Preview wildcard domains and production URL
             const allowedPatterns = [
                 /^https:\/\/rapid-crisis-response-.*\.vercel\.app$/,
                 /^https:\/\/rapid-crisis-response-f4yd\.vercel\.app$/
@@ -36,7 +35,6 @@ app.use(
                 return callback(null, true);
             }
 
-            // Check against Vercel wildcard patterns
             const isVercelPreview = allowedPatterns.some(pattern => pattern.test(origin));
             if (isVercelPreview) {
                 return callback(null, true);
@@ -54,16 +52,45 @@ app.use(
 
 app.use(helmet());
 if (NODE_ENV !== 'test') app.use(morgan('combined'));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Support larger base64 audio payloads
 
+// Routes
 app.use('/health', healthRoutes);
 app.use('/incidents', incidentRoutes);
 
-app.use((err, _req, res, _next) => {
-    // Only log errors if not in test mode
-    if (NODE_ENV !== 'test') console.error(err);
-    const status = err.status || 500;
-    res.status(status).json({ error: err.message || 'Internal Server Error' });
+// 404 Handler
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+});
+
+// PHASE 3: Global Async Error Handling Middleware
+// This must be the last middleware in the stack
+app.use((err, req, res, next) => {
+    const isTest = NODE_ENV === 'test';
+    
+    // Log the error for debugging (excluding test environment noise)
+    if (!isTest) {
+        console.error('🚨 [Global Error Handler]:', {
+            message: err.message,
+            stack: err.stack,
+            path: req.originalUrl,
+            method: req.method
+        });
+    }
+
+    // Standardized Error Response
+    const statusCode = err.status || err.statusCode || 500;
+    
+    res.status(statusCode).json({
+        success: false,
+        error: {
+            message: err.message || 'Internal Server Error',
+            ...(NODE_ENV === 'development' && { stack: err.stack }) // Only show stack in dev
+        }
+    });
+    
+    // Crucial: We do NOT call next() here unless we want another error handler to pick it up.
+    // By responding, we prevent the Node process from crashing/exiting due to unhandled errors in the request-response cycle.
 });
 
 module.exports = app;

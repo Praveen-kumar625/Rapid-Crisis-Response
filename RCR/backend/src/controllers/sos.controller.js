@@ -12,25 +12,45 @@ const AIService = require('../services/ai.service');
  * 5. Create incident and return response.
  */
 exports.handleVoiceSOS = async (req, res) => {
-    const { 
-        audioBase64, 
-        mimeType, 
-        floorLevel, 
-        roomNumber, 
-        wingId, 
-        lat, 
-        lng, 
-        hotelId 
-    } = req.body;
-
-    const reportedBy = req.user.id;
-
     try {
+        // PHASE 1: Fix Controller Crashes (Guard Clauses)
+        
+        // 1. User Context Guard
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ 
+                success: false, 
+                message: "Unauthorized: User context missing" 
+            });
+        }
+
+        const { 
+            audioBase64, 
+            mimeType, 
+            floorLevel, 
+            roomNumber, 
+            wingId, 
+            lat, 
+            lng, 
+            hotelId 
+        } = req.body;
+
+        // 2. Request Body Guard
+        if (!audioBase64 || !mimeType) {
+            return res.status(400).json({
+                success: false,
+                message: "Bad Request: Missing audio data or mimeType"
+            });
+        }
+
+        const reportedBy = req.user.id;
+
         console.log('[SOS Controller] Processing voice SOS...');
 
         // 1. Transcribe
         const audioBuffer = Buffer.from(audioBase64, 'base64');
-        const { transcription, detectedLanguage } = await GoogleCloudAI.transcribeAudio(audioBuffer, mimeType);
+        const transcriptionResult = await GoogleCloudAI.transcribeAudio(audioBuffer, mimeType);
+        const transcription = transcriptionResult?.transcription || '';
+        const detectedLanguage = transcriptionResult?.detectedLanguage || 'en-US';
         
         console.log(`[SOS Controller] Transcribed (${detectedLanguage}): ${transcription.substring(0, 50)}...`);
 
@@ -42,7 +62,7 @@ exports.handleVoiceSOS = async (req, res) => {
         // 3. Triage with Gemini
         const triageResults = await AIService.analyzeReportText({
             title: 'Multilingual SOS Voice Report',
-            description: translatedText,
+            description: translatedText || 'Voice report received',
             category: 'UNKNOWN',
             userSeverity: 4, // Assume high for SOS
             floorLevel,
@@ -52,15 +72,15 @@ exports.handleVoiceSOS = async (req, res) => {
 
         // 4. Create Incident
         const incident = await IncidentService.create({
-            title: `SOS: ${triageResults.hospitalityCategory}`,
-            description: translatedText,
-            severity: triageResults.autoSeverity,
-            category: triageResults.hospitalityCategory,
-            lat,
-            lng,
-            floorLevel,
-            roomNumber,
-            wingId,
+            title: `SOS: ${triageResults?.hospitalityCategory || 'EMERGENCY'}`,
+            description: translatedText || 'Emergency voice audio received.',
+            severity: triageResults?.autoSeverity || 4,
+            category: triageResults?.hospitalityCategory || 'FIRE',
+            lat: lat || 0,
+            lng: lng || 0,
+            floorLevel: floorLevel || 1,
+            roomNumber: roomNumber || 'unknown',
+            wingId: wingId || 'unknown',
             reportedBy,
             hotelId,
             mediaType: mimeType,
@@ -77,30 +97,41 @@ exports.handleVoiceSOS = async (req, res) => {
         });
 
     } catch (err) {
-        console.error('[SOS Controller] Error:', err);
+        console.error('[SOS Controller] Critical Error:', err);
         
-        // Fallback: Create incident even if AI fails
-        const fallbackIncident = await IncidentService.create({
-            title: 'SOS: Voice Report (AI Failed)',
-            description: 'A voice SOS was received but automated processing failed. Please listen to the recording immediately.',
-            severity: 5,
-            category: 'EMERGENCY',
-            lat,
-            lng,
-            floorLevel,
-            roomNumber,
-            wingId,
-            reportedBy,
-            hotelId,
-            mediaType: mimeType,
-            mediaBase64: audioBase64,
-            triageMethod: 'Manual (Processing Failure)'
-        });
+        // Fallback: Attempt to create incident even if AI or processing fails
+        try {
+            const reportedBy = req.user?.id || 'SYSTEM_FALLBACK';
+            const { floorLevel, roomNumber, wingId, lat, lng, hotelId, mimeType, audioBase64 } = req.body;
 
-        res.status(201).json({
-            success: false,
-            error: 'AI processing failed, but incident was created for manual review.',
-            incident: fallbackIncident
-        });
+            const fallbackIncident = await IncidentService.create({
+                title: 'SOS: Voice Report (System Error)',
+                description: 'A voice SOS was received but processing encountered a critical error. Manual review required.',
+                severity: 5,
+                category: 'EMERGENCY',
+                lat: lat || 0,
+                lng: lng || 0,
+                floorLevel: floorLevel || 1,
+                roomNumber: roomNumber || 'unknown',
+                wingId: wingId || 'unknown',
+                reportedBy,
+                hotelId,
+                mediaType: mimeType || 'audio/webm',
+                mediaBase64: audioBase64,
+                triageMethod: 'Manual (Critical Failure)'
+            });
+
+            return res.status(201).json({
+                success: false,
+                error: 'Internal processing failure, incident logged for manual review.',
+                incident: fallbackIncident
+            });
+        } catch (fallbackErr) {
+            console.error('[SOS Controller] Fatal Fallback Error:', fallbackErr);
+            return res.status(500).json({
+                success: false,
+                error: 'Fatal system error. Emergency services alerted.'
+            });
+        }
     }
 };
