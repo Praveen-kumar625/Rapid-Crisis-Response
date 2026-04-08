@@ -393,7 +393,7 @@ function ReportForm() {
                     )}
                 </div>
 
-                <button type="submit" className="w-full py-6 bg-cyan-600 hover:bg-cyan-500 text-black font-black uppercase tracking-[0.3em] text-sm transition-all border border-cyan-400 shadow-neon-cyan flex items-center justify-center gap-3"><ShieldCheck size={20} />Submit_Terminal_Dispatch</button>
+                <button type="submit" className="w-full py-6 bg-cyan-600 hover:bg-cyan-500 text-black font-black uppercase tracking-[0.3em] text-sm transition-all border border-cyan-400 shadow-neon-cyan flex items-center justify-center gap-3"><ShieldCheck size={20} />Submit</button>
             </form>
 
             {showAiModal && (
