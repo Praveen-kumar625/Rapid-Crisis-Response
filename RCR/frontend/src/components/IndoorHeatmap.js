@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, Activity, Thermometer, Wind, AlertTriangle } from 'lucide-react';
+import { Badge } from './ui/Badge';
 
 /**
  * IndoorHeatmap Component
@@ -154,7 +155,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                         <span className="text-[10px] font-bold text-white italic">RM_{inc.roomNumber}</span>
                                         <Badge variant={inc.severity >= 4 ? 'danger' : 'amber'} className="text-[8px]">
                                             LVL_{inc.severity}
-                                        </div>
+                                        </Badge>
                                     </div>
                                     <div className="space-y-2">
                                         {inc.sensorMetadata?.temperature && (
