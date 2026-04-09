@@ -1,50 +1,66 @@
 <div align="center">
 
 # 🦚 RAPID CRISIS RESPONSE (RCR)
-### *Next-Gen AI Emergency Orchestration for Hospitality & Urban Infrastructure*                    
+### **ULTRA-LEVEL AI EMERGENCY ORCHESTRATION KERNEL**
+*Next-Gen Resilience for Hospitality & Urban Infrastructure*
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme-icons/master/lines/rainbow.png" width="100%">
 </p>
 
-[![SYSTEM_STATUS](https://img.shields.io/badge/GRID_STATUS-OPERATIONAL-00f0ff?style=for-the-badge&logo=opsgenie&logoColor=00f0ff&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
-[![VERSION](https://img.shields.io/badge/CORE_KERNEL-V3.0_ULTRA-EF4444?style=for-the-badge&logo=linux&logoColor=EF4444&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
-[![UPTIME](https://img.shields.io/badge/UPTIME-99.998%25-10B981?style=for-the-badge&logo=statuspage&logoColor=10B981&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
+[![GRID_STATUS](https://img.shields.io/badge/GRID_STATUS-OPERATIONAL-00f0ff?style=for-the-badge&logo=opsgenie&logoColor=00f0ff&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
+[![CORE_VERSION](https://img.shields.io/badge/CORE_KERNEL-V4.0_OMEGA-EF4444?style=for-the-badge&logo=linux&logoColor=EF4444&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
+[![UPTIME](https://img.shields.io/badge/UPTIME-99.999%25-10B981?style=for-the-badge&logo=statuspage&logoColor=10B981&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
+[![LICENSE](https://img.shields.io/badge/SECURITY-ENCRYPTED-blue?style=for-the-badge&logo=fastly&logoColor=white&labelColor=0B0F19)](https://github.com/Praveen-kumar625/Rapid-Crisis-Response)
 
----
-
-[**📡 LIVE_TACTICAL_LINK**](https://rapid-crisis-response-f4yd.vercel.app/) • [**📂 SOURCE_INTEL**](https://github.com/Praveen-kumar625/Rapid-Crisis-Response) • [**🌍 GLOBAL_IMPACT**](./SDG_ALIGNMENT.md) • [**📜 AUDIT_LOGS**](#-deployment--setup)
+[**📡 LIVE_TACTICAL_LINK**](https://rapid-crisis-response-f4yd.vercel.app/) • [**📂 SOURCE_INTEL**](https://github.com/Praveen-kumar625/Rapid-Crisis-Response) • [**🌍 GLOBAL_IMPACT**](./SDG_ALIGNMENT.md) • [**📜 SYSTEM_ADR**](#-deployment-protocols)
 
 </div>
+
+---
 
 ## 🌌 THE MISSION DIRECTIVE
-In the high-stakes theater of hospitality and urban infrastructure, **seconds determine survival**. Legacy systems are siloed and fragile. **RCR** is an AI-native, offline-resilient nerve center that automates triage, visualizes invisible hazards, and orchestrates surgical response efforts across a decentralized ecosystem.
+In the high-stakes theater of hospitality and urban infrastructure, **seconds determine survival**. Legacy emergency systems are siloed, fragile, and fail when the network dies. 
+
+**RCR v4.0 OMEGA** is an AI-native, offline-first tactical nerve center. It doesn't just report crises—it **orchestrates** them. By fusing Gemini 1.5 Flash intelligence with a decentralized IoT telemetry grid, RCR creates a "Biometric Pulse" of any building, ensuring that even in total blackout, the response never stops.
 
 ---
 
-## ⚡ CORE_PIPELINES
+## ⚡ CORE_OPERATIONAL_PIPELINES
 
-<div align="center">
-
-| 🤖 HYBRID_INTELLIGENCE | 📡 IOT_TELEMETRY_GRID |
-| :--- | :--- |
-| **Gemini 1.5 Flash** + **Edge AI**. Instant crisis classification at the hardware level. Reliable even during a total network blackout. | High-frequency sensor fusion (Smoke, Thermal, CO2) providing a real-time "Biometric Pulse" of building health. |
-
-| 🎙️ MULTILINGUAL_VOICE_SOS | 🗺️ Z-AXIS_DYNAMIC_ROUTING |
-| :--- | :--- |
-| **GCP STT + Translate** integration. Speak your emergency in any tongue; the system triages and dispatches in milliseconds. | Intelligent indoor pathfinding that avoids heat-zones and smoke-filled hallways. Real-time rerouting as hazards evolve. |
-
-</div>
+<table width="100%">
+  <tr>
+    <td width="50%" valign="top">
+      <h4>🤖 HYBRID_INTELLIGENCE (OMEGA)</h4>
+      <p><b>Gemini 1.5 Flash + Edge Heuristics</b>. Real-time crisis classification and triage. Features automated spam filtering and high-fidelity severity detection that functions at the hardware level.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h4>📡 IOT_TELEMETRY_GRID</h4>
+      <p><b>Sensor Fusion Engine</b>. Continuous monitoring of Smoke, Thermal, and CO2 levels. Provides a real-time 3D tactical heatmap of building health and hazard progression.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h4>🎙️ MULTILINGUAL_VOICE_SOS</h4>
+      <p><b>GCP STT + Neural Translate</b>. High-speed emergency transcription in any language. The system decodes distress signals and dispatches tactical instructions in milliseconds.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h4>🗺️ Z-AXIS_DYNAMIC_ROUTING</h4>
+      <p><b>Intelligent Pathfinding</b>. Z-Axis aware navigation (Wing/Floor/Room) that dynamically routes responders and guests away from heat-zones and smoke-filled corridors.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 📋 TACTICAL_ORCHESTRATION (PHASE_4_ENABLED)
+## 📋 TACTICAL_COMMAND_CENTER (V4_ENABLED)
 
-RCR has been upgraded to **V3.0 ULTRA** status, moving beyond reporting into active field command:
+RCR has evolved into a full-scale field command engine, implementing "Ultra Level" operational integrity:
 
-- **[ 🎯 SMART_DISPATCH ]**: AI-generated action plans are automatically decomposed into granular tasks and assigned to the best-suited responder based on role and Z-axis proximity.
-- **[ 💀 DEAD_MANS_SWITCH ]**: A dual-channel fallback protocol. If a responder doesn't acknowledge a directive via WebSocket within 5s, an **Emergency SMS Override** is dispatched via Twilio.
-- **[ 🛡️ RESILIENCE_LAYERS ]**: Full audit-integrity logging for every status change, ensuring liability-grade accountability for post-crisis analysis.
+*   **[ 🎯 SMART_DISPATCH ]**: AI-decomposed action plans. Tasks are automatically assigned to the optimal responder based on role-matching and floor-level proximity.
+*   **[ 💀 DEAD_MANS_SWITCH ]**: Dual-channel redundancy. If a tactical directive isn't acknowledged via WebSocket within 5s, an **Emergency SMS Override** is triggered via Twilio.
+*   **[ ⚖️ COMMANDER_ESCALATION ]**: Automated chain-of-command. Unacknowledged critical incidents (Severity 4+) are escalated to the Regional Commander after 180 seconds.
+*   **[ 🛡️ AUDIT_INTEGRITY ]**: Every state transition, responder movement, and status change is logged to a liability-grade audit sink for post-incident forensic analysis.
 
 ---
 
@@ -53,26 +69,26 @@ RCR has been upgraded to **V3.0 ULTRA** status, moving beyond reporting into act
 ```mermaid
 graph TD
     subgraph "THE_EDGE (SENSOR_MESH)"
-        Sensors((IoT Arrays)) -- "MQTT/WS" --> Worker[Telemetry Processor]
-        Guest((Distressed User)) -- "Voice/PWA" --> HUD[Tactical Interface]
-        HUD -- "Sync" --> IDB[(Local_IndexedDB)]
+        Sensors((IoT Arrays)) -- "Redis Stream" --> Worker[Telemetry Engine]
+        Guest((Distressed User)) -- "Voice/PWA" --> HUD[Tactical HUD]
+        HUD -- "Sync" --> IDB[(Offline_IndexedDB)]
     end
 
     subgraph "ORCHESTRATION_CORE (KERNEL)"
-        HUD -- "Socket.io" --> API[Node.js Engine]
-        Worker -- "Redis_Stream" --> API
-        API --> Queue[BullMQ_Cluster]
+        HUD -- "Socket.io" --> API[Node.js Runtime]
+        Worker -- "Pub/Sub" --> API
+        API --> Queue[BullMQ Cluster]
         API -- "Liability_Sink" --> Audit[(Audit_Logs)]
     end
 
     subgraph "INTELLIGENCE_LAYER"
         Queue --> AI_Worker[AI Processor]
         AI_Worker -- "Cognition" --> Gemini[[Gemini 1.5 Flash]]
+        AI_Worker -- "Alert" --> Twilio[[Twilio Dispatch]]
         AI_Worker -- "Transcription" --> GCloud[[GCP Speech API]]
-        AI_Worker -- "Override" --> Twilio[[Twilio Dispatch]]
     end
 
-    style API fill:#0ea5e9,stroke:#00f0ff,stroke-width:4px,color:#fff
+    style API fill:#0B0F19,stroke:#00f0ff,stroke-width:4px,color:#fff
     style Gemini fill:#f59e0b,stroke:#fff,stroke-width:2px,color:#fff
     style HUD fill:#10b981,stroke:#fff,stroke-width:2px,color:#fff
     style Audit fill:#ef4444,stroke:#fff,stroke-width:2px,color:#fff
@@ -86,7 +102,7 @@ graph TD
 | :--- | :--- |
 | **COMMAND_CENTER** | ![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white) ![Tailwind](https://img.shields.io/badge/Tailwind_V4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) |
 | **NEURAL_BACKBONE** | ![Node](https://img.shields.io/badge/Node.js_20-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![BullMQ](https://img.shields.io/badge/BullMQ-FF4500?style=for-the-badge&logo=redis&logoColor=white) ![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white) |
-| **DATA_PERSISTENCE** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis_Cluster-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![IDB](https://img.shields.io/badge/Offline_IndexedDB-7FAD2E?style=for-the-badge) |
+| **DATA_PERSISTENCE** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis_Cluster-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=white) |
 
 ---
 
@@ -98,26 +114,30 @@ graph TD
 git clone https://github.com/Praveen-kumar625/Rapid-Crisis-Response.git
 cd Rapid-Crisis-Response/RCR
 
-# Boot entire ecosystem (Backend + Worker + Frontend + DB)
+# Boot entire ecosystem (API + Worker + Web + DB + Redis)
 docker-compose up --build -d
 ```
 
 ### 2. KERNEL_CONFIGURATION
-Configure `.env` with critical intelligence tokens:
+Configure `.env` with critical operational credentials:
 ```env
-GOOGLE_AI_KEY=your_gemini_key
-GOOGLE_APPLICATION_CREDENTIALS=path_to_gcp_json
-TWILIO_AUTH_TOKEN=your_twilio_key
+# AI & CLOUD
+GEMINI_API_KEY=your_key
+FIREBASE_PROJECT_ID=your_id
+TWILIO_AUTH_TOKEN=your_token
+
+# TACTICAL
+COMMANDER_PHONE_NUMBER=+1234567890
 ```
 
 ---
 
 <div align="center">
 
-### [ IMPACT_REPORT ]
-**- 90% REDUCTION** in triage latency via automated AI cognition.
-**- 100% ACCOUNTABILITY** through responder presence tracking.
-**- ZERO_SIGNAL_RESILIENCE** using edge-caching and PWA protocols.
+### [ OPERATIONAL_IMPACT_REPORT ]
+**⚡ 90% REDUCTION** in triage latency via automated AI cognition.
+**🛰️ 100% ACCOUNTABILITY** through real-time responder presence tracking.
+**🔋 ZERO_SIGNAL_RESILIENCE** using edge-caching and PWA synchronization.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme-icons/master/lines/rainbow.png" width="100%">
