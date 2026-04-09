@@ -1,85 +1,68 @@
 // backend/src/services/alert.service.js
-/**
- * Listens on the Redis `incidents` channel.
- * When a newly‑created incident has severity === 5 it sends a real SMS
- * via Twilio to every number listed in TWILIO_TO_NUMBERS.
- */
-
-const Redis = require('ioredis');
 const twilio = require('twilio');
-const { REDIS, TWILIO } = require('../config/env');
+const { TWILIO } = require('../config/env');
 
-const redis = new Redis({ host: REDIS.host, port: REDIS.port });
+/**
+ * Sends an emergency SMS via Twilio to the designated Commander phone number.
+ * Triggered for high-severity incidents (Severity 4 or 5).
+ * 
+ * @param {object} incidentData - Data containing title, severity, roomNumber, floorLevel, etc.
+ */
+async function sendEmergencySMS(incidentData) {
+    try {
+        // 1. Initialize Twilio client
+        const accountSid = process.env.TWILIO_ACCOUNT_SID || TWILIO.accountSid;
+        const authToken = process.env.TWILIO_AUTH_TOKEN || TWILIO.authToken;
+        const fromNumber = process.env.TWILIO_FROM_NUMBER || TWILIO.fromNumber;
+        const commanderPhone = process.env.COMMANDER_PHONE_NUMBER;
 
-function startAlertListener() {
-    const subscriber = redis.duplicate();
-
-    subscriber.subscribe('incidents', (err) => {
-        if (err) {
-            console.error('[AlertService] Redis subscription error:', err);
-        } else {
-            console.info('[AlertService] Subscribed to `incidents` channel.');
-        }
-    });
-
-    subscriber.on('message', async(_channel, rawMessage) => {
-        let payload;
-        try {
-            payload = JSON.parse(rawMessage);
-        } catch (parseErr) {
-            console.error('[AlertService] Invalid JSON on incidents channel:', parseErr);
+        // Validation for Twilio configuration
+        if (!accountSid || !authToken || !fromNumber || !commanderPhone) {
+            console.warn('[AlertService] Twilio configuration or Commander phone number missing. Skipping SMS.');
             return;
         }
 
-        // We only care about *new* incidents (type === 'created')
-        if (payload.type !== 'created') return;
-
-        const incident = payload.incident;
-        if (!incident || incident.severity !== 5) return; // only severity‑5
-
-        // Distributed Lock: Ensure only one instance sends SMS for this incident
-        const lockKey = `alert_sent:${incident.id}`;
-        const locked = await redis.set(lockKey, 'true', 'NX', 'EX', 3600); // Lock for 1 hour
-        if (!locked) {
-            console.log(`[AlertService] Alert already processed for incident ${incident.id}, skipping duplicate.`);
+        // 2. Condition: ONLY trigger if severity >= 4
+        if (!incidentData || incidentData.severity < 4) {
+            console.log(`[AlertService] Incident severity (${incidentData?.severity}) below threshold. No SMS sent.`);
             return;
         }
 
-        // Check if Twilio is configured
-        if (!TWILIO.accountSid || !TWILIO.authToken || !TWILIO.fromNumber) {
-            console.warn('[AlertService] Twilio not configured. Skipping SMS alert.');
-            return;
-        }
+        const client = twilio(accountSid, authToken);
 
-        // ------------------------ Twilio client ------------------------
-        const client = twilio(TWILIO.accountSid, TWILIO.authToken);
+        // 3. Build a concise, tactical SMS body
+        const body = `🚨 RCR EMERGENCY ALERT
+Title: ${incidentData.title}
+Severity: ${incidentData.severity}/5
+Location: Room ${incidentData.roomNumber || 'N/A'}, Floor ${incidentData.floorLevel || 'N/A'}, Wing ${incidentData.wingId || 'N/A'}
+Status: ${incidentData.status || 'OPEN'}`;
 
-        // Build a concise SMS body
-        const body = `⚠️ HIGH‑SEVERITY INCIDENT
-Title: ${incident.title}
-Category: ${incident.category}
-Severity: ${incident.severity}
-Location: ${incident.location?.coordinates?.[1].toFixed(4)}, ${incident.location?.coordinates?.[0].toFixed(4)}`;
+        // 4. Resilience: Wrap API call in try...catch
+        await client.messages.create({
+            body,
+            from: fromNumber,
+            to: commanderPhone,
+        });
 
-        // Destination numbers are a comma‑separated list in the env var
-        const destinations = (TWILIO.toNumbers || '')
-            .split(',')
-            .map((n) => n.trim())
-            .filter(Boolean);
-
-        for (const to of destinations) {
-            try {
-                await client.messages.create({
-                    body,
-                    from: TWILIO.fromNumber,
-                    to,
-                });
-                console.log(`[AlertService] ✅ SMS sent to ${to}`);
-            } catch (sendErr) {
-                console.error(`[AlertService] ❌ Failed to send SMS to ${to}:`, sendErr);
-            }
-        }
-    });
+        console.log(`[AlertService] ✅ Emergency SMS successfully sent to Commander: ${commanderPhone}`);
+    } catch (error) {
+        // DO NOT throw error to prevent crashing the main incident creation flow
+        console.error('[AlertService] ❌ Twilio SMS Delivery Failed:', {
+            message: error.message,
+            code: error.code,
+            incidentId: incidentData?.id
+        });
+    }
 }
 
-module.exports = { startAlertListener };
+/**
+ * Legacy support for the Redis listener pattern (if still needed for background sync)
+ */
+const startAlertListener = () => {
+    console.info('[AlertService] Redis listener active (legacy). Prefer direct sendEmergencySMS calls for RCR flow.');
+};
+
+module.exports = {
+    sendEmergencySMS,
+    startAlertListener
+};
