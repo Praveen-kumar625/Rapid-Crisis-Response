@@ -48,6 +48,9 @@ const worker = new Worker('incident-tasks', async (job) => {
                 ai_required_resources: JSON.stringify(analysis.requiredResources || []),
                 hospitality_category: analysis.hospitalityCategory,
                 spam_score: analysis.spamScore,
+                ai_reasoning: analysis.reasoning,
+                is_ai_verified: !!analysis.isAiVerified,
+                latency_ms: analysis.latencyMs || 0,
                 status: analysis.spamScore > 0.8 ? 'REJECTED' : 
                         (analysis.predictedCategory === 'UNVERIFIED' ? 'MANUAL_REVIEW' : incident.status),
                 updated_at: new Date()

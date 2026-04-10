@@ -150,11 +150,19 @@ function IncidentDetail() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-8">
                             <Card className="p-6 lg:p-10 bg-[#151B2B] border-slate-800 rounded-none shadow-tactical relative overflow-hidden">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-10 h-10 bg-cyan-600/10 flex items-center justify-center border border-cyan-500/30"><Zap size={20} className="text-cyan-400" /></div>
-                                    <div>
-                                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-mono">AI_Intelligence_Report</h3>
-                                        <p className="text-[9px] font-mono text-slate-500 uppercase mt-1 tracking-widest">Engine: {incident.triageMethod || 'CLOUD_GEMINI_V1'}</p>
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-cyan-600/10 flex items-center justify-center border border-cyan-500/30"><Zap size={20} className="text-cyan-400" /></div>
+                                        <div>
+                                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-mono">AI_Intelligence_Report</h3>
+                                            <p className="text-[9px] font-mono text-slate-500 uppercase mt-1 tracking-widest">Engine: {incident.triageMethod || 'CLOUD_GEMINI_V1'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`text-[10px] font-black font-mono mb-1 ${incident.isAiVerified ? 'text-emerald-400' : 'text-amber-500'}`}>
+                                            {incident.isAiVerified ? 'VERIFIED_BY_AI' : 'SAFE_MODE_FALLBACK'}
+                                        </div>
+                                        <div className="text-[8px] font-mono text-slate-600 uppercase tracking-tighter">LATENCY: {incident.latencyMs || 0}MS</div>
                                     </div>
                                 </div>
 
@@ -173,6 +181,12 @@ function IncidentDetail() {
                                                 </div>
                                             </div>
                                         </div>
+                                        {incident.aiReasoning && (
+                                            <div className="p-4 bg-black/40 border-l-2 border-cyan-500/50">
+                                                <p className="text-slate-500 text-[8px] uppercase font-black tracking-widest mb-2 font-mono">REASONING_LOG</p>
+                                                <p className="text-[11px] text-slate-300 leading-relaxed italic">{incident.aiReasoning}</p>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="space-y-6 bg-black/30 p-6 border border-slate-800">
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400 mb-4 font-mono">Resolution_Plan</h4>

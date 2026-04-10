@@ -87,7 +87,10 @@ exports.handleVoiceSOS = catchAsync(async (req, res) => {
             hotelId,
             mediaType: audioMimeType,
             mediaBase64: audioBase64,
-            triageMethod: `Google Cloud + Gemini (${detectedLanguage})`
+            triageMethod: `Google Cloud + Gemini (${detectedLanguage})`,
+            aiReasoning: triageResults?.reasoning,
+            isAiVerified: triageResults?.isAiVerified,
+            latencyMs: triageResults?.latencyMs
         });
 
         res.status(201).json({

@@ -55,11 +55,21 @@ function parseJsonSafely(raw) {
         return null;
     }
 }
-
 /**
  * Calls Gemini with exponential backoff retry logic
  */
 async function generateContentWithRetry(prompt, maxRetries = 3) {
+    const startTime = Date.now();
+
+    // 🚨 DEMO FAIL-SAFE SIMULATION
+    const promptText = typeof prompt === 'string' ? prompt : JSON.stringify(prompt);
+    if (promptText.includes('SIMULATE_AI_FAILURE')) {
+        throw new Error('Simulated AI Engine Failure (503 Service Unavailable)');
+    }
+    if (promptText.includes('SIMULATE_HIGH_LATENCY')) {
+        await sleep(3000); // Artificial 3s delay
+    }
+
     const model = getModel();
     if (!model) throw new Error('Gemini API client not initialized');
 
@@ -70,7 +80,16 @@ async function generateContentWithRetry(prompt, maxRetries = 3) {
             const response = await result.response;
             const text = response.text();
             const data = parseJsonSafely(text);
-            if (data) return data;
+            if (data) {
+                return {
+                    ...data,
+                    _internal: {
+                        latencyMs: Date.now() - startTime,
+                        retries: i,
+                        model: MODEL_NAME
+                    }
+                };
+            }
             
             throw new Error('Invalid JSON response from AI');
         } catch (err) {
@@ -123,6 +142,8 @@ async function analyzeReport({
     roomNumber,
     wingId,
 }) {
+    const startTime = Date.now();
+
     // 0. Pre-filter Spam
     if (isObviousSpam(title, description)) {
         return {
@@ -134,27 +155,32 @@ async function analyzeReport({
             detectedLanguage: 'en',
             panicLevel: 'Low',
             actionPlan: ['Automatic rejection: Content identified as non-emergency or test data.'],
-            requiredResources: []
+            requiredResources: [],
+            reasoning: 'Input matched heuristic spam patterns (short length or test keywords).',
+            isAiVerified: true,
+            latencyMs: Date.now() - startTime
         };
     }
 
     const normalizedCategory = (category || '').toUpperCase();
 
-    
     // Default fallback object (🚨 STANDARDIZED FIELD NAMES)
-    const fallback = {
-        spam_score: 0.0,
-        auto_severity: Math.max(userSeverity, 4),
+    const fallback = (reason) => ({
+        spamScore: 0.0,
+        autoSeverity: Math.max(userSeverity, 4),
         predictedCategory: 'UNVERIFIED',
-        hospitality_category: 'INFRASTRUCTURE',
-        translated_english_text: description || title || '',
-        detected_language: 'en',
-        panic_level: 'High',
+        hospitalityCategory: 'INFRASTRUCTURE',
+        translatedText: description || title || '',
+        detectedLanguage: 'en',
+        panicLevel: 'High',
         actionPlan: ['Manual emergency verification required immediately.'],
         requiredResources: ['Security Team', 'Management'],
-    };
+        reasoning: `Safe Mode Active: ${reason}`,
+        isAiVerified: false,
+        latencyMs: Date.now() - startTime
+    });
 
-    if (!genAI) return fallback;
+    if (!genAI) return fallback('AI Engine not initialized');
 
     const mediaContext = mediaType ? `A ${mediaType} file was attached.` : 'No media provided.';
     const textPrompt = `You are a hospitality crisis triage AI. Respond in strict JSON only.
@@ -169,7 +195,8 @@ Required Output Fields:
 - spam_score: number (0.0-1.0)
 - auto_severity: number (1-5)
 - predicted_category: string
-- required_resources: string[]`;
+- required_resources: string[]
+- reasoning: string (Briefly explain your triage logic)`;
 
     const prompt = (mediaType && mediaBase64) ? {
         contents: [{
@@ -188,26 +215,19 @@ Required Output Fields:
             spamScore: (typeof data.spam_score === 'number') ? data.spam_score : 0.0,
             autoSeverity: (typeof data.auto_severity === 'number') ? Math.min(5, Math.max(1, Math.round(data.auto_severity))) : userSeverity,
             predictedCategory: String(data.predicted_category || data.hospitality_category || normalizedCategory).toUpperCase(),
-            hospitalityCategory: ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'].includes(String(data.hospitality_category).toUpperCase()) ? data.hospitality_category.toUpperCase() : fallback.hospitality_category,
+            hospitalityCategory: ['MEDICAL', 'FIRE', 'SECURITY', 'INFRASTRUCTURE'].includes(String(data.hospitality_category).toUpperCase()) ? data.hospitality_category.toUpperCase() : 'INFRASTRUCTURE',
             translatedText: String(data.translated_english_text || description || title || ''),
             detectedLanguage: String(data.detected_language || 'en'),
-            panicLevel: ['High', 'Medium', 'Low'].includes(data.panic_level) ? data.panic_level : fallback.panic_level,
-            actionPlan: Array.isArray(data.action_plan) ? data.action_plan : (Array.isArray(data.actionPlan) ? data.actionPlan : fallback.actionPlan),
-            requiredResources: Array.isArray(data.required_resources) ? data.required_resources : (Array.isArray(data.requiredResources) ? data.requiredResources : fallback.requiredResources),
+            panicLevel: ['High', 'Medium', 'Low'].includes(data.panic_level) ? data.panic_level : 'Medium',
+            actionPlan: Array.isArray(data.action_plan) ? data.action_plan : (Array.isArray(data.actionPlan) ? data.actionPlan : []),
+            requiredResources: Array.isArray(data.required_resources) ? data.required_resources : (Array.isArray(data.requiredResources) ? data.requiredResources : []),
+            reasoning: data.reasoning || 'Triage completed based on input analysis.',
+            isAiVerified: true,
+            latencyMs: data._internal?.latencyMs || (Date.now() - startTime)
         };
     } catch (err) {
         console.error('[AI Service] analyzeReport failed:', err.message);
-        return {
-            spamScore: fallback.spam_score,
-            autoSeverity: fallback.auto_severity,
-            predictedCategory: fallback.predictedCategory,
-            hospitalityCategory: fallback.hospitality_category,
-            translatedText: fallback.translated_english_text,
-            detectedLanguage: fallback.detected_language,
-            panicLevel: fallback.panic_level,
-            actionPlan: fallback.actionPlan,
-            requiredResources: fallback.requiredResources,
-        };
+        return fallback(`AI processing failed (${err.message})`);
     }
 }
 
@@ -215,8 +235,9 @@ Required Output Fields:
  * Transcribe and triage voice reports
  */
 async function analyzeVoice({ audioBase64, audioMimeType, floorLevel, roomNumber, wingId, lat, lng }) {
+    const startTime = Date.now();
     const fallbackText = 'Voice report received but AI transcription failed.';
-    const fallback = {
+    const fallback = (reason) => ({
         translatedText: fallbackText,
         detectedLanguage: 'en',
         panicLevel: 'High',
@@ -226,16 +247,19 @@ async function analyzeVoice({ audioBase64, audioMimeType, floorLevel, roomNumber
         autoSeverity: 3,
         predictedCategory: 'INFRASTRUCTURE',
         requiredResources: ['Security Team'],
-    };
+        reasoning: `Safe Mode Active: ${reason}`,
+        isAiVerified: false,
+        latencyMs: Date.now() - startTime
+    });
 
-    if (!genAI) return fallback;
+    if (!genAI) return fallback('AI Engine not initialized');
 
     const actualMimeType = audioMimeType || 'audio/webm';
 
     const prompt = {
         contents: [{
             parts: [
-                { text: `Transcribe this SOS emergency audio and provide triage in JSON. Location: Floor ${floorLevel}, Room ${roomNumber}, Wing ${wingId} (Lat/Lng: ${lat},${lng}). Output: translated_english_text, detected_language, panic_level, hospitality_category (MEDICAL/FIRE/SECURITY/INFRASTRUCTURE), actionPlan (string[]), spam_score, auto_severity, predicted_category, requiredResources.` },
+                { text: `Transcribe this SOS emergency audio and provide triage in JSON. Location: Floor ${floorLevel}, Room ${roomNumber}, Wing ${wingId} (Lat/Lng: ${lat},${lng}). Output: translated_english_text, detected_language, panic_level, hospitality_category (MEDICAL/FIRE/SECURITY/INFRASTRUCTURE), action_plan (string[]), spam_score, auto_severity, predicted_category, required_resources, reasoning (Briefly explain your transcription and triage logic).` },
                 { inlineData: { mimeType: actualMimeType, data: audioBase64 } }
             ]
         }]
@@ -248,15 +272,18 @@ async function analyzeVoice({ audioBase64, audioMimeType, floorLevel, roomNumber
             detectedLanguage: data.detected_language || 'en',
             panicLevel: data.panic_level || 'High',
             hospitalityCategory: data.hospitality_category || 'INFRASTRUCTURE',
-            actionPlan: Array.isArray(data.actionPlan) ? data.actionPlan : (Array.isArray(data.action_plan) ? data.action_plan : fallback.actionPlan),
+            actionPlan: Array.isArray(data.action_plan) ? data.action_plan : (Array.isArray(data.actionPlan) ? data.actionPlan : []),
             spamScore: typeof data.spam_score === 'number' ? data.spam_score : 0.0,
             autoSeverity: typeof data.auto_severity === 'number' ? Math.round(data.auto_severity) : 5,
             predictedCategory: String(data.predicted_category || data.hospitality_category || 'INFRASTRUCTURE').toUpperCase(),
-            requiredResources: Array.isArray(data.requiredResources) ? data.requiredResources : (Array.isArray(data.required_resources) ? data.required_resources : fallback.requiredResources),
+            requiredResources: Array.isArray(data.required_resources) ? data.required_resources : (Array.isArray(data.requiredResources) ? data.requiredResources : []),
+            reasoning: data.reasoning || 'Voice triage completed.',
+            isAiVerified: true,
+            latencyMs: data._internal?.latencyMs || (Date.now() - startTime)
         };
     } catch (err) {
         console.error('[AI Service] analyzeVoice failed:', err.message);
-        return fallback;
+        return fallback(`Voice processing failed (${err.message})`);
     }
 }
 

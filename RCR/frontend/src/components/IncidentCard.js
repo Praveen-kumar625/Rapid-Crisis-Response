@@ -68,12 +68,20 @@ function IncidentCard({ incident }) {
             </div>
 
             <div className="mt-2 pt-4 border-t border-slate-800 flex justify-between items-center relative z-10 pl-2 font-mono">
-                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    <Cpu size={16} className={triageMethod?.includes('Edge') ? 'text-emerald-500 animate-pulse' : 'text-slate-700'} />
-                    {triageMethod?.includes('Edge') ? (
-                        <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/20">EDGE_VERIFIED</span>
-                    ) : (
-                        <span className="text-slate-600 text-[9px] truncate max-w-[100px]">PROC: {triageMethod || 'CLOUD'}</span>
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        <Cpu size={16} className={triageMethod?.includes('Edge') ? 'text-emerald-500 animate-pulse' : 'text-slate-700'} />
+                        {triageMethod?.includes('Edge') ? (
+                            <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/20">EDGE_VERIFIED</span>
+                        ) : (
+                            <span className="text-slate-600 text-[9px] truncate max-w-[100px]">PROC: {triageMethod || 'CLOUD'}</span>
+                        )}
+                    </div>
+                    {incident.aiReasoning && (
+                        <div className="flex items-center gap-1">
+                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+                            <span className="text-[7px] text-emerald-500/70 font-black uppercase tracking-tighter">AI_LOGIC_AVAIL</span>
+                        </div>
                     )}
                 </div>
                 <div className={`flex items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all shrink-0 ${

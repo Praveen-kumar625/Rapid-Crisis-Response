@@ -5,6 +5,25 @@ const api = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
 });
 
+// Latency Tracking Interceptor
+api.interceptors.request.use((config) => {
+    config.metadata = { startTime: new Date() };
+    return config;
+});
+
+api.interceptors.response.use(
+    (response) => {
+        response.config.metadata.endTime = new Date();
+        response.duration = response.config.metadata.endTime - response.config.metadata.startTime;
+        return response;
+    },
+    (error) => {
+        error.config.metadata.endTime = new Date();
+        error.duration = error.config.metadata.endTime - error.config.metadata.startTime;
+        return Promise.reject(error);
+    }
+);
+
 // Existing Request Interceptor
 api.interceptors.request.use(async(config) => {
     if (process.env.REACT_APP_DEMO_MODE === 'true') {

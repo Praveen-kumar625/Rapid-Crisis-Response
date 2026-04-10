@@ -18,6 +18,7 @@ exports.list = async({ bbox, wingId, floorLevel, roomNumber, hotelId } = {}) => 
             'triage_method as triageMethod', 'ai_action_plan as actionPlan',
             'ai_required_resources as requiredResources', 'media_type as mediaType', 'media_url as mediaUrl',
             'sensor_metadata as sensorMetadata',
+            'ai_reasoning as aiReasoning', 'is_ai_verified as isAiVerified', 'latency_ms as latencyMs',
             'lat', 'lng', 'indoor_lat as indoorLat', 'indoor_lng as indoorLng',
             'reported_by as reportedBy', 'hotel_id as hotelId',
             'created_at as createdAt', 'updated_at as updatedAt'
@@ -51,7 +52,8 @@ exports.create = async({
     floorLevel, roomNumber, wingId, indoorLocation,
     reportedBy, mediaType, mediaBase64, mediaUrl, hotelId,
     sensorMetadata,
-    triageMethod = 'Cloud AI'
+    triageMethod = 'Cloud AI',
+    aiReasoning, isAiVerified, latencyMs
 }) => {
     // 1. Upload to Cloud Storage if media exists
     let finalMediaUrl = mediaUrl;
@@ -76,7 +78,10 @@ exports.create = async({
             triage_method: triageMethod,
             media_type: mediaType,
             media_url: finalMediaUrl,
-            sensor_metadata: sensorMetadata || null
+            sensor_metadata: sensorMetadata || null,
+            ai_reasoning: aiReasoning || null,
+            is_ai_verified: !!isAiVerified,
+            latency_ms: latencyMs || 0
         })
         .returning('*');
 
@@ -93,16 +98,19 @@ exports.create = async({
     await SocketService.publish(`${tenantTopic}_incidents`, { type: 'created', incident });
 
     // 4. Queue Background Tasks (AI Triage)
-    const shouldPassBase64 = mediaBase64 && mediaBase64.length < 500000;
-    await incidentQueue.add('AI_TRIAGE', { 
-        type: 'AI_TRIAGE', 
-        data: { 
-            incidentId: incident.id,
-            mediaBase64: shouldPassBase64 ? mediaBase64 : null, 
-            mediaUrl: finalMediaUrl,
-            mediaType
-        } 
-    });
+    // Only queue if not already verified (e.g. voice already did triage)
+    if (!isAiVerified) {
+        const shouldPassBase64 = mediaBase64 && mediaBase64.length < 500000;
+        await incidentQueue.add('AI_TRIAGE', { 
+            type: 'AI_TRIAGE', 
+            data: { 
+                incidentId: incident.id,
+                mediaBase64: shouldPassBase64 ? mediaBase64 : null, 
+                mediaUrl: finalMediaUrl,
+                mediaType
+            } 
+        });
+    }
 
     return incident;
 };
@@ -140,6 +148,10 @@ exports.broadcastAlert = async (hotelId, { message, severity = 5, wingId = null,
     return { success: true };
 };
 
+exports.analyze = async({ title, description, category, userSeverity, mediaType, mediaBase64 }) => {
+    return AIService.analyzeReport({ title, description, category, userSeverity, mediaType, mediaBase64 });
+};
+
 exports.getById = async(id, hotelId) => {
     let query = db('incidents')
         .select(
@@ -149,6 +161,7 @@ exports.getById = async(id, hotelId) => {
             'triage_method as triageMethod', 'ai_action_plan as actionPlan',
             'ai_required_resources as requiredResources', 'media_type as mediaType', 'media_url as mediaUrl',
             'sensor_metadata as sensorMetadata',
+            'ai_reasoning as aiReasoning', 'is_ai_verified as isAiVerified', 'latency_ms as latencyMs',
             'lat', 'lng', 'indoor_lat as indoorLat', 'indoor_lng as indoorLng',
             'reported_by as reportedBy', 'hotel_id as hotelId',
             'created_at as createdAt', 'updated_at as updatedAt'
@@ -203,13 +216,17 @@ exports.analyzeVoice = async({ audioBase64, audioMimeType, floorLevel, roomNumbe
         title: analysis.translatedText ? `Voice report: ${analysis.hospitalityCategory}` : 'Voice Incident',
         description: analysis.translatedText || '',
         severity: analysis.autoSeverity || 3,
-        category: analysis.hospitalityCategory || 'INFRASTRUCTURE',
+        category: analysis.hospitalityCategory || 'EMERGENCY',
         lat, lng, floorLevel, roomNumber, wingId,
         mediaType: audioMimeType || 'audio/webm',
         mediaBase64: audioBase64,
         reportedBy, hotelId,
-        triageMethod: 'Cloud AI (Voice)'
+        triageMethod: 'Cloud AI (Voice)',
+        aiReasoning: analysis.reasoning,
+        isAiVerified: analysis.isAiVerified,
+        latencyMs: analysis.latencyMs
     });
 
     return { analysis, incident };
 };
+
