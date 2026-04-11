@@ -96,9 +96,9 @@ export const Navbar = ({ user, logout }) => {
                     <NavLink to="/dashboard" icon={BarChart2} currentPath={location.pathname}>Analytics</NavLink>
                     <div className="w-px h-6 bg-slate-800 mx-2"></div>
                     <Link to="/report" aria-label="Initiate SOS Report">
-                        <button className="bg-red-600 text-white border border-red-500 hover:bg-red-500 px-4 py-2 rounded-none text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2 shadow-[0_0_10px_rgba(220,38,38,0.3)]">
-                            <ShieldAlert size={16} />
-                            SOS_REPORT
+                        <button className="bg-red-600 text-white border-2 border-red-400 hover:bg-red-500 px-6 py-2.5 rounded-none text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:scale-105 active:scale-95">
+                            <ShieldAlert size={18} className="animate-pulse" />
+                            CRITICAL_SOS
                         </button>
                     </Link>
                 </nav>
@@ -202,9 +202,12 @@ export const Navbar = ({ user, logout }) => {
                                 className="mt-4"
                             >
                                 <Link to="/report" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <button className="w-full bg-red-600 text-white border border-red-500 p-5 rounded-none text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 active:bg-red-500 transition-colors shadow-[0_0_20px_rgba(220,38,38,0.4)]">
-                                        <ShieldAlert size={24} />
-                                        INITIATE_SOS_REPORT
+                                    <button className="w-full bg-red-600 text-white border-2 border-red-400 p-5 rounded-none text-sm font-black uppercase tracking-widest flex flex-col items-center justify-center gap-2 active:bg-red-500 transition-colors shadow-[0_0_30px_rgba(220,38,38,0.6)]">
+                                        <div className="flex items-center gap-3">
+                                            <ShieldAlert size={28} className="animate-pulse" />
+                                            INITIATE_SOS_REPORT
+                                        </div>
+                                        <span className="text-[8px] opacity-70 tracking-[0.2em]">DIRECT TO EMERGENCY COMMAND</span>
                                     </button>
                                 </Link>
                             </motion.div>

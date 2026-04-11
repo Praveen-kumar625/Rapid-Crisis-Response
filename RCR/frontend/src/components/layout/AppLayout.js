@@ -1,6 +1,7 @@
 // RE-THEMED: Solid Tactical
 import React from 'react';
 import { Navbar } from './Navbar';
+import { SystemGuide } from '../SystemGuide';
 
 export const AppLayout = ({ children, user, logout }) => {
     return (
@@ -16,6 +17,8 @@ export const AppLayout = ({ children, user, logout }) => {
             <main className="flex-1 flex flex-col relative z-10">
                 {children}
             </main>
+
+            <SystemGuide />
 
             {/* Tactical Corner Accents */}
             <div className="fixed top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-white/5 pointer-events-none z-0"></div>

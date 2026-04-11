@@ -304,6 +304,19 @@ function ReportForm() {
                 )}
             </div>
 
+            {/* SYSTEM GUIDANCE - New Feature for Ease of Use */}
+            <div className="bg-slate-900/50 p-6 sm:p-8 border-b border-slate-800 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-none bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shrink-0">
+                    <Info size={20} className="text-cyan-400" />
+                </div>
+                <div className="space-y-1">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">Operational_Guidance</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        In an emergency, prioritize safety. Use <span className="text-red-400">Audio SOS</span> for rapid hands-free reporting. Attach photos if possible to assist <span className="text-cyan-400">Edge AI</span> triage. All data is encrypted and synced even if offline.
+                    </p>
+                </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-10">
                 {locationError && (
                     <div className="bg-red-600/10 border border-red-500 rounded-none p-4 flex flex-col gap-3">
@@ -317,13 +330,29 @@ function ReportForm() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button type="button" onClick={handleAudioSOS} className={`py-5 text-[10px] font-black uppercase tracking-widest border flex items-center justify-center gap-3 transition-all ${isAudioRecording ? 'bg-red-600 border-red-400 text-white animate-pulse shadow-neon-red' : 'bg-red-600/10 border-red-500/50 text-red-500 hover:bg-red-600 hover:text-white'}`}>
-                        {isAudioRecording ? <MicOff size={18} /> : <AlertTriangle size={18} />}
-                        {isAudioRecording ? 'RECORDING_SOS...' : 'INITIATE_SOS_AUDIO'}
+                    <button 
+                        type="button" 
+                        onClick={handleAudioSOS} 
+                        aria-label={isAudioRecording ? "Stop Recording SOS" : "Initiate SOS Audio Recording"}
+                        className={`py-5 text-[10px] font-black uppercase tracking-widest border flex flex-col items-center justify-center gap-1 transition-all ${isAudioRecording ? 'bg-red-600 border-red-400 text-white animate-pulse shadow-neon-red' : 'bg-red-600/10 border-red-500/50 text-red-500 hover:bg-red-600 hover:text-white'}`}
+                    >
+                        <div className="flex items-center gap-3">
+                            {isAudioRecording ? <MicOff size={18} /> : <AlertTriangle size={18} />}
+                            {isAudioRecording ? 'RECORDING_SOS...' : 'INITIATE_SOS_AUDIO'}
+                        </div>
+                        <span className="text-[7px] opacity-60">HANDS-FREE REPORTING</span>
                     </button>
                     {isSpeechSupported && (
-                        <button type="button" onClick={handleVoiceToggle} className={`py-5 text-[10px] font-black uppercase tracking-widest border flex items-center justify-center gap-3 transition-all ${isRecording ? 'bg-cyan-600 border-cyan-400 text-black animate-pulse shadow-neon-cyan' : 'bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700'}`}>
-                            <Mic size={18} /> {isRecording ? 'LISTENING...' : 'VOICE_DICTATION'}
+                        <button 
+                            type="button" 
+                            onClick={handleVoiceToggle} 
+                            aria-label="Toggle Voice Dictation"
+                            className={`py-5 text-[10px] font-black uppercase tracking-widest border flex flex-col items-center justify-center gap-1 transition-all ${isRecording ? 'bg-cyan-600 border-cyan-400 text-black animate-pulse shadow-neon-cyan' : 'bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Mic size={18} /> {isRecording ? 'LISTENING...' : 'VOICE_DICTATION'}
+                            </div>
+                            <span className="text-[7px] opacity-60">AUTO-FILL DESCRIPTION</span>
                         </button>
                     )}
                 </div>
@@ -383,20 +412,24 @@ function ReportForm() {
                     </div>
                 </div>
 
-                <div className="border border-slate-800 bg-[#0B0F19] hover:bg-[#1E293B] transition-all p-8 rounded-none text-center group cursor-pointer relative overflow-hidden">
-                    <input id="media-upload" name="mediaFile" type="file" accept="image/*,video/*" capture="environment" onChange={handleMediaChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                    <div className="flex flex-col items-center justify-center">
-                        <div className="w-12 h-12 bg-[#151B2B] rounded-none flex items-center justify-center mb-4 border border-slate-800 group-hover:border-cyan-500/50">
-                            <Camera size={24} className="text-slate-500 group-hover:text-cyan-400" />
+                <div className="space-y-4">
+                    <Label htmlFor="media-upload">Visual_Signal_Evidence</Label>
+                    <div className="border border-slate-800 bg-[#0B0F19] hover:bg-[#1E293B] transition-all p-8 rounded-none text-center group cursor-pointer relative overflow-hidden">
+                        <input id="media-upload" name="mediaFile" type="file" accept="image/*,video/*" capture="environment" onChange={handleMediaChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <div className="flex flex-col items-center justify-center">
+                            <div className="w-12 h-12 bg-[#151B2B] rounded-none flex items-center justify-center mb-4 border border-slate-800 group-hover:border-cyan-500/50">
+                                <Camera size={24} className="text-slate-500 group-hover:text-cyan-400" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Capture_Scene_Intel</span>
+                            <p className="text-[8px] text-slate-600 mt-2 uppercase tracking-widest group-hover:text-slate-400 transition-colors italic">PHOTOS/VIDEO ASSIST AI TRIAGE ACCURACY</p>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Attach_Visual_Evidence</span>
+                        {mediaPreview && (
+                            <div className="mt-8 rounded-none overflow-hidden border border-slate-800 bg-black shadow-tactical relative">
+                                {mediaType.startsWith('image/') ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[300px] object-contain opacity-90" /> : <video controls src={mediaPreview} className="w-full max-h-[300px] mx-auto opacity-90" />}
+                                <div className="absolute top-4 right-4 bg-[#0B0F19] px-3 py-1 text-[8px] font-black text-cyan-400 uppercase border border-cyan-500/50 font-mono tracking-widest shadow-neon-cyan">SIGNAL_CAPTURED</div>
+                            </div>
+                        )}
                     </div>
-                    {mediaPreview && (
-                        <div className="mt-8 rounded-none overflow-hidden border border-slate-800 bg-black shadow-tactical relative">
-                            {mediaType.startsWith('image/') ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[300px] object-contain opacity-90" /> : <video controls src={mediaPreview} className="w-full max-h-[300px] mx-auto opacity-90" />}
-                            <div className="absolute top-4 right-4 bg-[#0B0F19] px-3 py-1 text-[8px] font-black text-cyan-400 uppercase border border-cyan-500/50 font-mono tracking-widest shadow-neon-cyan">SIGNAL_CAPTURED</div>
-                        </div>
-                    )}
                 </div>
 
                 <Button 

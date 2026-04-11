@@ -212,13 +212,19 @@ const Dashboard = () => {
 
                 <section className="pb-4">
                     <div className="grid grid-cols-2 gap-3 lg:gap-4">
-                        <div className="bg-[#0B0F19] p-2.5 lg:p-3 border border-slate-800 rounded-none">
-                            <span className="text-[7px] lg:text-[8px] uppercase text-slate-500 font-black block mb-1 tracking-widest">Net Latency</span>
+                        <div className="bg-[#0B0F19] p-2.5 lg:p-3 border border-slate-800 rounded-none group relative cursor-help">
+                            <span className="text-[7px] lg:text-[8px] uppercase text-slate-500 font-black block mb-1 tracking-widest flex items-center gap-1">Net Latency <Info size={8} /></span>
                             <span className="font-mono text-cyan-400 text-xs lg:text-sm tabular-nums tracking-tighter">{sysStats.latency}</span>
+                            <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-800 text-[8px] text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-slate-700 z-50">
+                                TIME FOR SIGNAL TO REACH COMMAND CENTER. LOWER IS BETTER.
+                            </div>
                         </div>
-                        <div className="bg-[#0B0F19] p-2.5 lg:p-3 border border-slate-800 rounded-none">
-                            <span className="text-[7px] lg:text-[8px] uppercase text-slate-500 font-black block mb-1 tracking-widest">Queue Status</span>
+                        <div className="bg-[#0B0F19] p-2.5 lg:p-3 border border-slate-800 rounded-none group relative cursor-help">
+                            <span className="text-[7px] lg:text-[8px] uppercase text-slate-500 font-black block mb-1 tracking-widest flex items-center gap-1">Queue Status <Info size={8} /></span>
                             <span className="font-mono text-amber-500 text-xs lg:text-sm tracking-tighter uppercase">{sysStats.queue}</span>
+                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-[8px] text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-slate-700 z-50">
+                                STATUS OF AI PROCESSING PIPELINE. IDLE MEANS READY.
+                            </div>
                         </div>
                     </div>
                 </section>
