@@ -55,10 +55,10 @@ function Home() {
 
                     <motion.h1 
                         variants={fadeInUp}
-                        className="text-4xl sm:text-6xl lg:text-9xl font-black tracking-tighter leading-[0.95] mb-8 lg:mb-12"
+                        className="font-black tracking-tighter leading-[0.95] mb-8 lg:mb-12 text-responsive-h1 break-word"
                     >
                         <span className="block text-slate-100">THE GOLDEN</span>
-                        <span className="block text-amber-500 drop-shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                        <span className="block text-amber-500 drop-shadow-[0_0_30px_rgba(245,158,11,0.3)] text-balance">
                             HOUR RECLAIMED.
                         </span>
                     </motion.h1>

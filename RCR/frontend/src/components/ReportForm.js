@@ -334,25 +334,25 @@ function ReportForm() {
                         type="button" 
                         onClick={handleAudioSOS} 
                         aria-label={isAudioRecording ? "Stop Recording SOS" : "Initiate SOS Audio Recording"}
-                        className={`py-5 text-[10px] font-black uppercase tracking-widest border flex flex-col items-center justify-center gap-1 transition-all ${isAudioRecording ? 'bg-red-600 border-red-400 text-white animate-pulse shadow-neon-red' : 'bg-red-600/10 border-red-500/50 text-red-500 hover:bg-red-600 hover:text-white'}`}
+                        className={`py-6 text-xs font-black uppercase tracking-[0.2em] border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-95 ${isAudioRecording ? 'bg-red-600 border-red-400 text-white animate-pulse shadow-[0_0_30px_rgba(220,38,38,0.6)]' : 'bg-red-600/10 border-red-500/50 text-red-500 hover:bg-red-600 hover:text-white hover:shadow-neon-red'}`}
                     >
                         <div className="flex items-center gap-3">
-                            {isAudioRecording ? <MicOff size={18} /> : <AlertTriangle size={18} />}
-                            {isAudioRecording ? 'RECORDING_SOS...' : 'INITIATE_SOS_AUDIO'}
+                            {isAudioRecording ? <MicOff size={24} /> : <AlertTriangle size={24} />}
+                            {isAudioRecording ? 'RECORDING_SOS...' : 'CRITICAL_AUDIO_SOS'}
                         </div>
-                        <span className="text-[7px] opacity-60">HANDS-FREE REPORTING</span>
+                        <span className="text-[8px] opacity-70 tracking-widest">HANDS-FREE EMERGENCY DISPATCH</span>
                     </button>
                     {isSpeechSupported && (
                         <button 
                             type="button" 
                             onClick={handleVoiceToggle} 
                             aria-label="Toggle Voice Dictation"
-                            className={`py-5 text-[10px] font-black uppercase tracking-widest border flex flex-col items-center justify-center gap-1 transition-all ${isRecording ? 'bg-cyan-600 border-cyan-400 text-black animate-pulse shadow-neon-cyan' : 'bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700'}`}
+                            className={`py-6 text-xs font-black uppercase tracking-[0.2em] border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-95 ${isRecording ? 'bg-cyan-600 border-cyan-400 text-black animate-pulse shadow-neon-cyan' : 'bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700 hover:border-slate-500'}`}
                         >
                             <div className="flex items-center gap-3">
-                                <Mic size={18} /> {isRecording ? 'LISTENING...' : 'VOICE_DICTATION'}
+                                <Mic size={24} /> {isRecording ? 'LISTENING...' : 'VOICE_COMMAND'}
                             </div>
-                            <span className="text-[7px] opacity-60">AUTO-FILL DESCRIPTION</span>
+                            <span className="text-[8px] opacity-70 tracking-widest">AI-POWERED NARRATIVE CAPTURE</span>
                         </button>
                     )}
                 </div>
@@ -435,10 +435,10 @@ function ReportForm() {
                 <Button 
                     type="submit" 
                     isLoading={isSubmitting}
-                    className="w-full py-6 text-sm tracking-[0.3em]"
+                    className="w-full py-7 text-sm sm:text-base tracking-[0.4em] bg-cyan-600 hover:bg-cyan-500 text-black font-black border-2 border-cyan-400 shadow-neon-cyan active:scale-[0.98] transition-all rounded-none"
                 >
-                    <ShieldCheck size={20} />
-                    Submit_Report_Signal
+                    <ShieldCheck size={24} />
+                    TRANSMIT_INCIDENT_SIGNAL
                 </Button>
             </form>
 

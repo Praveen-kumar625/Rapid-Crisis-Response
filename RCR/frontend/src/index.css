@@ -71,6 +71,24 @@
   .text-glow-cyan {
     text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .break-word {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+@layer utilities {
+  .text-responsive-h1 {
+    @apply text-3xl sm:text-5xl md:text-7xl lg:text-9xl;
+  }
+  .text-responsive-h2 {
+    @apply text-2xl sm:text-4xl md:text-5xl lg:text-6xl;
+  }
 }
 
 @keyframes scanline {

@@ -9,6 +9,7 @@ import api from './api';
 import { AppLayout } from './components/layout/AppLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
+import { handleRedirectResult } from './utils/firebase';
 
 
 // Lazy loaded pages
@@ -68,6 +69,7 @@ function App() {
     };
 
     useEffect(() => {
+        handleRedirectResult().catch(console.error);
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
                 const token = await firebaseUser.getIdToken();

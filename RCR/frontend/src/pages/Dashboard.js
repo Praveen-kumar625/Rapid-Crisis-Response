@@ -49,8 +49,8 @@ const Dashboard = () => {
     return (
         <div className="min-h-[calc(100vh-64px)] w-full bg-[#0B0F19] text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden font-sans selection:bg-cyan-500/30">
             {/* LEFT PANEL: INTEL FEED */}
-            <aside className="w-full lg:w-1/4 h-auto lg:h-full border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#151B2B] flex flex-col shrink-0">
-                <div className="p-4 lg:p-6 border-b border-slate-800 flex items-center justify-between bg-black/20">
+            <aside className="w-full lg:w-1/4 h-auto lg:h-full border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#151B2B] flex flex-col shrink-0 min-h-0">
+                <div className="p-4 lg:p-6 border-b border-slate-800 flex items-center justify-between bg-black/20 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-neon-red"></div>
@@ -84,8 +84,8 @@ const Dashboard = () => {
                                         {new Date(inc.createdAt).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                                <h3 className="text-xs lg:text-sm font-bold truncate uppercase tracking-tight text-white">{inc.title}</h3>
-                                <p className="text-[11px] lg:text-[12px] text-slate-400 line-clamp-2 mt-1 font-light leading-relaxed">
+                                <h3 className="text-xs lg:text-sm font-bold truncate sm:whitespace-normal sm:break-word uppercase tracking-tight text-white text-balance">{inc.title}</h3>
+                                <p className="text-[11px] lg:text-[12px] text-slate-400 line-clamp-2 mt-1 font-light leading-relaxed break-word">
                                     {inc.description}
                                 </p>
                             </motion.div>
@@ -186,26 +186,26 @@ const Dashboard = () => {
                         <h2 className="text-[10px] lg:text-xs font-black uppercase tracking-[0.3em]">SDG Impact Analytics</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
-                            <div>
-                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 3: Health</span>
-                                <span className="text-[10px] text-emerald-400 font-bold">90% Reduction in Triage Delay</span>
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center gap-4">
+                            <div className="min-w-0">
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest truncate">Goal 3: Health</span>
+                                <span className="text-[10px] text-emerald-400 font-bold leading-tight block break-word">90% Reduction in Triage Delay</span>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-[10px]">3</div>
+                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-[10px] shrink-0">3</div>
                         </div>
-                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
-                            <div>
-                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 9: Resilient Infra</span>
-                                <span className="text-[10px] text-cyan-400 font-bold">Edge-AI Active (Offline Sync)</span>
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center gap-4">
+                            <div className="min-w-0">
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest truncate">Goal 9: Resilient Infra</span>
+                                <span className="text-[10px] text-cyan-400 font-bold leading-tight block break-word">Edge-AI Active (Offline Sync)</span>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 font-bold text-[10px]">9</div>
+                            <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 font-bold text-[10px] shrink-0">9</div>
                         </div>
-                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center">
-                            <div>
-                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest">Goal 11: Safe Cities</span>
-                                <span className="text-[10px] text-amber-400 font-bold">Z-Axis Routing Operational</span>
+                        <div className="bg-[#0B0F19] p-3 border border-slate-800 flex justify-between items-center gap-4">
+                            <div className="min-w-0">
+                                <span className="text-[7px] uppercase text-slate-500 font-black block tracking-widest truncate">Goal 11: Safe Cities</span>
+                                <span className="text-[10px] text-amber-400 font-bold leading-tight block break-word">Z-Axis Routing Operational</span>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-bold text-[10px]">11</div>
+                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-bold text-[10px] shrink-0">11</div>
                         </div>
                     </div>
                 </section>

@@ -134,35 +134,35 @@ const Analytics = () => {
     return (
         <Section className="py-8 bg-[#0B0F19] flex-1 flex flex-col overflow-y-auto">
             <Container>
-                <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="relative">
+                <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 overflow-hidden">
+                    <div className="relative min-w-0">
                         <motion.div 
                             key={realtimePulse}
                             initial={{ opacity: 0.5, scale: 1 }}
                             animate={{ opacity: 0, scale: 1.2 }}
                             className="absolute -inset-4 bg-cyan-500/10 rounded-full pointer-events-none"
                         />
-                        <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2 italic">
+                        <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white mb-2 italic text-balance">
                             Tactical <span className="text-cyan-400">Analytics</span>
                         </h2>
                         <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-neon-green" />
-                            <p className="text-slate-500 font-mono text-[9px] tracking-[0.3em] uppercase">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-neon-green shrink-0" />
+                            <p className="text-slate-500 font-mono text-[8px] sm:text-[9px] tracking-[0.2em] sm:tracking-[0.3em] uppercase truncate">
                                 Real-time Neural Engine Active
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex bg-[#111827] border border-slate-800 p-1 rounded-none shadow-tactical">
+                    <div className="flex flex-wrap bg-[#111827] border border-slate-800 p-1 rounded-none shadow-tactical w-full sm:w-auto">
                         {['ALL', 'FIRE', 'MEDICAL', 'SECURITY', 'INFRASTRUCTURE'].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setActiveFilter(f)}
-                                className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${
+                                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all ${
                                     activeFilter === f ? 'bg-cyan-600 text-black' : 'text-slate-500 hover:text-slate-300'
                                 }`}
                             >
-                                {f}
+                                {f === 'INFRASTRUCTURE' ? 'INFRA' : f}
                             </button>
                         ))}
                     </div>

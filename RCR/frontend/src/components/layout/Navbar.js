@@ -57,12 +57,16 @@ export const Navbar = ({ user, logout }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
 
-    const handleLogin = async () => {
+    const handleLogin = async (isMobile = false) => {
         try {
+            toast.loading('Authenticating...', { id: 'auth' });
             await signInWithGoogle();
-            toast.success('Successfully authenticated');
+            if (!isMobile) {
+                toast.success('Successfully authenticated', { id: 'auth' });
+            }
         } catch (err) {
-            toast.error('Authentication Failed');
+            console.error("Auth error:", err);
+            toast.error('Authentication Failed. Check pop-up blockers.', { id: 'auth' });
         }
     };
 
@@ -76,11 +80,11 @@ export const Navbar = ({ user, logout }) => {
                         <div className="relative flex items-center justify-center w-8 h-8 bg-slate-900 border border-slate-700 rounded-none transition-all duration-300">
                             <Shield className="text-cyan-400 w-4 h-4" />
                         </div>
-                        <div className="hidden md:flex flex-col">
-                            <h1 className="text-sm font-black tracking-widest uppercase text-slate-100">
+                        <div className="flex flex-col min-w-0">
+                            <h1 className="text-[10px] sm:text-sm font-black tracking-widest uppercase text-slate-100 truncate">
                                 RAPID <span className="text-cyan-400">CRISIS</span> RESPONSE
                             </h1>
-                            <span className="text-[8px] text-amber-500 tracking-[0.2em] font-mono opacity-80 uppercase">OP_TERMINAL_V4</span>
+                            <span className="text-[7px] sm:text-[8px] text-amber-500 tracking-[0.2em] font-mono opacity-80 uppercase truncate">OP_TERMINAL_V4</span>
                         </div>
                     </Link>
 
@@ -234,7 +238,7 @@ export const Navbar = ({ user, logout }) => {
                             ) : (
                                 <div className="mt-6">
                                     <button 
-                                        onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}
+                                        onClick={() => handleLogin(true)}
                                         className="w-full bg-slate-800 text-cyan-400 border border-slate-700 hover:bg-slate-700 p-5 rounded-none text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-colors"
                                     >
                                         <LogIn size={24} />
