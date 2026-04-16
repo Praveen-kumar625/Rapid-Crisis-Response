@@ -57,11 +57,11 @@ const Dashboard = () => {
     }, []);
 
     return (
-        <div className="min-h-[calc(100vh-64px)] w-full max-w-[100vw] overflow-x-hidden bg-[#020617] bg-grid-pattern text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden font-sans selection:bg-cyan-500/30 relative">
+        <div className="h-full w-full max-w-[100vw] overflow-hidden bg-[#020617] bg-grid-pattern text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden font-sans selection:bg-cyan-500/30 relative">
             <div className="scanline-overlay"></div>
             
             {/* LEFT PANEL: INTEL FEED */}
-            <aside className="w-full lg:w-1/4 h-auto lg:h-full border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-950/40 backdrop-blur-xl flex flex-col shrink-0 min-h-0 z-10">
+            <aside className="w-full lg:w-1/4 h-auto lg:h-full border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-950/40 backdrop-blur-xl flex flex-col shrink-0 min-h-0 z-10 overflow-hidden">
                 <div className="p-4 lg:p-6 border-b border-white/10 flex items-center justify-between bg-white/5 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="relative">
@@ -72,7 +72,7 @@ const Dashboard = () => {
                     <span className="font-mono text-[9px] lg:text-[10px] text-slate-500 tabular-nums uppercase font-bold tracking-widest">Nodes: {incidents.length}</span>
                 </div>
 
-                <div className="max-h-[40vh] lg:max-h-none lg:flex-1 overflow-y-auto custom-scrollbar p-3 lg:p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-3 lg:p-4 space-y-4">
                     <AnimatePresence initial={false}>
                         {incidents.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center opacity-20 py-20">
@@ -163,8 +163,8 @@ const Dashboard = () => {
             </main>
 
             {/* RIGHT PANEL: AI TRIAGE & COMMAND */}
-            <aside className="w-full lg:w-1/4 h-auto lg:h-full bg-slate-950/40 backdrop-blur-xl flex flex-col p-4 lg:p-6 space-y-8 shrink-0 lg:overflow-y-auto custom-scrollbar z-10 border-l border-white/5">
-                <section className="glass-panel p-5 border-white/10 shadow-xl">
+            <aside className="w-full lg:w-1/4 h-auto lg:h-full bg-slate-950/40 backdrop-blur-xl flex flex-col p-4 lg:p-6 space-y-8 shrink-0 overflow-y-auto custom-scrollbar z-10 border-l border-white/5">
+                <section className="glass-panel p-5 border-white/10 shadow-xl shrink-0">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-cyan-500/10 border border-cyan-500/30">
                             <Cpu className="text-cyan-400 text-glow-cyan" size={18} />

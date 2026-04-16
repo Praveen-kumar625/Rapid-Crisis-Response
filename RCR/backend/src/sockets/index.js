@@ -92,27 +92,63 @@ function initSocket(httpServer) {
         }
 
         // Manual joining allowed if authorized (simplified for hackathon)
-        socket.on('join-hotel', (hotelId) => {
-            // Support both UUID and prefixed room names from frontend if necessary, 
-            // but here we expect the ID and we join the internal room name.
-            if (hotelId === String(socket.user.hotelId) || socket.user.id.startsWith('demo')) {
-                const roomName = hotelId.startsWith('hotel_') ? hotelId : `hotel_${hotelId}`;
-                socket.join(roomName);
-                console.log(`🏨 Socket ${socket.id} manually joined room: ${roomName}`);
+        socket.on('join-hotel', (hotelId, callback) => {
+            try {
+                if (hotelId === String(socket.user.hotelId) || socket.user.id.startsWith('demo')) {
+                    const roomName = hotelId.startsWith('hotel_') ? hotelId : `hotel_${hotelId}`;
+                    socket.join(roomName);
+                    console.log(`🏨 Socket ${socket.id} manually joined room: ${roomName}`);
+                    if (callback) callback({ status: 'success', room: roomName });
+                } else {
+                    if (callback) callback({ status: 'error', message: 'Unauthorized hotel join' });
+                }
+            } catch (err) {
+                console.error('[Socket] join-hotel fail:', err);
+                if (callback) callback({ status: 'error', message: err.message });
             }
         });
 
-        socket.on('join-incident', async (incId) => {
+        socket.on('join-incident', async (incId, callback) => {
             try {
                 const incident = await db('incidents').where({ id: incId, hotel_id: socket.user.hotelId }).first();
                 if (incident || socket.user.id.startsWith('demo')) {
                     socket.join(`incident-${incId}`);
+                    if (callback) callback({ status: 'success', room: `incident-${incId}` });
+                } else {
+                    if (callback) callback({ status: 'error', message: 'Incident access denied' });
                 }
             } catch (err) {
                 console.error('[Socket] Failed to join incident room', err);
+                if (callback) callback({ status: 'error', message: err.message });
             }
         });
-        socket.on('leave-incident', (incId) => socket.leave(`incident-${incId}`));
+
+        socket.on('leave-incident', (incId, callback) => {
+            try {
+                socket.leave(`incident-${incId}`);
+                if (callback) callback({ status: 'success' });
+            } catch (err) {
+                if (callback) callback({ status: 'error', message: err.message });
+            }
+        });
+
+        // Fail-safe Emergency Dispatch Signal
+        socket.on('emergency_signal', async (payload, callback) => {
+            try {
+                console.log(`🚨 Emergency Signal from ${socket.user.id}:`, payload.type);
+                
+                // Logic for global SOS or broadcast
+                if (payload.type === 'SOS_BROADCAST') {
+                    // Logic would go here (e.g. trigger Twilio, notify all responders)
+                    // For now, simulate success
+                }
+
+                if (callback) callback({ status: 'success', timestamp: new Date().toISOString() });
+            } catch (err) {
+                console.error('[Socket] emergency_signal fail:', err);
+                if (callback) callback({ status: 'error', message: 'CRITICAL_DISPATCH_FAILURE' });
+            }
+        });
     });
 
     // -----------------------------------------------------------------

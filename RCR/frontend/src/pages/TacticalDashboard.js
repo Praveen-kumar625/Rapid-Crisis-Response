@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
-import { getSocket } from '../socket';
+import { getSocket, emitWithTimeout } from '../socket';
 import { IntelFeed } from '../components/IntelFeed';
 import { TacticalMap } from '../components/TacticalMap';
 import { AICommand } from '../components/AICommand';
@@ -66,42 +66,23 @@ const TacticalDashboard = () => {
 
     // OBJECTIVE 1: Fail-safe Dispatch Protocol with 5000ms Timeout
     const emitEmergencySignal = async (data) => {
-        let timeoutId;
         setIsDispatching(true);
         const toastId = toast.loading('Initiating Emergency Protocol...');
 
-        const failSafeTimeout = new Promise((_, reject) => {
-            timeoutId = setTimeout(() => {
-                reject(new Error('SOCKET_TIMEOUT_5000MS'));
-            }, 5000);
-        });
-
-        const socketEmission = (async () => {
-            const socket = await getSocket();
-            return new Promise((resolve) => {
-                socket.emit('emergency_signal', data, (ack) => {
-                    resolve(ack || { success: true });
-                });
-                // Safety: Resolve if no ack needed or if using standard emit
-                setTimeout(() => resolve({ success: true }), 2000);
-            });
-        })();
-
         try {
-            await Promise.race([socketEmission, failSafeTimeout]);
+            await emitWithTimeout('emergency_signal', data, 5000);
             toast.success('Signal Acknowledged', { id: toastId });
         } catch (err) {
-            console.error('[RCR Critical] Silent Fallback Triggered:', err.message);
-            toast.error('Network Timeout: Response Pending', { id: toastId });
+            console.error('[RCR Critical] Dispatch Timeout/Error:', err.message);
+            toast.error(err.message.includes('TIMEOUT') ? 'Network Timeout: Response Pending' : 'Dispatch Failure', { id: toastId });
         } finally {
-            clearTimeout(timeoutId);
             setIsDispatching(false); // Forcefully clear state in finally block
         }
     };
 
     return (
         // OBJECTIVE 2: Enterprise Desktop Architecture - Viewport Locking
-        <div className="min-h-screen max-h-screen overflow-hidden bg-slate-950 flex flex-col text-slate-100 font-sans selection:bg-cyan-500/30 relative">
+        <div className="h-full max-h-full overflow-hidden flex flex-col text-slate-100 font-sans selection:bg-cyan-500/30 relative">
             <div className="scanline-overlay"></div>
             
             {/* Header / HUD Bar */}
@@ -158,7 +139,7 @@ const TacticalDashboard = () => {
                 {/* COMPONENT ALLOCATION: Incident Feed Sidebar (lg:col-span-3) */}
                 <aside className="lg:col-span-3 flex flex-col bg-slate-950/60 backdrop-blur-2xl border-l border-white/10 overflow-hidden h-full">
                     {/* INTERNAL SCROLLING LOCK: Independent sidebar scroll context */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar max-h-full">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
                         <IntelFeed 
                             incidents={incidents} 
                             onSelectIncident={setSelectedIncident} 
