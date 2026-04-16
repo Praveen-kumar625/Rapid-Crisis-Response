@@ -119,7 +119,7 @@ export const IntelFeed = ({ incidents, onSelectIncident }) => {
                             <div className="flex items-center justify-between mt-6">
                                 <div className="flex flex-col">
                                     <span className="text-[7px] text-slate-600 font-black uppercase tracking-widest mb-1">Sector_Loc</span>
-                                    <span className="text-[9px] text-slate-300 font-bold uppercase tracking-tighter">W_{inc.wingId} // L_{inc.floorLevel}</span>
+                                    <span className="text-[9px] text-slate-300 font-bold uppercase tracking-tighter">W_{inc.wingId} {" // "} L_{inc.floorLevel}</span>
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <span className="text-[7px] text-slate-600 font-black uppercase tracking-widest mb-1">Signal_Lock</span>
