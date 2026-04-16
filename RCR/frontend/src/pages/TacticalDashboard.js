@@ -24,19 +24,29 @@ const TacticalDashboard = () => {
         let socketInstance = null;
 
         const handleIncidentCreated = (payload) => {
-            if (isMounted) {
-                setIncidents(prev => [payload.incident, ...prev]);
+            try {
+                if (!payload || !payload.incident) return;
+                if (isMounted) {
+                    setIncidents(prev => [payload.incident, ...prev]);
+                }
+            } catch (err) {
+                console.error('[Socket] Dispatch failed for incident.created', err);
             }
         };
 
         const handleStatusUpdated = (payload) => {
-            if (isMounted) {
-                setIncidents(prev => prev.map(inc => 
-                    inc.id === payload.incident.id ? payload.incident : inc
-                ));
-                if (selectedIncident?.id === payload.incident.id) {
-                    setSelectedIncident(payload.incident);
+            try {
+                if (!payload || !payload.incident) return;
+                if (isMounted) {
+                    setIncidents(prev => prev.map(inc => 
+                        inc.id === payload.incident.id ? payload.incident : inc
+                    ));
+                    if (selectedIncident?.id === payload.incident.id) {
+                        setSelectedIncident(payload.incident);
+                    }
                 }
+            } catch (err) {
+                console.error('[Socket] Dispatch failed for incident.status-updated', err);
             }
         };
 
@@ -63,7 +73,7 @@ const TacticalDashboard = () => {
     });
 
     return (
-        <div className="h-[calc(100vh-64px)] w-full flex flex-col lg:flex-row overflow-hidden bg-navy-950 min-h-0">
+        <div className="h-[calc(100vh-64px)] w-full max-w-[100vw] flex flex-col lg:flex-row overflow-hidden overflow-x-hidden bg-navy-950 min-h-0">
             {/* LEFT PANEL - Hidden or scrollable on mobile */}
             <div className="hidden lg:flex w-80 shrink-0 border-r border-white/10 overflow-hidden">
                 <IntelFeed 

@@ -28,13 +28,23 @@ const Dashboard = () => {
             socket = await getSocket();
             if (!socket) return;
             socket.on('incident.created', (payload) => {
-                if (isMounted) {
-                    setIncidents(prev => [payload.incident, ...prev]);
+                try {
+                    if (!payload || !payload.incident) return;
+                    if (isMounted) {
+                        setIncidents(prev => [payload.incident, ...prev]);
+                    }
+                } catch (err) {
+                    console.error('[Socket] Dispatch failed for incident.created', err);
                 }
             });
             socket.on('incident.status-updated', (payload) => {
-                if (isMounted) {
-                    setIncidents(prev => prev.map(inc => inc.id === payload.incident.id ? payload.incident : inc));
+                try {
+                    if (!payload || !payload.incident) return;
+                    if (isMounted) {
+                        setIncidents(prev => prev.map(inc => inc.id === payload.incident.id ? payload.incident : inc));
+                    }
+                } catch (err) {
+                    console.error('[Socket] Dispatch failed for incident.status-updated', err);
                 }
             });
         };
@@ -47,7 +57,7 @@ const Dashboard = () => {
     }, []);
 
     return (
-        <div className="min-h-[calc(100vh-64px)] w-full bg-[#020617] bg-grid-pattern text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden font-sans selection:bg-cyan-500/30 relative">
+        <div className="min-h-[calc(100vh-64px)] w-full max-w-[100vw] overflow-x-hidden bg-[#020617] bg-grid-pattern text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden font-sans selection:bg-cyan-500/30 relative">
             <div className="scanline-overlay"></div>
             
             {/* LEFT PANEL: INTEL FEED */}

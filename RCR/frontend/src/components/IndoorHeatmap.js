@@ -28,10 +28,15 @@ const IndoorHeatmap = ({ incidents = [] }) => {
         const setupSocket = async () => {
             socket = await getSocket();
             socket.on('NEW_IOT_ALERT', (event) => {
-                setLiveIotData(prev => {
-                    const filtered = prev.filter(e => e.room_number !== event.room_number);
-                    return [event, ...filtered].slice(0, 15);
-                });
+                try {
+                    if (!event || !event.room_number) return;
+                    setLiveIotData(prev => {
+                        const filtered = prev.filter(e => e.room_number !== event.room_number);
+                        return [event, ...filtered].slice(0, 15);
+                    });
+                } catch (err) {
+                    console.error('[Socket] Dispatch failed for NEW_IOT_ALERT', err);
+                }
             });
         };
         setupSocket();
@@ -102,7 +107,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
     };
 
     return (
-        <div className="relative flex flex-col w-full h-full bg-[#020617] bg-grid-pattern border border-white/5 font-mono overflow-hidden select-none">
+        <div className="relative flex flex-col w-full max-w-[100vw] h-full bg-[#020617] bg-grid-pattern border border-white/5 font-mono overflow-hidden overflow-x-hidden select-none">
             <div className="scanline-overlay opacity-50"></div>
             
             {/* TACTICAL HEADER */}

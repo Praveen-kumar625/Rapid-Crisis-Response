@@ -68,15 +68,25 @@ const TacticalHUD = () => {
         (async () => {
             socketInstance = await getSocket();
             socketInstance.on('task.tasks-created', (payload) => {
-                const forMe = payload.tasks.some(t => t.assigned_role === profile?.role);
-                if (forMe) fetchTasks();
+                try {
+                    if (!payload || !payload.tasks) return;
+                    const forMe = payload.tasks.some(t => t.assigned_role === profile?.role);
+                    if (forMe) fetchTasks();
+                } catch (err) {
+                    console.error('[Socket] Dispatch failed for task.tasks-created', err);
+                }
             });
             socketInstance.on('task.task-updated', (payload) => {
-                setTasks(prev => {
-                    const updated = prev.map(t => t.id === payload.task.id ? payload.task : t);
-                    cacheTasks(updated);
-                    return updated;
-                });
+                try {
+                    if (!payload || !payload.task) return;
+                    setTasks(prev => {
+                        const updated = prev.map(t => t.id === payload.task.id ? payload.task : t);
+                        cacheTasks(updated);
+                        return updated;
+                    });
+                } catch (err) {
+                    console.error('[Socket] Dispatch failed for task.task-updated', err);
+                }
             });
         })();
 
@@ -112,7 +122,7 @@ const TacticalHUD = () => {
     };
 
     if (isLoading) return (
-        <div className="h-screen bg-[#020617] flex flex-col items-center justify-center font-mono text-electric space-y-4">
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-[#020617] font-mono text-electric space-y-4">
             <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -124,7 +134,7 @@ const TacticalHUD = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#020617] bg-grid-pattern text-slate-100 font-mono p-4 pb-32 relative overflow-hidden">
+        <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#020617] bg-grid-pattern text-slate-100 font-mono p-4 pb-32 relative">
             {/* Scanline Overlay */}
             <div className="scanline-overlay"></div>
             <motion.div 

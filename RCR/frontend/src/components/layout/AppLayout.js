@@ -5,7 +5,7 @@ import { SystemGuide } from '../SystemGuide';
 
 export const AppLayout = ({ children, user, logout }) => {
     return (
-        <div className="min-h-screen w-full flex flex-col bg-[#0B0F19] text-slate-100 selection:bg-cyan-500 selection:text-black font-body antialiased relative overflow-hidden">
+        <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden flex flex-col bg-[#0B0F19] text-slate-100 selection:bg-cyan-500 selection:text-black font-body antialiased relative">
             {/* Global Tactical Overlays */}
             <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] bg-grid-pattern bg-[length:40px_40px]"></div>
             <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
