@@ -14,7 +14,7 @@ export const AppLayout = ({ children, user, logout }) => {
             
             <Navbar user={user} logout={logout} />
 
-            <main className="flex-1 flex flex-col relative z-10">
+            <main className="flex-1 flex flex-col relative z-10 overflow-y-auto custom-scrollbar">
                 {children}
             </main>
 
