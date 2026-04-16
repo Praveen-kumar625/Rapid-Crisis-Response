@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CheckCircle2, Clock, MapPin, Navigation, Wifi, WifiOff, Layers, Zap, AlertTriangle } from 'lucide-react';
 import api from '../api';
-import { getSocket, emitWithTimeout } from '../socket';
+import { getSocket } from '../socket';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { cacheTasks, getCachedTasks } from '../idb';
