@@ -91,30 +91,45 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
         }).catch(err => console.error('[Map] Data fetch failed:', err));
 
         const handleCreated = (payload) => {
-            if (isMounted && !externalIncidents) {
-                setInternalIncidents((prev) => {
-                    if (prev.some(inc => inc.id === payload.incident.id)) return prev;
-                    toast.success(`NEW ALERT: ${payload.incident.title}`, { icon: '🚨' });
-                    return [payload.incident, ...prev];
-                });
+            try {
+                if (!payload || !payload.incident) return;
+                if (isMounted && !externalIncidents) {
+                    setInternalIncidents((prev) => {
+                        if (prev.some(inc => inc.id === payload.incident.id)) return prev;
+                        toast.success(`NEW ALERT: ${payload.incident.title}`, { icon: '🚨' });
+                        return [payload.incident, ...prev];
+                    });
+                }
+            } catch (err) {
+                console.error('[Map] incident.created failed', err);
             }
         };
 
         const handleIotAlert = (iotEvent) => {
-            if (isMounted) {
-                setLiveIotAlerts(prev => {
-                    const filtered = prev.filter(e => e.id !== iotEvent.id);
-                    return [iotEvent, ...filtered].slice(0, 10);
-                });
+            try {
+                if (!iotEvent || !iotEvent.id) return;
+                if (isMounted) {
+                    setLiveIotAlerts(prev => {
+                        const filtered = prev.filter(e => e.id !== iotEvent.id);
+                        return [iotEvent, ...filtered].slice(0, 10);
+                    });
+                }
+            } catch (err) {
+                console.error('[Map] NEW_IOT_ALERT failed', err);
             }
         };
 
         const handlePresenceUpdate = (payload) => {
-            if (isMounted) {
-                setResponders(prev => {
-                    const filtered = prev.filter(r => r.id !== payload.responder.id);
-                    return [...filtered, payload.responder];
-                });
+            try {
+                if (!payload || !payload.responder) return;
+                if (isMounted) {
+                    setResponders(prev => {
+                        const filtered = prev.filter(r => r.id !== payload.responder.id);
+                        return [...filtered, payload.responder];
+                    });
+                }
+            } catch (err) {
+                console.error('[Map] responder.presence-update failed', err);
             }
         };
 

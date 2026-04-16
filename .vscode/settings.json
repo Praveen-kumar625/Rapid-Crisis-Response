@@ -3,5 +3,12 @@
     "vscode-edge-devtools.webhint": false,
     "files.exclude": {
         "": true
-    }
+    },
+    "cSpell.words": [
+        "EVAC",
+        "GFLOPS",
+        "nums",
+        "PATHFINDING",
+        "scanline"
+    ]
 }
