@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import toast from 'react-hot-toast';
-import { queueReport, getPendingReports, markReportSynced } from '../idb';
+import { queueReport } from '../idb';
 import { localAnalyze } from '../utils/edgeAi';
 import { Mic, MicOff, Camera, AlertTriangle, Cpu, Info, ShieldCheck } from 'lucide-react';
 import { Card } from './ui/Card';
@@ -87,47 +87,6 @@ function ReportForm() {
 
     useEffect(() => {
         requestLocation();
-    }, []);
-
-    useEffect(() => {
-        let isMounted = true;
-        let isSyncing = false;
-        async function syncPending() {
-            if (isSyncing || !isMounted) return;
-            isSyncing = true;
-            try {
-                const pending = await getPendingReports();
-                if (!pending.length) return;
-                for (const rpt of pending) {
-                    if (!isMounted) break;
-                    try {
-                        let mediaBase64 = '';
-                        if (rpt.mediaFile) {
-                            mediaBase64 = await new Promise((resolve) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => resolve(reader.result);
-                                reader.readAsDataURL(rpt.mediaFile);
-                            });
-                        }
-                        const { localId, ...cleanRpt } = rpt;
-                        await api.post('/incidents', { ...cleanRpt, mediaBase64 });
-                        await markReportSynced(localId);
-                        toast.success(`✅ Offline report synced: ${rpt.title}`);
-                    } catch (err) {
-                        console.error('⛔ Sync failed', err);
-                    }
-                }
-            } finally {
-                isSyncing = false;
-            }
-        }
-        if (navigator.onLine) syncPending();
-        const handleOnline = () => syncPending();
-        window.addEventListener('online', handleOnline);
-        return () => {
-            isMounted = false;
-            window.removeEventListener('online', handleOnline);
-        };
     }, []);
 
     const handleVoiceToggle = () => {
@@ -275,158 +234,156 @@ function ReportForm() {
                 setForm({ title: '', description: '', severity: 3, category: '', floorLevel: 1, roomNumber: '', wingId: '' });
                 setMediaPreview(''); setMediaFile(null);
             } catch (err) {
-                toast.error('Dispatch Failure');
+                toast.error('Dispatch Failure - Queued for sync');
                 await queueReport({...payload, mediaFile, synced: false });
             } finally {
                 setIsSubmitting(false);
             }
         } else {
             await queueReport({...payload, mediaFile, synced: false });
-            toast.success('Queued for sync');
+            toast.success('Offline: Queued for sync');
             setIsSubmitting(false);
         }
     };
 
 
     return (
-        <Card className="w-full overflow-hidden shadow-tactical border-slate-800 bg-[#151B2B] rounded-none">
-            <div className="bg-[#0B0F19] p-6 sm:p-8 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <Card className="w-full overflow-hidden shadow-2xl border-white/5 bg-slate-950/40 backdrop-blur-xl rounded-none">
+            <div className="bg-slate-950/60 p-6 sm:p-10 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h3 className="text-xl font-black uppercase tracking-widest text-white font-mono italic">Incident_Manifest</h3>
-                    <p className="text-cyan-400 text-[10px] font-mono tracking-[0.2em] mt-1 uppercase">
-                        {locationError ? <span className="text-red-500 animate-pulse flex items-center gap-2 mt-2"><AlertTriangle size={12}/> SIGNAL_LOST - MANUAL_OVERRIDE</span> : `GEO_NODE: ${position.lat.toFixed(4)}N, ${position.lng.toFixed(4)}E`}
+                    <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-white font-mono italic text-glow-cyan">Incident_Manifest</h3>
+                    <p className="text-cyan-400 text-[10px] font-black tracking-[0.3em] mt-2 uppercase">
+                        {locationError ? <span className="text-danger animate-pulse flex items-center gap-2"><AlertTriangle size={12}/> SIGNAL_LOST - MANUAL_OVERRIDE</span> : `COORDINATES: ${position.lat.toFixed(4)}N // ${position.lng.toFixed(4)}E`}
                     </p>
                 </div>
                 {!navigator.onLine && (
-                    <div className="bg-amber-500 text-black border border-amber-300 px-3 py-1 text-[9px] font-black uppercase tracking-widest animate-pulse font-mono">
-                        Edge_Resilience_Active
+                    <div className="bg-danger text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] animate-pulse font-mono shadow-neon-red">
+                        Link_Severed // Buffer_Active
                     </div>
                 )}
             </div>
 
-            {/* SYSTEM GUIDANCE - New Feature for Ease of Use */}
-            <div className="bg-slate-900/50 p-6 sm:p-8 border-b border-slate-800 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-none bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shrink-0">
-                    <Info size={20} className="text-cyan-400" />
+            {/* SYSTEM GUIDANCE */}
+            <div className="bg-slate-900/30 p-6 sm:p-10 border-b border-white/5 flex items-start gap-6">
+                <div className="w-12 h-12 rounded-none bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shrink-0">
+                    <Info size={24} className="text-cyan-400 text-glow-cyan" />
                 </div>
-                <div className="space-y-1">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-300">Operational_Guidance</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                        In an emergency, prioritize safety. Use <span className="text-red-400">Audio SOS</span> for rapid hands-free reporting. Attach photos if possible to assist <span className="text-cyan-400">Edge AI</span> triage. All data is encrypted and synced even if offline.
+                <div className="space-y-2">
+                    <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Operational_Directives</h4>
+                    <p className="text-xs text-slate-500 leading-loose uppercase font-bold tracking-wider">
+                        PRIORITIZE SAFETY. UTILIZE <span className="text-danger">AUDIO_SOS</span> FOR RAPID HANDS-FREE REPORTING. <span className="text-cyan-400 text-glow-cyan">EDGE_AI</span> WILL AUTOMATICALLY TRIAGE INCOMING TELEMETRY.
                     </p>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-10">
+            <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-12">
                 {locationError && (
-                    <div className="bg-red-600/10 border border-red-500 rounded-none p-4 flex flex-col gap-3">
-                        <p className="text-red-500 text-[10px] font-black uppercase tracking-widest font-mono">Manual_Coordinate_Input</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Input type="number" step="any" placeholder="LATITUDE" value={position.lat} className="bg-[#0B0F19] border-slate-800" onChange={(e) => setPosition(p => ({ ...p, lat: parseFloat(e.target.value) || 0 }))} />
-                            <Input type="number" step="any" placeholder="LONGITUDE" value={position.lng} className="bg-[#0B0F19] border-slate-800" onChange={(e) => setPosition(p => ({ ...p, lng: parseFloat(e.target.value) || 0 }))} />
+                    <div className="glass-panel border-danger/30 p-6 flex flex-col gap-4">
+                        <p className="text-danger text-[10px] font-black uppercase tracking-[0.3em] font-mono">Manual_Telemetry_Override</p>
+                        <div className="flex flex-col sm:flex-row gap-6">
+                            <Input type="number" step="any" placeholder="LATITUDE" value={position.lat} className="glass-panel" onChange={(e) => setPosition(p => ({ ...p, lat: parseFloat(e.target.value) || 0 }))} />
+                            <Input type="number" step="any" placeholder="LONGITUDE" value={position.lng} className="glass-panel" onChange={(e) => setPosition(p => ({ ...p, lng: parseFloat(e.target.value) || 0 }))} />
                         </div>
-                        <Button type="button" variant="secondary" onClick={requestLocation} className="text-[10px] w-full mt-2 rounded-none border-slate-700">Retry_Signal_Lock</Button>
+                        <Button type="button" variant="secondary" onClick={requestLocation} className="text-[10px] font-black w-full mt-2 rounded-none border-slate-700 hover:bg-white/5 uppercase tracking-widest py-4">Re-Establish_Satellite_Link</Button>
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <button 
                         type="button" 
                         onClick={handleAudioSOS} 
-                        aria-label={isAudioRecording ? "Stop Recording SOS" : "Initiate SOS Audio Recording"}
-                        className={`py-6 text-xs font-black uppercase tracking-[0.2em] border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-95 ${isAudioRecording ? 'bg-red-600 border-red-400 text-white animate-pulse shadow-[0_0_30px_rgba(220,38,38,0.6)]' : 'bg-red-600/10 border-red-500/50 text-red-500 hover:bg-red-600 hover:text-white hover:shadow-neon-red'}`}
+                        className={`py-8 text-xs font-black uppercase tracking-[0.3em] border flex flex-col items-center justify-center gap-3 transition-all active:scale-95 ${isAudioRecording ? 'bg-danger border-white text-white animate-pulse shadow-neon-red' : 'bg-danger/5 border-danger/20 text-danger hover:bg-danger/10 hover:border-danger/40 shadow-none'}`}
                     >
-                        <div className="flex items-center gap-3">
-                            {isAudioRecording ? <MicOff size={24} /> : <AlertTriangle size={24} />}
-                            {isAudioRecording ? 'RECORDING_SOS...' : 'CRITICAL_AUDIO_SOS'}
+                        <div className="flex items-center gap-4">
+                            {isAudioRecording ? <MicOff size={28} /> : <AlertTriangle size={28} />}
+                            {isAudioRecording ? 'RECORDING...' : 'AUDIO_SOS'}
                         </div>
-                        <span className="text-[8px] opacity-70 tracking-widest">HANDS-FREE EMERGENCY DISPATCH</span>
+                        <span className="text-[9px] opacity-60 tracking-[0.2em]">DIRECT_VOICE_UPLINK</span>
                     </button>
                     {isSpeechSupported && (
                         <button 
                             type="button" 
                             onClick={handleVoiceToggle} 
-                            aria-label="Toggle Voice Dictation"
-                            className={`py-6 text-xs font-black uppercase tracking-[0.2em] border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-95 ${isRecording ? 'bg-cyan-600 border-cyan-400 text-black animate-pulse shadow-neon-cyan' : 'bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700 hover:border-slate-500'}`}
+                            className={`py-8 text-xs font-black uppercase tracking-[0.3em] border flex flex-col items-center justify-center gap-3 transition-all active:scale-95 ${isRecording ? 'bg-cyan-500 border-white text-[#020617] animate-pulse shadow-neon-cyan' : 'glass-panel border-white/5 text-slate-100 hover:border-cyan-500/30'}`}
                         >
-                            <div className="flex items-center gap-3">
-                                <Mic size={24} /> {isRecording ? 'LISTENING...' : 'VOICE_COMMAND'}
+                            <div className="flex items-center gap-4">
+                                <Mic size={28} /> {isRecording ? 'LISTENING...' : 'DICTATE'}
                             </div>
-                            <span className="text-[8px] opacity-70 tracking-widest">AI-POWERED NARRATIVE CAPTURE</span>
+                            <span className="text-[9px] opacity-60 tracking-[0.2em]">VOICE_TO_TEXT_PROC</span>
                         </button>
                     )}
                 </div>
 
                 {sosMessage && (
-                    <div className="bg-red-600/10 border-l-4 border-red-600 px-4 py-3 text-[10px] font-mono text-red-500 animate-pulse uppercase tracking-widest">
+                    <div className="bg-danger/10 border-l-4 border-danger px-6 py-4 text-[11px] font-black text-danger animate-pulse uppercase tracking-[0.3em]">
                         &gt;&gt; {sosMessage}
                     </div>
                 )}
 
-                <div className="space-y-8">
+                <div className="space-y-10">
                     <div>
-                        <Label htmlFor="incident-title">Incident_Identifier</Label>
-                        <Input ref={titleRef} id="incident-title" name="title" placeholder="PRIORITY_SUBJECT_LINE..." className="bg-[#0B0F19] border-slate-800" value={form.title} onChange={(e) => setForm(prev => ({...prev, title: e.target.value }))} required />
+                        <Label htmlFor="incident-title">Subject_Identifier</Label>
+                        <Input ref={titleRef} id="incident-title" name="title" placeholder="ENTER_PRIMARY_ID..." className="glass-panel h-14" value={form.title} onChange={(e) => setForm(prev => ({...prev, title: e.target.value }))} required />
                     </div>
                     <div>
-                        <Label htmlFor="incident-description">Operational_Narrative</Label>
-                        <Textarea ref={descriptionRef} id="incident-description" name="description" placeholder="PROVIDE_FULL_CONTEXT..." className="bg-[#0B0F19] border-slate-800" value={form.description} onChange={(e) => setForm(prev => ({...prev, description: e.target.value }))} required />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#0B0F19] p-6 rounded-none border border-slate-800">
-                    <div>
-                        <Label htmlFor="wing-id">Sector_Wing</Label>
-                        <Input id="wing-id" name="wingId" placeholder="NORTH" value={form.wingId} className="bg-[#151B2B] border-slate-800" onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
-                    </div>
-                    <div>
-                        <Label htmlFor="floor-level">Level_Floor</Label>
-                        <Input id="floor-level" name="floorLevel" type="number" value={form.floorLevel} className="bg-[#151B2B] border-slate-800" onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
-                    </div>
-                    <div>
-                        <Label htmlFor="room-number">Area_Room</Label>
-                        <Input id="room-number" name="roomNumber" placeholder="402" value={form.roomNumber} className="bg-[#151B2B] border-slate-800" onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value.toUpperCase() }))} required />
+                        <Label htmlFor="incident-description">Situation_Briefing</Label>
+                        <Textarea ref={descriptionRef} id="incident-description" name="description" placeholder="PROVIDE_TACTICAL_CONTEXT..." className="glass-panel min-h-[200px]" value={form.description} onChange={(e) => setForm(prev => ({...prev, description: e.target.value }))} required />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-slate-950/60 p-8 rounded-none border border-white/5">
                     <div>
-                        <Label htmlFor="incident-category">Classification_Protocol</Label>
+                        <Label htmlFor="wing-id">Sector</Label>
+                        <Input id="wing-id" name="wingId" placeholder="WING_A" value={form.wingId} className="bg-[#020617] border-white/10" onChange={(e) => setForm(prev => ({...prev, wingId: e.target.value.toUpperCase() }))} required />
+                    </div>
+                    <div>
+                        <Label htmlFor="floor-level">Level</Label>
+                        <Input id="floor-level" name="floorLevel" type="number" value={form.floorLevel} className="bg-[#020617] border-white/10" onChange={(e) => setForm(prev => ({...prev, floorLevel: Number(e.target.value) }))} required />
+                    </div>
+                    <div>
+                        <Label htmlFor="room-number">Unit</Label>
+                        <Input id="room-number" name="roomNumber" placeholder="402" value={form.roomNumber} className="bg-[#020617] border-white/10" onChange={(e) => setForm(prev => ({...prev, roomNumber: e.target.value.toUpperCase() }))} required />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <Label htmlFor="incident-category">Classification</Label>
                         <div className="relative">
-                            <select id="incident-category" name="category" className="w-full bg-[#0B0F19] border border-slate-800 text-slate-100 p-4 rounded-none outline-none appearance-none cursor-pointer focus:border-cyan-500 transition-all text-xs uppercase font-black tracking-widest font-mono" value={form.category} onChange={(e) => setForm(prev => ({...prev, category: e.target.value }))} required>
-                                <option value="" disabled>SELECT_CATEGORY</option>
-                                <option value="MEDICAL">MEDICAL_EMERGENCY</option>
-                                <option value="FIRE">FIRE_INCIDENT</option>
-                                <option value="SECURITY">SECURITY_BREACH</option>
-                                <option value="INFRASTRUCTURE">UTILITY_FAILURE</option>
+                            <select id="incident-category" name="category" className="w-full glass-panel text-white p-5 rounded-none outline-none appearance-none cursor-pointer focus:border-cyan-500 transition-all text-xs uppercase font-black tracking-[0.2em] font-mono" value={form.category} onChange={(e) => setForm(prev => ({...prev, category: e.target.value }))} required>
+                                <option value="" disabled>SELECT_PROTOCOL</option>
+                                <option value="MEDICAL">MEDICAL_EVC</option>
+                                <option value="FIRE">FIRE_SUPPRESSION</option>
+                                <option value="SECURITY">TACTICAL_BREACH</option>
+                                <option value="INFRASTRUCTURE">SYSTEM_FAILURE</option>
                             </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30 text-cyan-400"><Info size={16} /></div>
+                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 text-cyan-400"><Info size={18} /></div>
                         </div>
                     </div>
                     <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <Label htmlFor="severity-slider">Severity_Matrix</Label>
-                            <div className={`px-2 py-1 text-[10px] font-black font-mono border ${form.severity >= 4 ? 'bg-red-600 text-white border-red-400 shadow-neon-red' : 'bg-cyan-600 text-black border-cyan-400 shadow-neon-cyan'}`}>LVL_{form.severity}</div>
+                        <div className="flex justify-between items-center mb-5">
+                            <Label htmlFor="severity-slider">Priority_Level</Label>
+                            <div className={`px-3 py-1 text-[11px] font-black font-mono border ${form.severity >= 4 ? 'bg-danger text-white border-white shadow-neon-red' : 'bg-cyan-500 text-[#020617] border-[#020617]'}`}>RANK_{form.severity}</div>
                         </div>
                         <input id="severity-slider" name="severity" type="range" min="1" max="5" className="w-full h-1 bg-slate-800 rounded-none appearance-none cursor-pointer accent-cyan-500" value={form.severity} onChange={(e) => setForm(prev => ({...prev, severity: Number(e.target.value) }))} />
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    <Label htmlFor="media-upload">Visual_Signal_Evidence</Label>
-                    <div className="border border-slate-800 bg-[#0B0F19] hover:bg-[#1E293B] transition-all p-8 rounded-none text-center group cursor-pointer relative overflow-hidden">
+                <div className="space-y-6">
+                    <Label htmlFor="media-upload">Visual_Intelligence</Label>
+                    <div className="border-2 border-dashed border-white/5 bg-[#020617] hover:bg-white/[0.02] transition-all p-12 rounded-none text-center group cursor-pointer relative overflow-hidden">
                         <input id="media-upload" name="mediaFile" type="file" accept="image/*,video/*" capture="environment" onChange={handleMediaChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
                         <div className="flex flex-col items-center justify-center">
-                            <div className="w-12 h-12 bg-[#151B2B] rounded-none flex items-center justify-center mb-4 border border-slate-800 group-hover:border-cyan-500/50">
-                                <Camera size={24} className="text-slate-500 group-hover:text-cyan-400" />
+                            <div className="w-16 h-16 glass-panel rounded-none flex items-center justify-center mb-6 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/5 transition-all">
+                                <Camera size={32} className="text-slate-600 group-hover:text-cyan-400" />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Capture_Scene_Intel</span>
-                            <p className="text-[8px] text-slate-600 mt-2 uppercase tracking-widest group-hover:text-slate-400 transition-colors italic">PHOTOS/VIDEO ASSIST AI TRIAGE ACCURACY</p>
+                            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Capture_Signal_Evidence</span>
+                            <p className="text-[9px] text-slate-600 mt-3 uppercase tracking-widest font-bold italic">PHOTOS/VIDEO ASSIST NEURAL TRIAGE ACCURACY</p>
                         </div>
                         {mediaPreview && (
-                            <div className="mt-8 rounded-none overflow-hidden border border-slate-800 bg-black shadow-tactical relative">
-                                {mediaType.startsWith('image/') ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[300px] object-contain opacity-90" /> : <video controls src={mediaPreview} className="w-full max-h-[300px] mx-auto opacity-90" />}
-                                <div className="absolute top-4 right-4 bg-[#0B0F19] px-3 py-1 text-[8px] font-black text-cyan-400 uppercase border border-cyan-500/50 font-mono tracking-widest shadow-neon-cyan">SIGNAL_CAPTURED</div>
+                            <div className="mt-10 rounded-none overflow-hidden border border-white/10 bg-black shadow-2xl relative">
+                                {mediaType.startsWith('image/') ? <img src={mediaPreview} alt="Evidence" className="w-full max-h-[400px] object-contain opacity-80" /> : <video controls src={mediaPreview} className="w-full max-h-[400px] mx-auto opacity-80" />}
+                                <div className="absolute top-6 right-6 glass-tactical px-4 py-2 text-[9px] font-black text-cyan-400 uppercase border border-cyan-500/50 tracking-[0.2em] shadow-neon-cyan backdrop-blur-xl">SIGNAL_LOCKED</div>
                             </div>
                         )}
                     </div>
@@ -435,26 +392,29 @@ function ReportForm() {
                 <Button 
                     type="submit" 
                     isLoading={isSubmitting}
-                    className="w-full py-7 text-sm sm:text-base tracking-[0.4em] bg-cyan-600 hover:bg-cyan-500 text-black font-black border-2 border-cyan-400 shadow-neon-cyan active:scale-[0.98] transition-all rounded-none"
+                    className="w-full py-8 text-sm sm:text-base tracking-[0.5em] bg-cyan-500 hover:bg-cyan-400 text-[#020617] font-black border-none shadow-neon-cyan active:scale-[0.98] transition-all rounded-none flex items-center justify-center gap-4"
                 >
-                    <ShieldCheck size={24} />
-                    TRANSMIT_INCIDENT_SIGNAL
+                    <ShieldCheck size={28} strokeWidth={2.5} />
+                    EXECUTE_TRANSMISSION
                 </Button>
             </form>
 
 
             {showAiModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0B0F19]/95 backdrop-blur-sm">
-                    <div className="w-full max-w-md p-8 bg-[#151B2B] border border-slate-800 shadow-tactical relative overflow-hidden font-mono">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#020617]/98 backdrop-blur-xl">
+                    <div className="w-full max-w-lg p-10 glass-tactical border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden font-mono">
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+                            <Cpu size={300} className="text-cyan-500" />
+                        </div>
                         <div className="relative z-10 text-center">
-                            <div className="w-14 h-14 bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30 mx-auto mb-6"><Cpu size={28} className="text-cyan-400 animate-pulse" /></div>
-                            <h3 className="text-xl font-black tracking-tighter uppercase mb-1 text-white italic">Triage_Analysis</h3>
-                            <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-8">Engine: {aiResult.method}</p>
-                            <div className="space-y-8 bg-black/40 p-6 border border-slate-800 text-left">
-                                <div><p className="text-slate-500 text-[8px] uppercase font-black tracking-[0.2em] mb-2">Predicted_Category</p><p className="text-3xl font-black tracking-tighter text-white uppercase">{aiResult.category}</p></div>
-                                <div><div className="flex justify-between items-end mb-3"><p className="text-slate-500 text-[8px] uppercase font-black tracking-[0.2em]">Risk_Assessment</p><span className="text-xl font-black text-white tabular-nums">{aiResult.severity}<span className="text-slate-500 text-xs">/5</span></span></div><div className="flex gap-1.5 h-1.5">{[1, 2, 3, 4, 5].map((s) => (<div key={s} className={`flex-1 transition-all duration-500 ${s <= aiResult.severity ? (aiResult.severity >= 4 ? 'bg-red-600 shadow-neon-red' : 'bg-cyan-500 shadow-neon-cyan') : 'bg-slate-800'}`} style={{ transitionDelay: `${s * 75}ms` }} />))}</div></div>
+                            <div className="w-16 h-16 bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30 mx-auto mb-8 shadow-neon-cyan"><Cpu size={32} className="text-cyan-400 animate-pulse" /></div>
+                            <h3 className="text-2xl font-black tracking-tighter uppercase mb-2 text-white italic text-glow-cyan">Neural_Sync_Complete</h3>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-[0.3em] mb-10">Triage_Engine: {aiResult.method}</p>
+                            <div className="space-y-10 bg-[#020617]/60 p-8 border border-white/5 text-left">
+                                <div><p className="text-slate-500 text-[9px] uppercase font-black tracking-[0.3em] mb-3">Predicted_Classification</p><p className="text-4xl font-black tracking-tighter text-white uppercase italic">{aiResult.category}</p></div>
+                                <div><div className="flex justify-between items-end mb-4"><p className="text-slate-500 text-[9px] uppercase font-black tracking-[0.3em]">Threat_Assessment</p><span className="text-2xl font-black text-white tabular-nums">LEVEL_{aiResult.severity}<span className="text-slate-600 text-sm italic ml-1">/5</span></span></div><div className="flex gap-2 h-2">{[1, 2, 3, 4, 5].map((s) => (<div key={s} className={`flex-1 transition-all duration-700 ${s <= aiResult.severity ? (aiResult.severity >= 4 ? 'bg-danger shadow-neon-red' : 'bg-cyan-500 shadow-neon-cyan') : 'bg-white/5'}`} style={{ transitionDelay: `${s * 100}ms` }} />))}</div></div>
                             </div>
-                            <button onClick={() => setShowAiModal(false)} className="mt-10 w-full py-4 bg-[#0B0F19] hover:bg-[#1E293B] text-white text-[10px] font-black uppercase tracking-[0.3em] border border-slate-700 transition-all">Confirm_Intel_Data</button>
+                            <button onClick={() => setShowAiModal(false)} className="mt-12 w-full py-5 bg-white/5 hover:bg-white/10 text-white text-[11px] font-black uppercase tracking-[0.4em] border border-white/10 transition-all active:scale-[0.98]">Acknowledge_Briefing</button>
                         </div>
                     </div>
                 </div>

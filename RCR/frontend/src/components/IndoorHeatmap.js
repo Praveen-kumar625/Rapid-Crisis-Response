@@ -94,117 +94,122 @@ const IndoorHeatmap = ({ incidents = [] }) => {
 
     const getRoomStyle = (roomNumber) => {
         const incident = floorIncidents.find(i => i.roomNumber === roomNumber);
-        if (!incident) return { fill: 'rgba(15, 23, 42, 0.4)', stroke: '#1e293b' };
+        if (!incident) return { fill: 'rgba(15, 23, 42, 0.2)', stroke: 'rgba(51, 65, 85, 0.5)' };
         
-        if (incident.category === 'FIRE') return { fill: 'rgba(239, 68, 68, 0.6)', stroke: '#ef4444' };
-        if (incident.category === 'SMOKE') return { fill: 'rgba(168, 162, 158, 0.6)', stroke: '#a8a29e' };
-        return { fill: 'rgba(234, 179, 8, 0.4)', stroke: '#eab308' };
+        if (incident.category === 'FIRE') return { fill: 'rgba(255, 51, 102, 0.4)', stroke: '#FF3366' };
+        if (incident.category === 'SMOKE') return { fill: 'rgba(148, 163, 184, 0.4)', stroke: '#94a3b8' };
+        return { fill: 'rgba(245, 158, 11, 0.3)', stroke: '#F59E0B' };
     };
 
     return (
-        <div className="relative flex flex-col w-full h-full bg-[#0B0F19] border border-slate-800 font-mono overflow-hidden select-none">
+        <div className="relative flex flex-col w-full h-full bg-[#020617] bg-grid-pattern border border-white/5 font-mono overflow-hidden select-none">
+            <div className="scanline-overlay opacity-50"></div>
+            
             {/* TACTICAL HEADER */}
-            <div className="flex items-center justify-between p-5 bg-[#0B0F19] border-b border-slate-800 z-20">
+            <div className="flex items-center justify-between p-5 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 z-20">
                 <div className="flex items-center gap-4">
-                    <div className="p-2 bg-cyan-500/10 border border-cyan-500/30">
-                        <Cpu size={20} className="text-cyan-400 animate-pulse" />
+                    <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/30">
+                        <Cpu size={22} className="text-cyan-400 animate-pulse text-glow-cyan" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white italic">
-                            Spatial_Neural_Grid <span className="text-cyan-500">{"//"}</span> LVL_0{activeFloor}
+                        <h3 className="text-sm font-black uppercase tracking-[0.25em] text-white italic text-glow-cyan">
+                            Spatial_Neural_Grid <span className="text-cyan-500">::</span> LVL_0{activeFloor}
                         </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
-                            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Quantum_Sync_Active</span>
+                        <div className="flex items-center gap-2.5 mt-1.5">
+                            <span className="w-1.5 h-1.5 bg-emerald rounded-full animate-ping" />
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Quantum_Link_Synchronized</span>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-6">
-                    <div className="hidden md:flex gap-4 border-r border-slate-800 pr-6">
+                <div className="flex items-center gap-8">
+                    <div className="hidden lg:flex gap-6 border-r border-white/10 pr-8">
                         <div className="flex flex-col items-end">
-                            <span className="text-[7px] text-slate-500 font-black uppercase">Nodes</span>
-                            <span className="text-xs font-bold text-cyan-400">{rooms.length}</span>
+                            <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Active_Nodes</span>
+                            <span className="text-sm font-black text-cyan-400 tabular-nums">{rooms.length}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="text-[7px] text-slate-500 font-black uppercase">Active_Hazards</span>
-                            <span className="text-xs font-bold text-red-500">{floorIncidents.length}</span>
+                            <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Hazard_Index</span>
+                            <span className={`text-sm font-black tabular-nums ${floorIncidents.length > 0 ? 'text-danger text-glow-red' : 'text-emerald'}`}>
+                                {floorIncidents.length}
+                            </span>
                         </div>
                     </div>
                     <button 
                         onClick={() => setIsScanning(!isScanning)}
-                        className={`p-2 transition-colors ${isScanning ? 'text-cyan-400' : 'text-slate-600'}`}
+                        className={`p-2.5 transition-all active:scale-90 ${isScanning ? 'text-cyan-400 text-glow-cyan' : 'text-slate-600'}`}
                     >
-                        <Eye size={18} />
+                        <Eye size={20} />
                     </button>
                 </div>
             </div>
 
             <div className="flex flex-1 relative">
                 {/* Z-AXIS CONTROLLER */}
-                <div className="w-20 border-r border-slate-800 flex flex-col items-center py-6 gap-4 bg-[#0B0F19]/80 z-10">
+                <div className="w-24 border-r border-white/10 flex flex-col items-center py-8 gap-6 bg-slate-950/40 backdrop-blur-xl z-10">
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-[0.3em] vertical-text mb-2">Elevation</span>
                     {floors.map(f => (
-                        <div key={f} className="relative group">
+                        <div key={f} className="relative group w-full px-4">
                             <button
                                 onClick={() => setActiveFloor(f)}
-                                className={`w-12 h-12 flex flex-col items-center justify-center transition-all duration-300 relative ${
+                                className={`w-full h-12 flex flex-col items-center justify-center transition-all duration-500 relative ${
                                     activeFloor === f 
                                     ? 'text-cyan-400 scale-110' 
                                     : 'text-slate-600 hover:text-slate-400'
                                 }`}
                             >
-                                <span className={`text-[10px] font-black ${activeFloor === f ? 'text-cyan-400' : ''}`}>F0{f}</span>
-                                <div className={`w-full h-0.5 mt-1 transition-all ${activeFloor === f ? 'bg-cyan-500 shadow-neon-cyan' : 'bg-transparent'}`} />
+                                <span className={`text-[11px] font-black tracking-tighter ${activeFloor === f ? 'text-glow-cyan' : ''}`}>L_{f}</span>
+                                <div className={`w-full h-0.5 mt-2 transition-all duration-500 ${activeFloor === f ? 'bg-cyan-500 shadow-neon-cyan' : 'bg-white/5'}`} />
                             </button>
                             {activeFloor === f && (
-                                <motion.div layoutId="floor-glow" className="absolute -inset-2 bg-cyan-500/5 blur-xl rounded-full -z-10" />
+                                <motion.div layoutId="floor-glow" className="absolute -inset-2 bg-cyan-500/5 blur-2xl rounded-full -z-10" />
                             )}
                         </div>
                     ))}
                 </div>
 
                 {/* MAIN SVG GRID */}
-                <div className="flex-1 relative p-12 bg-grid-slate-900/[0.4] flex items-center justify-center perspective-[1000px]">
+                <div className="flex-1 relative p-12 bg-[#020617] flex items-center justify-center perspective-[1200px]">
                     {/* Scanner Effect */}
                     {isScanning && (
                         <motion.div 
                             animate={{ top: ['0%', '100%', '0%'] }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                            className="absolute left-0 right-0 h-px bg-cyan-500/30 shadow-neon-cyan z-10 pointer-events-none"
+                            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 right-0 h-[2px] bg-cyan-500/20 shadow-neon-cyan z-10 pointer-events-none"
                         />
                     )}
 
-                    <div className="w-full h-full max-w-4xl relative">
-                        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-2xl">
+                    <div className="w-full h-full max-w-5xl relative">
+                        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                             <defs>
                                 <filter id="glow">
-                                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                    <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
                                     <feMerge>
                                         <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
                                     </feMerge>
                                 </filter>
                                 <linearGradient id="roomGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
+                                    <stop offset="0%" stopColor="rgba(255,255,255,0.03)" />
                                     <stop offset="100%" stopColor="rgba(255,255,255,0)" />
                                 </linearGradient>
                             </defs>
 
                             {/* Perimeter */}
-                            <rect x="2" y="2" width="96" height="96" fill="none" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="0.5" />
+                            <rect x="2" y="2" width="96" height="96" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="0.3" />
                             
                             {/* Hallway Infrastructure */}
-                            <path d="M 35 10 L 35 90 M 65 10 L 65 90" stroke="rgba(34, 211, 238, 0.2)" strokeWidth="0.5" strokeDasharray="2 2" />
-                            <rect x="35" y="10" width="30" height="80" fill="rgba(15, 23, 42, 0.3)" />
+                            <path d="M 35 10 L 35 90 M 65 10 L 65 90" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="0.4" strokeDasharray="1 3" />
+                            <rect x="35" y="10" width="30" height="80" fill="rgba(255, 255, 255, 0.02)" />
 
                             {/* Safe Route Projection */}
                             <motion.path
                                 d={calculateSafePath}
                                 fill="none"
                                 stroke="#10b981"
-                                strokeWidth="1.2"
+                                strokeWidth="1.5"
                                 strokeLinecap="round"
                                 initial={{ pathLength: 0, opacity: 0 }}
                                 animate={{ pathLength: 1, opacity: 1 }}
-                                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                                 filter="url(#glow)"
                             />
 
@@ -218,7 +223,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                 return (
                                     <g 
                                         key={room.id} 
-                                        className="cursor-pointer transition-all duration-300"
+                                        className="cursor-pointer transition-all duration-500"
                                         onMouseEnter={() => setHoveredRoom(room.id)}
                                         onMouseLeave={() => setHoveredRoom(null)}
                                         onClick={() => setSelectedRoom(incident || { roomNumber, empty: true })}
@@ -226,33 +231,32 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                         <motion.rect
                                             x={room.x} y={room.y} width={room.w} height={room.h}
                                             animate={{ 
-                                                fill: isHovered ? 'rgba(34, 211, 238, 0.15)' : style.fill,
+                                                fill: isHovered ? 'rgba(34, 211, 238, 0.1)' : style.fill,
                                                 stroke: isHovered ? '#22d3ee' : style.stroke,
-                                                strokeWidth: isHovered ? 1 : 0.5
+                                                strokeWidth: isHovered ? 0.8 : 0.4
                                             }}
-                                            className="transition-colors"
                                         />
                                         <rect x={room.x} y={room.y} width={room.w} height={room.h} fill="url(#roomGrad)" pointerEvents="none" />
                                         
                                         {/* Room Label */}
                                         <text 
                                             x={room.x + room.w/2} y={room.y + room.h/2} 
-                                            textAnchor="middle" fontSize="2.5" fill={isHovered ? '#fff' : '#475569'}
-                                            className="font-black pointer-events-none uppercase tracking-tighter"
+                                            textAnchor="middle" fontSize="2.2" fill={isHovered ? '#fff' : '#475569'}
+                                            className="font-black pointer-events-none uppercase tracking-widest opacity-60"
                                         >
-                                            {roomNumber}
+                                            SEC_{room.id}
                                         </text>
 
                                         {/* Telemetry Overlay */}
                                         {incident && (
                                             <g>
                                                 <motion.circle 
-                                                    cx={room.x + 3} cy={room.y + 3} r="1.5" fill={style.stroke}
-                                                    animate={{ opacity: [1, 0.2, 1] }}
-                                                    transition={{ duration: 1, repeat: Infinity }}
+                                                    cx={room.x + 3} cy={room.y + 3} r="1.2" fill={style.stroke}
+                                                    animate={{ opacity: [1, 0.3, 1], scale: [1, 1.2, 1] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity }}
                                                 />
                                                 {incident.sensorMetadata?.temperature && (
-                                                    <text x={room.x + 2} y={room.y + room.h - 3} fontSize="2" fill="#ef4444" className="font-bold">
+                                                    <text x={room.x + 2} y={room.y + room.h - 3} fontSize="2" fill="#FF3366" className="font-black italic">
                                                         {incident.sensorMetadata.temperature}°C
                                                     </text>
                                                 )}
@@ -267,11 +271,11 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                 <g key={exit.id}>
                                     <motion.path 
                                         d={`M ${exit.x-2} ${exit.y} L ${exit.x+2} ${exit.y} M ${exit.x} ${exit.y-2} L ${exit.x} ${exit.y+2}`}
-                                        stroke="#10b981" strokeWidth="0.5"
+                                        stroke="#10b981" strokeWidth="0.6"
                                         animate={{ rotate: 360 }}
-                                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                                     />
-                                    <text x={exit.x} y={exit.y + (exit.y < 50 ? -4 : 6)} textAnchor="middle" fontSize="2" fill="#10b981" className="font-black">
+                                    <text x={exit.x} y={exit.y + (exit.y < 50 ? -5 : 7)} textAnchor="middle" fontSize="2.5" fill="#10b981" className="font-black tracking-[0.2em]">
                                         {exit.label}
                                     </text>
                                 </g>
@@ -281,9 +285,9 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                 </div>
 
                 {/* RIGHT TELEMETRY FEED */}
-                <div className="w-80 border-l border-slate-800 bg-[#0B0F19]/90 p-6 overflow-y-auto z-10 backdrop-blur-md">
-                    <h4 className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                        <Zap size={14} className="text-cyan-500" /> Live_Sensor_Arrays
+                <div className="w-80 border-l border-white/10 bg-slate-950/40 backdrop-blur-xl p-6 overflow-y-auto z-10">
+                    <h4 className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                        <Zap size={16} className="text-cyan-500 animate-pulse" /> Sensor_Telemetry
                     </h4>
 
                     <div className="space-y-6">
@@ -291,11 +295,11 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                             {floorIncidents.length === 0 ? (
                                 <motion.div 
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                    className="p-10 border border-dashed border-slate-800 flex flex-col items-center justify-center text-center opacity-40"
+                                    className="py-20 glass-panel border-dashed border-white/10 flex flex-col items-center justify-center text-center opacity-30"
                                 >
-                                    <Shield size={32} className="text-slate-700 mb-4" />
-                                    <p className="text-[9px] text-slate-600 uppercase font-black tracking-widest leading-relaxed">
-                                        Level_Monitoring_Optimal<br/>No_Anomalies_Detected
+                                    <Shield size={40} className="text-slate-700 mb-5" />
+                                    <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.3em] leading-loose">
+                                        Perimeter_Secure<br/>System_Nominal
                                     </p>
                                 </motion.div>
                             ) : (
@@ -305,45 +309,45 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                         key={inc.id}
                                         initial={{ x: 50, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        exit={{ scale: 0.8, opacity: 0 }}
-                                        className={`group p-4 border rounded-none transition-all ${
+                                        exit={{ scale: 0.9, opacity: 0 }}
+                                        className={`group p-5 border rounded-none transition-all duration-500 ${
                                             inc.severity >= 4 
-                                            ? 'bg-red-500/5 border-red-500/30' 
-                                            : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                                            ? 'bg-danger/5 border-danger/30' 
+                                            : 'glass-panel border-white/5'
                                         }`}
                                     >
-                                        <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center justify-between mb-5">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-1.5 h-1.5 rounded-none ${inc.severity >= 4 ? 'bg-red-500 shadow-neon-red' : 'bg-cyan-500'}`} />
-                                                <span className="text-[10px] font-black text-white tabular-nums">RM_{inc.roomNumber}</span>
+                                                <div className={`w-2 h-2 rounded-none ${inc.severity >= 4 ? 'bg-danger shadow-neon-red animate-pulse' : 'bg-cyan-500'}`} />
+                                                <span className="text-[11px] font-black text-white tabular-nums tracking-widest">UNIT_{inc.roomNumber}</span>
                                             </div>
-                                            <Badge variant={inc.severity >= 4 ? 'danger' : 'amber'} className="text-[7px] py-0 px-1.5">
-                                                LVL_{inc.severity}
+                                            <Badge variant={inc.severity >= 4 ? 'danger' : 'amber'} className="text-[8px] font-black py-0.5 px-2 rounded-none">
+                                                SEV_0{inc.severity}
                                             </Badge>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 mb-4">
+                                        <div className="grid grid-cols-2 gap-4 mb-5">
                                             {inc.sensorMetadata?.temperature && (
-                                                <div className="bg-black/40 p-2 border border-slate-800 group-hover:border-red-500/20 transition-colors">
-                                                    <div className="flex items-center gap-1.5 text-slate-500 mb-1">
-                                                        <Thermometer size={10} />
-                                                        <span className="text-[7px] font-black uppercase">Temp</span>
+                                                <div className="bg-[#020617]/60 p-3 border border-white/5 group-hover:border-danger/20 transition-colors">
+                                                    <div className="flex items-center gap-2 text-slate-500 mb-1.5">
+                                                        <Thermometer size={12} />
+                                                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-600">Temp</span>
                                                     </div>
-                                                    <span className="text-xs font-mono font-bold text-red-400">{inc.sensorMetadata.temperature}°C</span>
+                                                    <span className="text-sm font-black text-danger/80 tabular-nums">{inc.sensorMetadata.temperature}°C</span>
                                                 </div>
                                             )}
                                             {inc.sensorMetadata?.smoke_density && (
-                                                <div className="bg-black/40 p-2 border border-slate-800 group-hover:border-stone-500/20 transition-colors">
-                                                    <div className="flex items-center gap-1.5 text-slate-500 mb-1">
-                                                        <Wind size={10} />
-                                                        <span className="text-[7px] font-black uppercase">Smoke</span>
+                                                <div className="bg-[#020617]/60 p-3 border border-white/5 group-hover:border-slate-400/20 transition-colors">
+                                                    <div className="flex items-center gap-2 text-slate-500 mb-1.5">
+                                                        <Wind size={12} />
+                                                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-600">Toxic</span>
                                                     </div>
-                                                    <span className="text-xs font-mono font-bold text-stone-300">{inc.sensorMetadata.smoke_density}</span>
+                                                    <span className="text-sm font-black text-slate-300 tabular-nums">{inc.sensorMetadata.smoke_density}</span>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <p className="text-[9px] text-slate-500 leading-relaxed uppercase italic line-clamp-2">
+                                        <p className="text-[10px] text-slate-500 leading-relaxed uppercase font-bold tracking-tight italic line-clamp-3">
                                             {inc.description}
                                         </p>
                                     </motion.div>
@@ -359,76 +363,83 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                 {selectedRoom && (
                     <motion.div 
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#0B0F19]/90 backdrop-blur-xl"
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#020617]/95 backdrop-blur-2xl"
                         onClick={() => setSelectedRoom(null)}
                     >
                         <motion.div 
-                            initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-                            className="w-full max-w-lg bg-[#151B2B] border border-slate-800 p-8 shadow-tactical relative overflow-hidden"
+                            initial={{ scale: 0.95, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 30 }}
+                            className="w-full max-w-xl glass-tactical p-10 border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
-                                <Target size={200} className="text-cyan-500" />
+                            <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+                                <Target size={300} className="text-cyan-500" />
                             </div>
                             
-                            <div className="flex justify-between items-start mb-10 relative z-10">
+                            <div className="flex justify-between items-start mb-12 relative z-10">
                                 <div>
-                                    <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-                                        Node_{selectedRoom.roomNumber}
+                                    <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter text-glow-cyan">
+                                        Node_Alpha_{selectedRoom.roomNumber}
                                     </h3>
-                                    <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-[0.3em] mt-2">
-                                        Location_Status: {selectedRoom.empty ? 'SECURE' : 'ANOMALY_DETECTED'}
+                                    <p className="text-[11px] text-cyan-500 font-black uppercase tracking-[0.4em] mt-3 flex items-center gap-3">
+                                        <div className={`w-2 h-2 ${selectedRoom.empty ? 'bg-emerald' : 'bg-danger animate-pulse shadow-neon-red'}`} />
+                                        System_Status: {selectedRoom.empty ? 'NOMINAL' : 'BREACH_DETECTED'}
                                     </p>
                                 </div>
-                                <button onClick={() => setSelectedRoom(null)} className="text-slate-500 hover:text-white transition-colors">
-                                    <Target size={24} />
+                                <button onClick={() => setSelectedRoom(null)} className="text-slate-600 hover:text-white transition-colors p-2 glass-panel border-white/5">
+                                    <Zap size={24} />
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6 relative z-10">
-                                <div className="space-y-6">
-                                    <div className="p-4 bg-black/40 border border-slate-800">
-                                        <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Internal_Atmosphere</p>
-                                        <div className="flex items-end gap-2">
-                                            <span className="text-2xl font-black text-white tabular-nums">
-                                                {selectedRoom.sensorMetadata?.temperature || 24}
+                            <div className="grid grid-cols-2 gap-8 relative z-10">
+                                <div className="space-y-8">
+                                    <div className="p-5 glass-panel border-white/5">
+                                        <p className="text-[9px] font-black text-slate-500 uppercase mb-3 tracking-widest">Internal_Atmosphere</p>
+                                        <div className="flex items-end gap-2.5">
+                                            <span className="text-3xl font-black text-white tabular-nums">
+                                                {selectedRoom.sensorMetadata?.temperature || 24.2}
                                             </span>
-                                            <span className="text-xs text-slate-500 mb-1">°C</span>
+                                            <span className="text-xs font-black text-slate-600 mb-1.5 uppercase">Celsius</span>
                                         </div>
                                     </div>
-                                    <div className="p-4 bg-black/40 border border-slate-800">
-                                        <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Oxygen_Saturation</p>
-                                        <div className="flex items-end gap-2">
-                                            <span className="text-2xl font-black text-white tabular-nums">98.2</span>
-                                            <span className="text-xs text-slate-500 mb-1">%</span>
+                                    <div className="p-5 glass-panel border-white/5">
+                                        <p className="text-[9px] font-black text-slate-500 uppercase mb-3 tracking-widest">Biometric_Detection</p>
+                                        <div className="flex items-end gap-2.5">
+                                            <span className="text-3xl font-black text-white tabular-nums">0.00</span>
+                                            <span className="text-xs font-black text-slate-600 mb-1.5 uppercase">Count</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-6 border border-slate-800 bg-black/40 flex flex-col justify-center">
-                                    <p className="text-[8px] font-black text-slate-500 uppercase mb-4 text-center">Neural_Vision_Feed</p>
-                                    <div className="aspect-video bg-slate-900 border border-slate-800 relative flex items-center justify-center overflow-hidden">
+                                <div className="p-8 border border-white/5 bg-slate-900/40 flex flex-col justify-center relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+                                    <p className="text-[9px] font-black text-slate-500 uppercase mb-6 text-center tracking-[0.3em]">Neural_Vision_Link</p>
+                                    <div className="aspect-video bg-slate-950 border border-white/10 relative flex items-center justify-center overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent" />
-                                        <Wind size={24} className="text-cyan-500/20 animate-spin-slow" />
-                                        <div className="absolute top-2 left-2 flex gap-1">
-                                            <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-                                            <span className="text-[6px] text-red-500 font-bold uppercase">REC</span>
+                                        <Wind size={28} className="text-cyan-500/10 animate-spin-slow" />
+                                        <div className="absolute top-3 left-3 flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 bg-danger rounded-full animate-pulse" />
+                                            <span className="text-[7px] text-danger font-black uppercase tracking-widest">LIVE_FEED</span>
                                         </div>
+                                        <div className="absolute inset-0 scanline-overlay opacity-20" />
                                     </div>
                                 </div>
                             </div>
 
                             {!selectedRoom.empty && (
-                                <div className="mt-8 pt-8 border-t border-slate-800 relative z-10">
-                                    <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                        <ShieldAlert size={14} /> Critical_Intelligence
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-10 pt-10 border-t border-white/10 relative z-10"
+                                >
+                                    <p className="text-[11px] font-black text-danger uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
+                                        <ShieldAlert size={16} /> Intelligence_Briefing
                                     </p>
-                                    <p className="text-xs text-slate-400 font-bold leading-relaxed uppercase">
+                                    <p className="text-[13px] text-slate-400 font-bold leading-relaxed uppercase tracking-wide">
                                         {selectedRoom.description}
                                     </p>
-                                    <button className="w-full mt-8 py-4 bg-red-600 hover:bg-red-500 text-white text-[10px] font-black uppercase tracking-[0.3em] transition-all">
-                                        Dispatch_Tactical_Team
+                                    <button className="w-full mt-10 py-5 bg-danger text-white text-[11px] font-black uppercase tracking-[0.4em] shadow-neon-red hover:bg-danger/80 active:scale-[0.98] transition-all border-none">
+                                        Execute_Tactical_Response
                                     </button>
-                                </div>
+                                </motion.div>
                             )}
                         </motion.div>
                     </motion.div>
@@ -436,20 +447,20 @@ const IndoorHeatmap = ({ incidents = [] }) => {
             </AnimatePresence>
 
             {/* STATUS FOOTER */}
-            <div className="p-3 bg-[#0B0F19] border-t border-slate-800 flex items-center justify-between z-20">
-                <div className="flex items-center gap-6 ml-3">
-                    <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full shadow-neon-green" />
-                        <span className="text-[9px] font-black text-slate-100 uppercase tracking-widest">Core_Link_Established</span>
+            <div className="p-4 bg-slate-950/60 backdrop-blur-xl border-t border-white/10 flex items-center justify-between z-20">
+                <div className="flex items-center gap-8 ml-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-emerald rounded-full shadow-neon-emerald" />
+                        <span className="text-[10px] font-black text-slate-100 uppercase tracking-[0.3em]">Grid_Link_Operational</span>
                     </div>
-                    <div className="h-4 w-px bg-slate-800 hidden md:block" />
-                    <span className="text-[9px] text-slate-500 uppercase tracking-tighter hidden md:block italic">
-                        Processing_Latency: 14.2ms
+                    <div className="h-5 w-px bg-white/10 hidden md:block" />
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-black hidden md:block italic">
+                        Processing_Throughput: 14.2 GFLOPS
                     </span>
                 </div>
-                <div className="flex items-center gap-4 mr-3">
-                    <span className="text-[10px] font-black text-slate-600 uppercase">
-                        RCR_Z-AXIS_V2.0_ULTRA
+                <div className="flex items-center gap-5 mr-4">
+                    <span className="text-[11px] font-black text-slate-600 uppercase tracking-[0.4em]">
+                        RCR_Z-AXIS_V2.5_PRO
                     </span>
                 </div>
             </div>

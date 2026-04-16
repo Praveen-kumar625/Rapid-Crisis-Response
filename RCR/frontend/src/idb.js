@@ -4,12 +4,12 @@ import { openDB } from 'idb';
 const DB_NAME = 'RapidCrisisPWA';
 const REPORT_STORE = 'offlineReports';
 const TASK_STORE = 'cachedTasks';
+const EXTERNAL_CACHE = 'externalCache';
 
 export async function getDB() {
-    return openDB(DB_NAME, 2, {
+    return openDB(DB_NAME, 3, {
         upgrade(db, oldVersion, _newVersion) {
             if (oldVersion < 1) {
-
                 if (!db.objectStoreNames.contains(REPORT_STORE)) {
                     const store = db.createObjectStore(REPORT_STORE, {
                         keyPath: 'localId',
@@ -23,8 +23,25 @@ export async function getDB() {
                     db.createObjectStore(TASK_STORE, { keyPath: 'id' });
                 }
             }
+            if (oldVersion < 3) {
+                if (!db.objectStoreNames.contains(EXTERNAL_CACHE)) {
+                    db.createObjectStore(EXTERNAL_CACHE, { keyPath: 'key' });
+                }
+            }
         },
     });
+}
+
+// External Caching Logic
+export async function cacheExternalData(key, data) {
+    const db = await getDB();
+    return db.put(EXTERNAL_CACHE, { key, data, timestamp: Date.now() });
+}
+
+export async function getCachedExternalData(key) {
+    const db = await getDB();
+    const entry = await db.get(EXTERNAL_CACHE, key);
+    return entry ? entry.data : null;
 }
 
 // Reports Logic

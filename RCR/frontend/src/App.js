@@ -54,8 +54,42 @@ function AnimatedRoutes() {
     );
 }
 
+import { getPendingReports, markReportSynced } from './idb';
+
 function App() {
     const [user, setUser] = useState(null);
+
+    const flushOfflineQueue = async () => {
+        const pending = await getPendingReports();
+        if (pending.length === 0) return;
+
+        toast.loading(`Syncing ${pending.length} offline reports...`, { id: 'sync-progress' });
+        
+        let successCount = 0;
+        for (const report of pending) {
+            try {
+                await api.post('/incidents', report);
+                await markReportSynced(report.localId);
+                successCount++;
+            } catch (err) {
+                console.error('Failed to sync report:', report.localId);
+            }
+        }
+
+        if (successCount > 0) {
+            toast.success(`Successfully synced ${successCount} reports`, { id: 'sync-progress' });
+            // Trigger a refresh if on a page that shows incidents
+            window.dispatchEvent(new Event('offline-sync-complete'));
+        } else {
+            toast.error('Offline sync failed. Retrying later.', { id: 'sync-progress' });
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('online', flushOfflineQueue);
+        if (navigator.onLine) flushOfflineQueue();
+        return () => window.removeEventListener('online', flushOfflineQueue);
+    }, []);
 
     const syncUserContext = async () => {
         try {
