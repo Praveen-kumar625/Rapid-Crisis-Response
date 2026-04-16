@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { getSocket } from '../socket';
 import { IntelFeed } from '../components/IntelFeed';
-import TacticalMap from '../components/TacticalMap';
+import { TacticalMap } from '../components/TacticalMap';
 import { AICommand } from '../components/AICommand';
 import { ShieldAlert, Activity, Cpu } from 'lucide-react';
 import toast from 'react-hot-toast';
