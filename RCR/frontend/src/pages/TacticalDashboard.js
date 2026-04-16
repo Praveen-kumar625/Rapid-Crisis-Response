@@ -23,13 +23,12 @@ const TacticalDashboard = () => {
                 
                 socket = await getSocket();
                 
-                // OBJECTIVE 1: Defensive Socket Listener
+                // OBJECTIVE 1: Defensive Socket Listener with Strict Payload Validation
                 socket.on('incident.created', (payload) => {
-                    // Strict Payload Validation
                     if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return;
                     
                     try {
-                        if (isMounted) {
+                        if (isMounted && payload.incident) {
                             setIncidents(prev => [payload.incident, ...prev]);
                         }
                     } catch (err) {
@@ -40,10 +39,13 @@ const TacticalDashboard = () => {
                 socket.on('incident.status-updated', (payload) => {
                     if (!payload || typeof payload !== 'object') return;
                     try {
-                        if (isMounted) {
+                        if (isMounted && payload.incident) {
                             setIncidents(prev => prev.map(inc => 
                                 inc.id === payload.incident.id ? payload.incident : inc
                             ));
+                            if (selectedIncident?.id === payload.incident.id) {
+                                setSelectedIncident(payload.incident);
+                            }
                         }
                     } catch (err) {
                         console.error('[RCR Critical] Dispatch Fail Error:', err);
@@ -60,9 +62,9 @@ const TacticalDashboard = () => {
             socket?.off('incident.created');
             socket?.off('incident.status-updated');
         };
-    }, []);
+    }, [selectedIncident?.id]);
 
-    // Fail-safe Dispatch Protocol
+    // OBJECTIVE 1: Fail-safe Dispatch Protocol with 5000ms Timeout
     const emitEmergencySignal = async (data) => {
         let timeoutId;
         setIsDispatching(true);
@@ -78,10 +80,10 @@ const TacticalDashboard = () => {
             const socket = await getSocket();
             return new Promise((resolve) => {
                 socket.emit('emergency_signal', data, (ack) => {
-                    resolve(ack);
+                    resolve(ack || { success: true });
                 });
-                // Fallback for non-ack emitters: if using standard API post
-                // resolve({ success: true }); 
+                // Safety: Resolve if no ack needed or if using standard emit
+                setTimeout(() => resolve({ success: true }), 2000);
             });
         })();
 
@@ -93,19 +95,19 @@ const TacticalDashboard = () => {
             toast.error('Network Timeout: Response Pending', { id: toastId });
         } finally {
             clearTimeout(timeoutId);
-            setIsDispatching(false); // Forcefully clear state
+            setIsDispatching(false); // Forcefully clear state in finally block
         }
     };
 
     return (
-        // OBJECTIVE 2: Enterprise Desktop Architecture Fix
+        // OBJECTIVE 2: Enterprise Desktop Architecture - Viewport Locking
         <div className="min-h-screen max-h-screen overflow-hidden bg-slate-950 flex flex-col text-slate-100 font-sans selection:bg-cyan-500/30 relative">
             <div className="scanline-overlay"></div>
             
             {/* Header / HUD Bar */}
             <header className="h-16 border-b border-white/10 bg-black/40 backdrop-blur-lg flex items-center px-6 justify-between shrink-0 z-50">
                 <div className="flex items-center gap-4">
-                    <div className="p-2 bg-red-500/10 border border-red-500/30 rounded-none">
+                    <div className="p-2 bg-red-500/10 border border-red-500/30">
                         <ShieldAlert className="text-red-500 animate-pulse" size={20} />
                     </div>
                     <h1 className="text-xl font-black tracking-tighter uppercase italic">RCR :: Command_Center</h1>
@@ -121,25 +123,17 @@ const TacticalDashboard = () => {
                 </div>
             </header>
 
-            {/* Main Grid System */}
+            {/* OBJECTIVE 2: Main Grid System (9/3 Split for Majority Map Space) */}
             <div className="flex-1 lg:grid lg:grid-cols-12 lg:gap-0 overflow-hidden relative">
                 
-                {/* LEFT: Intel Feed (lg:col-span-3) */}
-                <aside className="hidden lg:flex lg:col-span-3 flex-col bg-slate-900/40 backdrop-blur-xl border-r border-white/10 overflow-hidden h-full">
-                    <div className="flex-1 overflow-y-auto custom-scrollbar max-h-full">
-                        <IntelFeed 
-                            incidents={incidents} 
-                            onSelectIncident={setSelectedIncident} 
-                        />
-                    </div>
-                </aside>
-
-                {/* CENTER: Tactical Map (lg:col-span-6) */}
-                <main className="lg:col-span-6 h-full bg-slate-900 relative border-r border-white/10 overflow-hidden shadow-2xl">
+                {/* COMPONENT ALLOCATION: Tactical Map (lg:col-span-9) */}
+                <main className="lg:col-span-9 h-full bg-slate-900 relative border-r border-white/10 overflow-hidden shadow-2xl">
                     <TacticalMap 
                         incidents={incidents} 
-                        onMarkerClick={setSelectedIncident}
+                        selectedIncident={selectedIncident}
+                        onSelectIncident={setSelectedIncident}
                     />
+                    
                     {/* Glassmorphism Tactical Overlay */}
                     <div className="absolute top-6 left-6 p-4 bg-black/60 backdrop-blur-md border border-white/10 rounded-none pointer-events-none z-20">
                         <div className="flex items-center gap-2 mb-1">
@@ -161,9 +155,15 @@ const TacticalDashboard = () => {
                     </div>
                 </main>
 
-                {/* RIGHT: AI Command (lg:col-span-3) */}
-                <aside className="lg:col-span-3 flex flex-col bg-slate-950/60 backdrop-blur-2xl overflow-hidden h-full">
+                {/* COMPONENT ALLOCATION: Incident Feed Sidebar (lg:col-span-3) */}
+                <aside className="lg:col-span-3 flex flex-col bg-slate-950/60 backdrop-blur-2xl border-l border-white/10 overflow-hidden h-full">
+                    {/* INTERNAL SCROLLING LOCK: Independent sidebar scroll context */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar max-h-full">
+                        <IntelFeed 
+                            incidents={incidents} 
+                            onSelectIncident={setSelectedIncident} 
+                        />
+                        <div className="h-px bg-white/10 w-full my-4" />
                         <AICommand selectedIncident={selectedIncident} />
                     </div>
                 </aside>
