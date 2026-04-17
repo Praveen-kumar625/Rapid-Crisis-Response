@@ -1,34 +1,48 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 
 const SwipeDispatch = ({ onDispatch }) => {
-    const [dragX, setDragX] = useState(0);
     const [completed, setCompleted] = useState(false);
 
+    // smooth motion tracking (no React re-render lag)
+    const x = useMotionValue(0);
+
     const handleDragEnd = (event, info) => {
-        // 👉 swipe threshold (important)
-        if (info.offset.x > 150) {
+        const threshold = 150;
+
+        if (info.offset.x > threshold) {
             setCompleted(true);
 
-            // 🔥 trigger dispatch action
             if (onDispatch) {
                 onDispatch();
             }
+
+            // snap to end position
+            x.set(200);
         } else {
-            setDragX(0);
+            // reset back
+            x.set(0);
         }
+    };
+
+    const resetDispatch = () => {
+        setCompleted(false);
+        x.set(0);
     };
 
     return (
         <div className="w-full max-w-md mx-auto mt-10">
 
             {/* TRACK */}
-            <div className="relative h-14 bg-slate-800/50 border border-cyan-500/30 rounded-full overflow-hidden backdrop-blur">
+            <div className="relative h-14 bg-slate-800/50 border border-cyan-500/30 rounded-full overflow-hidden backdrop-blur shadow-lg">
 
-                {/* SUCCESS BG */}
+                {/* SUCCESS STATE */}
                 {completed && (
-                    <div className="absolute inset-0 bg-green-500/30 flex items-center justify-center text-green-300 text-xs font-bold tracking-widest">
-                        ✅ DISPATCHED
+                    <div
+                        onClick={resetDispatch}
+                        className="absolute inset-0 bg-green-500/30 flex items-center justify-center text-green-300 text-xs font-bold tracking-widest cursor-pointer"
+                    >
+                        ✅ DISPATCHED (Tap to reset)
                     </div>
                 )}
 
@@ -36,10 +50,12 @@ const SwipeDispatch = ({ onDispatch }) => {
                 {!completed && (
                     <motion.div
                         drag="x"
+                        style={{ x }}
                         dragConstraints={{ left: 0, right: 200 }}
                         onDragEnd={handleDragEnd}
-                        onDrag={(e, info) => setDragX(info.point.x)}
-                        className="h-full w-14 bg-cyan-500 flex items-center justify-center text-black font-bold cursor-grab active:cursor-grabbing shadow-lg"
+                        className="h-full w-14 bg-cyan-500 flex items-center justify-center text-black font-bold cursor-grab active:cursor-grabbing shadow-lg rounded-full"
+                        whileTap={{ scale: 0.95 }}
+                        whileDrag={{ scale: 1.1 }}
                     >
                         ➤
                     </motion.div>
@@ -52,7 +68,6 @@ const SwipeDispatch = ({ onDispatch }) => {
                     </div>
                 )}
             </div>
-
         </div>
     );
 };
