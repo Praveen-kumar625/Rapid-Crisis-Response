@@ -23,9 +23,10 @@ function tacticalReducer(state, action) {
             return { ...state, incidents: [action.payload, ...state.incidents] };
         case 'SET_RESPONDERS':
             return { ...state, responders: action.payload };
-        case 'UPDATE_RESPONDER':
+        case 'UPDATE_RESPONDER': {
             const filtered = state.responders.filter(r => r.id !== action.payload.id);
             return { ...state, responders: [...filtered, action.payload] };
+        }
         case 'SET_BOTTOM_SHEET':
             return { ...state, bottomSheetState: action.payload };
         case 'SET_COMMS':

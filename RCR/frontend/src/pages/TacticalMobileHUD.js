@@ -1,13 +1,13 @@
-import React, { useRef, useMemo, useState } from 'react';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import React, { useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Shield, Wifi, WifiOff, User, 
+    Shield, User, 
     AlertTriangle, Zap, Activity, 
-    ChevronUp, ChevronDown, Navigation2,
-    Check, X, Crosshair
+    ChevronDown,
+    Check, X
 } from 'lucide-react';
 import { TacticalProvider, useTactical } from '../context/TacticalContext';
-import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 
 // --- SUB-COMPONENTS ---
 
@@ -95,7 +95,6 @@ const TacticalMapLayer = () => {
 
 const BottomSheet = () => {
     const { state, dispatch } = useTactical();
-    const constraintsRef = useRef(null);
     
     const snapPoints = {
         COLLAPSED: '85%',
@@ -243,7 +242,6 @@ const BottomSheet = () => {
 };
 
 const SwipeableIncidentCard = ({ incident }) => {
-    const { dispatch } = useTactical();
     const cardX = useMemo(() => Math.random() * 100, []); // Dummy distance
 
     return (

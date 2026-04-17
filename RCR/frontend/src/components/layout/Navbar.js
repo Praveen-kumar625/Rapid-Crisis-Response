@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Shield, Activity, Map as MapIcon, BarChart2, ShieldAlert, LogOut, Wifi, WifiOff, LogIn } from 'lucide-react';
+import { Menu, X, Shield, Activity, Map as MapIcon, BarChart2, ShieldAlert, LogOut, Wifi, WifiOff, LogIn, Zap } from 'lucide-react';
 import { signInWithGoogle } from '../../utils/firebase';
 import toast from 'react-hot-toast';
 
