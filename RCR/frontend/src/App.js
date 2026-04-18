@@ -66,7 +66,7 @@ function App() {
 
     const syncUserContext = async () => {
         try {
-            const { data } = await api.get('/incidents/me');
+            const { data } = await api.get('/api/incidents/me');
             if (data.hotelId) joinHotelRoom(data.hotelId);
         } catch (err) {
             console.error(err);
@@ -82,7 +82,7 @@ function App() {
         let success = 0;
         for (const report of pending) {
             try {
-                await api.post('/incidents', report);
+                await api.post('/api/incidents', report);
                 await markReportSynced(report.localId);
                 success++;
             } catch (err) {

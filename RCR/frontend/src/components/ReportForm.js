@@ -137,7 +137,7 @@ function ReportForm() {
                         }, 5000);
 
                         try {
-                            await api.post('/incidents/voice', {
+                            await api.post('/api/incidents/voice', {
                                 audioBase64: base64,
                                 audioMimeType: currentMimeType,
                                 lat: position.lat,
@@ -181,7 +181,7 @@ function ReportForm() {
             const reader = new FileReader();
             reader.onload = async(e) => {
                 try {
-                    const { data } = await api.post('/incidents/analyze', {
+                    const { data } = await api.post('/api/incidents/analyze', {
                         ...form,
                         mediaType: file.type,
                         mediaBase64: e.target.result,
@@ -240,13 +240,13 @@ function ReportForm() {
                 let mediaUrl = null;
                 if (mediaFile) {
                     const fileName = mediaFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
-                    const { data: urlData } = await api.get(`/incidents/upload-url?fileName=${fileName}&mimeType=${mediaType}`);
+                    const { data: urlData } = await api.get(`/api/incidents/upload-url?fileName=${fileName}&mimeType=${mediaType}`);
                     if (urlData && urlData.uploadUrl) {
                         await fetch(urlData.uploadUrl, { method: 'PUT', body: mediaFile, headers: { 'Content-Type': mediaType } });
                         mediaUrl = urlData.fileUrl;
                     }
                 }
-                await api.post('/incidents', { ...payload, mediaUrl });
+                await api.post('/api/incidents', { ...payload, mediaUrl });
                 clearTimeout(timeoutId);
                 toast.success('Incident Dispatched', { id: toastId });
                 setForm({ title: '', description: '', severity: 3, category: '', floorLevel: 1, roomNumber: '', wingId: '' });

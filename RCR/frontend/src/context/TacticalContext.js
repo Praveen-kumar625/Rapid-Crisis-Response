@@ -54,8 +54,8 @@ export const TacticalProvider = ({ children }) => {
     const fetchData = async () => {
         try {
             const [incidentsRes, respondersRes] = await Promise.all([
-                api.get('/incidents'),
-                api.get('/incidents/responders') // Assuming this endpoint exists or will be handled
+                api.get('/api/incidents'),
+                api.get('/api/incidents/responders') // Assuming this endpoint exists or will be handled
             ]);
             dispatch({ type: 'SET_INCIDENTS', payload: incidentsRes.data });
             dispatch({ type: 'SET_RESPONDERS', payload: respondersRes.data || [] });

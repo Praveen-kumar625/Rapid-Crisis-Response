@@ -30,7 +30,7 @@ function IncidentDetail() {
         let isMounted = true;
         const fetchIncident = async () => {
             try {
-                const { data } = await api.get(`/incidents/${id}`);
+                const { data } = await api.get(`/api/incidents/${id}`);
                 if (isMounted) {
                     setIncident(data);
                     setLoading(false);
@@ -66,7 +66,7 @@ function IncidentDetail() {
 
     const updateStatus = async (newStatus) => {
         try {
-            await api.patch(`/incidents/${id}/status`, { status: newStatus });
+            await api.patch(`/api/incidents/${id}/status`, { status: newStatus });
             toast.success(`Status updated to ${newStatus}`);
         } catch (err) {
             toast.error('Failed to update status');
@@ -177,7 +177,7 @@ function IncidentDetail() {
                                             <div className="flex items-center gap-4">
                                                 <span className="text-3xl font-black text-white font-mono tabular-nums">{incident.autoSeverity || incident.severity}<span className="text-slate-600 text-sm">/5</span></span>
                                                 <div className="flex-1 flex gap-1.5 h-1.5">
-                                                    {[1, 2, 3, 4, 5].map((s) => (<div key={s} className={`flex-1 ${s <= (incident.autoSeverity || incident.severity) ? (isCritical ? 'bg-red-600 shadow-neon-red' : 'bg-cyan-500 shadow-neon-cyan') : 'bg-slate-800'}`} />))}
+                                                    {( [1, 2, 3, 4, 5] || []).map((s) => (<div key={s} className={`flex-1 ${s <= (incident.autoSeverity || incident.severity) ? (isCritical ? 'bg-red-600 shadow-neon-red' : 'bg-cyan-500 shadow-neon-cyan') : 'bg-slate-800'}`} />))}
                                                 </div>
                                             </div>
                                         </div>
@@ -217,7 +217,7 @@ function IncidentDetail() {
                                     {[ ['SECTOR_WING', incident.wingId], ['FLOOR_LEVEL', `L_${incident.floorLevel}`], ['AREA_ROOM', incident.roomNumber] ].map(([label, val], idx) => (
                                         <div key={idx} className="flex justify-between items-center py-3 border-b border-slate-800 last:border-0"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">{label}</span><span className="text-sm font-bold text-white uppercase font-mono tracking-tighter">{val}</span></div>
                                     ))}
-                                    <div className="flex justify-between items-center pt-3"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">GPS_COORD</span><span className="text-[10px] font-bold text-slate-400 uppercase font-mono tabular-nums">{(incident.location.coordinates[1]).toFixed(4)}N, {(incident.location.coordinates[0]).toFixed(4)}E</span></div>
+                                    <div className="flex justify-between items-center pt-3"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">GPS_COORD</span><span className="text-[10px] font-bold text-slate-400 uppercase font-mono tabular-nums">{(incident.location?.coordinates?.[1] || 0).toFixed(4)}N, {(incident.location?.coordinates?.[0] || 0).toFixed(4)}E</span></div>
                                 </div>
                             </Card>
 
@@ -235,10 +235,10 @@ function IncidentDetail() {
                                                 <span className="text-[8px] text-slate-500 font-black uppercase">EST_TIME</span>
                                                 <span className="text-[10px] font-bold text-cyan-400 font-mono">{route.estimatedTime}</span>
                                             </div>
-                                            {route.hazards.length > 0 && (
+                                            {(route.hazards || []).length > 0 && (
                                                 <div className="pt-2">
                                                     <p className="text-[8px] text-red-500 font-black uppercase mb-2">ACTIVE_HAZARDS</p>
-                                                    {route.hazards.map((h, i) => (
+                                                    {(route.hazards || []).map((h, i) => (
                                                         <div key={i} className="text-[9px] text-slate-400 flex items-start gap-2 mb-1">
                                                             <span className="text-red-500 font-bold">•</span> {h}
                                                         </div>

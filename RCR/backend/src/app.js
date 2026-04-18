@@ -56,11 +56,24 @@ app.use(helmet());
 if (NODE_ENV !== 'test') app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' })); // Support larger base64 audio payloads
 
-// Routes
-app.use('/health', healthRoutes);
-app.use('/incidents', incidentRoutes);
-app.use('/sos', sosRoutes);
-app.use('/tasks', taskRoutes);
+// Unified API Router
+const apiRouter = express.Router();
+apiRouter.use('/health', healthRoutes);
+apiRouter.use('/incidents', incidentRoutes);
+apiRouter.use('/sos', sosRoutes);
+apiRouter.use('/tasks', taskRoutes);
+
+// Mount the unified router
+app.use('/api', apiRouter);
+
+// Base route for connectivity check
+app.get('/', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Rapid Crisis Response API Orchestrator is ACTIVE',
+        uplink: 'Port 5000'
+    });
+});
 
 // 404 Handler
 app.use((req, res) => {

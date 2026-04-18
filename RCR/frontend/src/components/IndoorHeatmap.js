@@ -236,8 +236,8 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                         <motion.rect
                                             x={room.x} y={room.y} width={room.w} height={room.h}
                                             animate={{ 
-                                                fill: isHovered ? 'rgba(34, 211, 238, 0.1)' : style.fill,
-                                                stroke: isHovered ? '#22d3ee' : style.stroke,
+                                                fill: isHovered ? 'rgba(34, 211, 238, 0.1)' : (style?.fill || 'rgba(15,23,42,0.2)'),
+                                                stroke: isHovered ? '#22d3ee' : (style?.stroke || 'rgba(51,65,85,0.5)'),
                                                 strokeWidth: isHovered ? 0.8 : 0.4
                                             }}
                                         />
@@ -308,7 +308,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                                     </p>
                                 </motion.div>
                             ) : (
-                                floorIncidents.map(inc => (
+                                (floorIncidents || []).map(inc => (
                                     <motion.div
                                         layout
                                         key={inc.id}
