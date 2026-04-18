@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { DesktopSidebar } from './DesktopSidebar';
 import { TopBar } from '../TopBar';
 import { TickerTape } from '../TickerTape';
