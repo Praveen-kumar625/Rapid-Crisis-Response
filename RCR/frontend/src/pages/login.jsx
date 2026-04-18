@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const toggleAuth = () => setIsLogin(!isLogin);

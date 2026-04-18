@@ -1,6 +1,5 @@
 import { io } from 'socket.io-client';
 import { getPendingReports, markReportSynced } from './idb';
-import toast from 'react-hot-toast';
 
 let socket = null;
 let isSyncing = false;
