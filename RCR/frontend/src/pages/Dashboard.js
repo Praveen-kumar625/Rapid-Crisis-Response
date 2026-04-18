@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Zap, AlertCircle, Activity, Info, ChevronRight, ShieldAlert } from 'lucide-react';
+import { Cpu, Zap, AlertCircle, Activity, ChevronRight, ShieldAlert } from 'lucide-react';
 import CrisisMap from '../components/CrisisMap';
 import api from '../api';
 import { getSocket } from '../socket';
@@ -9,7 +9,6 @@ const Dashboard = () => {
     const [incidents, setIncidents] = useState([]);
     const [selectedIncident, setSelectedIncident] = useState(null);
     const [mapMode, setMapMode] = useState('ALL');
-    const [sysStats] = useState({ latency: '24ms', queue: 'IDLE', active: 12 });
 
     useEffect(() => {
         let isMounted = true;

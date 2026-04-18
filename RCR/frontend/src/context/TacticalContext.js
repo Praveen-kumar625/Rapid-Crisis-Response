@@ -21,11 +21,12 @@ function tacticalReducer(state, action) {
         case 'SET_INCIDENTS':
             // RULE 1: Strictly validate incoming data before setting state
             return { ...state, incidents: Array.isArray(action.payload) ? action.payload : [], isLoading: false };
-        case 'ADD_INCIDENT':
+        case 'ADD_INCIDENT': {
             if (!action.payload || !action.payload.id) return state;
             const currentIncidents = Array.isArray(state.incidents) ? state.incidents : [];
             if (currentIncidents.some(i => i.id === action.payload.id)) return state;
             return { ...state, incidents: [action.payload, ...currentIncidents] };
+        }
         case 'SET_RESPONDERS':
             // RULE 1: Strictly validate incoming data before setting state
             return { ...state, responders: Array.isArray(action.payload) ? action.payload : [] };
@@ -41,9 +42,10 @@ function tacticalReducer(state, action) {
             return { ...state, commsStatus: action.payload };
         case 'UPDATE_LOCATION':
             return { ...state, userLocation: { ...state.userLocation, ...action.payload } };
-        case 'ADD_INTEL':
+        case 'ADD_INTEL': {
             const currentIntel = Array.isArray(state.intelFeed) ? state.intelFeed : [];
             return { ...state, intelFeed: [action.payload, ...currentIntel].slice(0, 20) };
+        }
         case 'SET_SELECTED_INCIDENT':
             return { ...state, selectedIncident: action.payload };
         case 'SET_MAP_FILTER':
