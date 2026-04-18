@@ -13,7 +13,10 @@ export async function getSocket() {
 
     const token = localStorage.getItem('google_token');
     // Bulletproof URL Resolution: Prioritize ENV, fallback to production API, then local
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'https://rapid-crisis-response-f4yd.vercel.app' || 'http://localhost:5000';
+    const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 
+                      (process.env.NODE_ENV === 'production' 
+                        ? 'https://rapid-crisis-response-f4yd.vercel.app' 
+                        : 'http://localhost:3001'); // Changed port to 3001 to match backend default in index.js
 
     socket = io(SOCKET_URL, {
         path: '/crisis',

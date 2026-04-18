@@ -14,7 +14,7 @@ function IncidentCard({ incident, onAcknowledge, onClick }) {
     
     const isCritical = severity >= 4;
 
-    const handleClick = (e) => {
+    const handleClick = () => {
         if (onClick) {
             onClick();
         } else {

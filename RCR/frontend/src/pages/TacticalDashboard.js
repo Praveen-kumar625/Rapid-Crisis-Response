@@ -54,7 +54,10 @@ const TacticalDashboard = () => {
                             <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-500 text-[8px] font-black uppercase">Active</span>
                         </div>
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                            <IntelFeed incidents={state.incidents} />
+                            <IntelFeed 
+                                incidents={state.incidents} 
+                                onSelectIncident={(inc) => dispatch({ type: 'SET_SELECTED_INCIDENT', payload: inc })}
+                            />
                         </div>
                     </div>
 
