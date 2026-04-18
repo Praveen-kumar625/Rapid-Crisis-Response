@@ -10,6 +10,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getPendingReports, markReportSynced } from './idb';
+import { UIProvider } from './context/UIContext';
 
 // Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -56,10 +57,75 @@ function AnimatedRoutes() {
     );
 }
 
-import { UIProvider } from './context/UIContext';
-
 function App() {
-    // ... existing state and logic
+    const [user, setUser] = useState(null);
+
+    const syncUserContext = async () => {
+        try {
+            const { data } = await api.get('/incidents/me');
+            if (data.hotelId) joinHotelRoom(data.hotelId);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const flushOfflineQueue = async () => {
+        const pending = await getPendingReports();
+        if (!pending.length) return;
+
+        toast.loading(`Syncing ${pending.length} reports...`, { id: 'sync' });
+
+        let success = 0;
+        for (const report of pending) {
+            try {
+                await api.post('/incidents', report);
+                await markReportSynced(report.localId);
+                success++;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        if (success) {
+            toast.success(`Synced ${success}`, { id: 'sync' });
+            window.dispatchEvent(new Event('offline-sync-complete'));
+        } else {
+            toast.error('Sync failed', { id: 'sync' });
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('online', flushOfflineQueue);
+        if (navigator.onLine) flushOfflineQueue();
+        return () => window.removeEventListener('online', flushOfflineQueue);
+    }, []);
+
+    useEffect(() => {
+        handleRedirectResult().catch(console.error);
+
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                const token = await firebaseUser.getIdToken();
+                localStorage.setItem('google_token', token);
+                setUser(firebaseUser);
+
+                updateSocketToken(token);
+                syncUserContext();
+            } else {
+                localStorage.removeItem('google_token');
+                setUser(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const logout = async () => {
+        await auth.signOut();
+        localStorage.removeItem('google_token');
+        setUser(null);
+        toast.success('Logged out');
+    };
 
     return (
         <ErrorBoundary>

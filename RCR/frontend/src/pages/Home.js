@@ -9,7 +9,7 @@ import {
     WifiOff, 
     Fingerprint, 
     Zap, 
-    ChevronRight, 
+    Info, 
     Lock,
     Globe,
     Cpu
