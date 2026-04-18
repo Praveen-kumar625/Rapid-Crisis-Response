@@ -112,6 +112,26 @@
     overflow-wrap: break-word;
     word-break: break-word;
   }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile accessibility enhancements */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+    }
+    
+    button, a, input, select {
+      min-height: 48px;
+      min-width: 48px;
+    }
+
+    .glass-tactical, .glass-panel {
+      backdrop-blur: 16px;
+    }
+  }
 }
 
 @layer utilities {

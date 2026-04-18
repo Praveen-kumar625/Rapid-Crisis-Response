@@ -34,7 +34,11 @@ const staggerContainer = {
     }
 };
 
+import { useUI } from '../context/UIContext';
+
 function Home() {
+    const { openGuide } = useUI();
+    
     return (
         <div className="flex-1 flex flex-col w-full relative bg-[#0B0F19]">
             
@@ -85,10 +89,18 @@ function Home() {
                             <Button variant="secondary" className="w-full sm:w-auto px-8 sm:px-12 py-5 sm:py-6 text-sm sm:text-base group bg-slate-900 hover:bg-slate-800 text-slate-100 rounded-none border border-slate-700 active:scale-95 transition-all" aria-label="View Live Command Map">
                                 <MapIcon size={24} className="group-hover:text-cyan-400 transition-colors" />
                                 COMMAND_CENTER
-                                <ChevronRight size={18} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                             </Button>
                         </Link>
                     </motion.div>
+
+                    {/* MOBILE ONLY GUIDE BUTTON */}
+                    <motion.button
+                        variants={fadeInUp}
+                        onClick={openGuide}
+                        className="mt-8 flex md:hidden items-center gap-2 text-cyan-400 font-black uppercase text-[10px] tracking-[0.2em] p-4 border border-cyan-900/30 bg-cyan-950/20"
+                    >
+                        <Info size={16} /> Open Operational_Manual
+                    </motion.button>
 
                     <motion.div 
                         variants={fadeInUp}

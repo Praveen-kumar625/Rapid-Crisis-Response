@@ -162,12 +162,14 @@ const TacticalDashboard = () => {
             </div>
 
             {/* Mobile Bottom Navigation (Glassmorphism) */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-slate-950/80 backdrop-blur-2xl border-t border-white/10 flex justify-around items-center z-[60] px-6">
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#0B0F19]/90 backdrop-blur-2xl border-t border-white/10 flex justify-around items-center z-[60] px-6 pb-safe">
                 <button 
                     onClick={() => setActiveTab('MAP')}
                     className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all ${activeTab === 'MAP' ? 'text-cyan-400' : 'text-slate-500'}`}
                 >
-                    <MapIcon size={24} className={activeTab === 'MAP' ? 'text-glow-cyan' : ''} />
+                    <div className={`p-2 rounded-none transition-all ${activeTab === 'MAP' ? 'bg-cyan-500/10' : ''}`}>
+                        <MapIcon size={24} className={activeTab === 'MAP' ? 'text-glow-cyan' : ''} />
+                    </div>
                     <span className="text-[8px] font-black uppercase tracking-widest">Tactical_Map</span>
                 </button>
                 
@@ -175,10 +177,10 @@ const TacticalDashboard = () => {
                     onClick={() => setActiveTab('FEED')}
                     className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all ${activeTab === 'FEED' ? 'text-cyan-400' : 'text-slate-500'}`}
                 >
-                    <div className="relative">
+                    <div className={`p-2 rounded-none transition-all relative ${activeTab === 'FEED' ? 'bg-cyan-500/10' : ''}`}>
                         <List size={24} />
                         {incidents.filter(i => i.status === 'REPORTED').length > 0 && (
-                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-neon-red" />
+                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-neon-red" />
                         )}
                     </div>
                     <span className="text-[8px] font-black uppercase tracking-widest">Intel_Feed</span>
@@ -188,7 +190,9 @@ const TacticalDashboard = () => {
                     onClick={() => setActiveTab('COMMAND')}
                     className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all ${activeTab === 'COMMAND' ? 'text-cyan-400' : 'text-slate-500'}`}
                 >
-                    <Cpu size={24} />
+                    <div className={`p-2 rounded-none transition-all ${activeTab === 'COMMAND' ? 'bg-cyan-500/10' : ''}`}>
+                        <Cpu size={24} />
+                    </div>
                     <span className="text-[8px] font-black uppercase tracking-widest">AI_Command</span>
                 </button>
             </nav>
