@@ -56,6 +56,8 @@ function AnimatedRoutes() {
     );
 }
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
     const [user, setUser] = useState(null);
 
@@ -127,17 +129,19 @@ function App() {
     };
 
     return (
-        <UIProvider>
-            <Router>
-                <Toaster position="top-center" />
+        <ErrorBoundary>
+            <UIProvider>
+                <Router>
+                    <Toaster position="top-center" />
 
-                <AppLayout user={user} logout={logout}>
-                    <Suspense fallback={<PageLoader />}>
-                        <AnimatedRoutes />
-                    </Suspense>
-                </AppLayout>
-            </Router>
-        </UIProvider>
+                    <AppLayout user={user} logout={logout}>
+                        <Suspense fallback={<PageLoader />}>
+                            <AnimatedRoutes />
+                        </Suspense>
+                    </AppLayout>
+                </Router>
+            </UIProvider>
+        </ErrorBoundary>
     );
 }
 
