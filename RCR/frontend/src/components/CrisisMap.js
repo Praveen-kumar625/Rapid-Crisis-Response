@@ -175,7 +175,7 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
                     styles={MAP_STYLES}
                     className="w-full h-full min-h-0"
                 >
-                    {filteredIncidents.map(inc => {
+                    {(filteredIncidents || []).map(inc => {
                         const coords = inc.location?.coordinates || [inc.lng, inc.lat];
                         if (!coords || isNaN(coords[1])) return null;
                         return (
@@ -194,18 +194,18 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
                         );
                     })}
 
-                    {responders.filter(r => r.status !== 'OFF_DUTY').map(r => (
+                    {(responders || []).filter(r => r.status !== 'OFF_DUTY').map(r => (
                         <AdvancedMarker 
                             key={r.id}
                             position={{ lat: r.lat || DEFAULT_CENTER.lat, lng: r.lng || DEFAULT_CENTER.lng }}
                         >
                             <div className="w-10 h-10 border-2 flex items-center justify-center bg-slate-900 border-emerald shadow-neon-emerald">
-                                <div className="text-[8px] font-black text-white uppercase">{r.name.substring(0,2)}</div>
+                                <div className="text-[8px] font-black text-white uppercase">{r.name?.substring(0,2)}</div>
                             </div>
                         </AdvancedMarker>
                     ))}
 
-                    {earthquakes.map(quake => (
+                    {(earthquakes || []).map(quake => (
                         <AdvancedMarker 
                             key={quake.id}
                             position={{ 

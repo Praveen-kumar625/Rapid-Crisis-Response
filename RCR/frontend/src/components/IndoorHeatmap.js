@@ -45,7 +45,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
 
     // Merge static and live data
     const allAlerts = useMemo(() => {
-        const iotAsIncidents = liveIotData.map(iot => ({
+        const iotAsIncidents = (liveIotData || []).map(iot => ({
             id: iot.id,
             roomNumber: iot.room_number,
             floorLevel: iot.floor_level,
@@ -55,11 +55,11 @@ const IndoorHeatmap = ({ incidents = [] }) => {
             description: iot.description,
             isLive: true
         }));
-        return [...incidents, ...iotAsIncidents];
+        return [...(incidents || []), ...iotAsIncidents];
     }, [incidents, liveIotData]);
 
     const floorIncidents = useMemo(() => {
-        return allAlerts.filter(inc => inc.floorLevel === activeFloor);
+        return (allAlerts || []).filter(inc => inc.floorLevel === activeFloor);
     }, [allAlerts, activeFloor]);
 
     // Enhanced Room Layout with Metadata
@@ -152,7 +152,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                 {/* Z-AXIS CONTROLLER */}
                 <div className="w-24 border-r border-white/10 flex flex-col items-center py-8 gap-6 bg-slate-950/40 backdrop-blur-xl z-10">
                     <span className="text-[7px] font-black text-slate-600 uppercase tracking-[0.3em] vertical-text mb-2">Elevation</span>
-                    {floors.map(f => (
+                    {(floors || []).map(f => (
                         <div key={f} className="relative group w-full px-4">
                             <button
                                 onClick={() => setActiveFloor(f)}
@@ -219,9 +219,9 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                             />
 
                             {/* Rooms Implementation */}
-                            {rooms.map(room => {
+                            {(rooms || []).map(room => {
                                 const roomNumber = `${activeFloor}${room.id}`;
-                                const incident = floorIncidents.find(i => i.roomNumber === roomNumber);
+                                const incident = (floorIncidents || []).find(i => i.roomNumber === roomNumber);
                                 const isHovered = hoveredRoom === room.id;
                                 const style = getRoomStyle(roomNumber);
 
@@ -272,7 +272,7 @@ const IndoorHeatmap = ({ incidents = [] }) => {
                             })}
 
                             {/* Exit Signage */}
-                            {exits.map(exit => (
+                            {(exits || []).map(exit => (
                                 <g key={exit.id}>
                                     <motion.path 
                                         d={`M ${exit.x-2} ${exit.y} L ${exit.x+2} ${exit.y} M ${exit.x} ${exit.y-2} L ${exit.x} ${exit.y+2}`}
