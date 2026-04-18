@@ -20,7 +20,7 @@ export const UIProvider = ({ children }) => {
     const toggleSidebar = () => setIsSidebarExpanded(!isSidebarExpanded);
     const openCommandPalette = () => setIsCommandPaletteOpen(true);
     const closeCommandPalette = () => setIsCommandPaletteOpen(false);
-    const toggleCommandPalette = () => setIsCommandPaletteOpen(!isCommandPaletteOpen);
+    const toggleCommandPalette = () => setIsCommandPaletteOpen(prev => !prev);
 
     const openGuide = () => {
         setGuideStep(0);
@@ -28,7 +28,7 @@ export const UIProvider = ({ children }) => {
     };
     const closeGuide = () => setIsGuideOpen(false);
 
-    // Keyboard Shortcuts
+    // Keyboard Shortcut Handler (Ctrl+K / Cmd+K)
     useEffect(() => {
         const handleKeyDown = (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -42,7 +42,7 @@ export const UIProvider = ({ children }) => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isCommandPaletteOpen]);
+    }, []);
 
     const value = {
         // Mobile
