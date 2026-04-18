@@ -90,17 +90,22 @@ export const IntelFeed = ({ incidents, onSelectIncident, onAcknowledge }) => {
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 <AnimatePresence mode="popLayout">
-                    {(incidents || []).map((inc) => (
+                    {Array.isArray(incidents) ? incidents.map((inc) => (
                         <IncidentCard 
                             key={inc.id} 
                             incident={inc} 
                             onAcknowledge={onAcknowledge}
                             onClick={() => onSelectIncident?.(inc)}
                         />
-                    ))}
+                    )) : (
+                        <div className="py-10 text-center opacity-50">
+                            <AlertCircle size={32} className="mx-auto mb-4 text-warning" />
+                            <p className="text-[10px] font-black uppercase tracking-widest">Feed_Corrupted / No Data</p>
+                        </div>
+                    )}
                 </AnimatePresence>
 
-                {(incidents || []).length === 0 && (
+                {Array.isArray(incidents) && incidents.length === 0 && (
                     <div className="h-64 flex flex-col items-center justify-center opacity-20 text-center">
                         <Radio size={40} className="mb-4 animate-pulse" />
                         <p className="text-[9px] font-black uppercase tracking-[0.4em]">Node_Scanning...</p>
@@ -110,7 +115,7 @@ export const IntelFeed = ({ incidents, onSelectIncident, onAcknowledge }) => {
 
             <footer className="p-4 border-t border-white/10 bg-white/5 shrink-0">
                 <div className="flex justify-between items-center text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                    <span>Nodes_Active: {incidents.length}</span>
+                    <span>Nodes_Active: {Array.isArray(incidents) ? incidents.length : 0}</span>
                     <span className="text-cyan-500/60">Secure_Link: established</span>
                 </div>
             </footer>

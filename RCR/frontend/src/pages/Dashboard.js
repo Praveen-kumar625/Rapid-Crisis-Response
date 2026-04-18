@@ -16,9 +16,12 @@ const Dashboard = () => {
         const fetchInitial = async () => {
             try {
                 const { data } = await api.get('/api/incidents');
-                if (isMounted) setIncidents(data);
+                if (isMounted) {
+                    setIncidents(Array.isArray(data) ? data : []);
+                }
             } catch (err) {
                 console.error('[Dashboard] Failed to fetch incidents', err);
+                if (isMounted) setIncidents([]);
             }
         };
         fetchInitial();
@@ -29,9 +32,13 @@ const Dashboard = () => {
             if (!socket) return;
             socket.on('incident.created', (payload) => {
                 try {
-                    if (!payload || !payload.incident) return;
+                    if (!payload || !payload.incident || !payload.incident.id) return;
                     if (isMounted) {
-                        setIncidents(prev => [payload.incident, ...prev]);
+                        setIncidents(prev => {
+                            const current = Array.isArray(prev) ? prev : [];
+                            if (current.some(i => i.id === payload.incident.id)) return current;
+                            return [payload.incident, ...current];
+                        });
                     }
                 } catch (err) {
                     console.error('[Socket] Dispatch failed for incident.created', err);
@@ -39,9 +46,12 @@ const Dashboard = () => {
             });
             socket.on('incident.status-updated', (payload) => {
                 try {
-                    if (!payload || !payload.incident) return;
+                    if (!payload || !payload.incident || !payload.incident.id) return;
                     if (isMounted) {
-                        setIncidents(prev => prev.map(inc => inc.id === payload.incident.id ? payload.incident : inc));
+                        setIncidents(prev => {
+                            const current = Array.isArray(prev) ? prev : [];
+                            return current.map(inc => inc.id === payload.incident.id ? payload.incident : inc);
+                        });
                     }
                 } catch (err) {
                     console.error('[Socket] Dispatch failed for incident.status-updated', err);

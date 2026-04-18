@@ -57,10 +57,12 @@ export const TacticalProvider = ({ children }) => {
                 api.get('/api/incidents'),
                 api.get('/api/incidents/responders') // Assuming this endpoint exists or will be handled
             ]);
-            dispatch({ type: 'SET_INCIDENTS', payload: incidentsRes.data });
-            dispatch({ type: 'SET_RESPONDERS', payload: respondersRes.data || [] });
+            dispatch({ type: 'SET_INCIDENTS', payload: Array.isArray(incidentsRes.data) ? incidentsRes.data : [] });
+            dispatch({ type: 'SET_RESPONDERS', payload: Array.isArray(respondersRes.data) ? respondersRes.data : [] });
         } catch (err) {
             console.error('Initial fetch failed', err);
+            dispatch({ type: 'SET_INCIDENTS', payload: [] });
+            dispatch({ type: 'SET_RESPONDERS', payload: [] });
         }
     };
 

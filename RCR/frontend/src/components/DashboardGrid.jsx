@@ -64,9 +64,28 @@ export const DashboardGrid = () => {
     const { state } = useTactical();
     const { incidents, responders, commsStatus } = state;
 
-    const activeIncidents = incidents.filter(i => i.status !== 'RESOLVED');
+    const isValidArray = Array.isArray(incidents);
+    const activeIncidents = isValidArray ? incidents.filter(i => i.status !== 'RESOLVED') : [];
     const criticalIncidentsCount = activeIncidents.filter(i => i.severity >= 4).length;
-    const availableResponders = responders.filter(r => r.status === 'AVAILABLE').length;
+    const availableResponders = Array.isArray(responders) ? responders.filter(r => r.status === 'AVAILABLE').length : 0;
+
+    if (!isValidArray) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center p-20 text-center space-y-6">
+                <ShieldAlert size={64} className="text-danger animate-pulse" />
+                <div className="space-y-2">
+                    <h2 className="text-2xl font-black uppercase tracking-tighter text-white italic">Tactical_Grid_Offline</h2>
+                    <p className="text-xs text-slate-500 font-mono uppercase tracking-[0.3em]">Payload Corruption Detected // Re-establishing Uplink</p>
+                </div>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-8 py-3 bg-cyan-600 text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-cyan-500 transition-all"
+                >
+                    RE-INITIALIZE_UPLINK
+                </button>
+            </div>
+        );
+    }
 
     return (
         <motion.div 
@@ -194,7 +213,7 @@ export const DashboardGrid = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {incidents.slice(0, 5).map((inc) => (
+                            {(Array.isArray(incidents) ? incidents.slice(0, 5) : []).map((inc) => (
                                 <tr key={inc.id} className="hover:bg-cyan-500/[0.03] transition-colors group">
                                     <td className="px-6 py-4 text-[11px] font-mono text-slate-500 tabular-nums">[{new Date(inc.createdAt).toLocaleTimeString()}]</td>
                                     <td className="px-6 py-4 text-[11px] font-black text-slate-300 uppercase tracking-tighter">UNIT_{inc.id.substring(0, 8)}</td>
