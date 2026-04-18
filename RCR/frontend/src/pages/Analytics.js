@@ -26,7 +26,7 @@ const Analytics = () => {
 
         const fetchData = async () => {
             try {
-                const { data } = await api.get('/incidents');
+                const { data } = await api.get('/api/incidents');
                 if (isMounted) {
                     setIncidents(data);
                     setLoading(false);

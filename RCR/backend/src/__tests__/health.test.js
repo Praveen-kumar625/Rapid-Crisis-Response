@@ -36,7 +36,7 @@ const app = require('../app');
 
 describe('Health Check', () => {
     it('should return 200 OK and bypass real infrastructure', async () => {
-        const res = await request(app).get('/health');
+        const res = await request(app).get('/api/health');
         
         // The health route now returns 200 even if degraded in test mode,
         // or 200 if the mock above satisfies the SELECT 1 query.

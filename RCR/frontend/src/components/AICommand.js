@@ -78,7 +78,7 @@ export const AICommand = ({ selectedIncident }) => {
         if (selectedIncident) {
             setIsLoadingTasks(true);
             addLog(`UPLINK ESTABLISHED: ${selectedIncident.id.substring(0,8)}`, 'success');
-            api.get(`/tasks/incident/${selectedIncident.id}`)
+            api.get(`/api/tasks/incident/${selectedIncident.id}`)
                 .then(({ data }) => setTasks(data))
                 .catch(console.error)
                 .finally(() => setIsLoadingTasks(false));
@@ -124,7 +124,7 @@ export const AICommand = ({ selectedIncident }) => {
             // Simulated AI processing delay
             await new Promise(r => setTimeout(r, 1000));
             
-            const { data } = await api.post('/sos/voice', {
+            const { data } = await api.post('/api/sos/voice', {
                 transcript: cmd,
                 incidentId: selectedIncident?.id,
                 lat: 0, lng: 0

@@ -83,7 +83,7 @@ function CrisisMap({ incidents: externalIncidents, onMarkerClick, activeFilter }
         let isMounted = true;
         let socketInstance = null;
 
-        api.get('/incidents').then((res) => {
+        api.get('/api/incidents').then((res) => {
             if (isMounted && !externalIncidents) setInternalIncidents(res.data);
         }).catch(err => console.error('[Map] Data fetch failed:', err));
 

@@ -15,7 +15,7 @@ const Dashboard = () => {
         let isMounted = true;
         const fetchInitial = async () => {
             try {
-                const { data } = await api.get('/incidents');
+                const { data } = await api.get('/api/incidents');
                 if (isMounted) setIncidents(data);
             } catch (err) {
                 console.error('[Dashboard] Failed to fetch incidents', err);
