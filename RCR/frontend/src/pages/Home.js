@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
     Shield, 
-    ShieldAlert,
     Map as MapIcon, 
     Activity, 
     WifiOff, 
@@ -16,10 +15,10 @@ import {
 } from 'lucide-react';
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
-import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { useUI } from '../context/UIContext';
+import { TacticalButton } from '../components/ui/TacticalButton';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 30 },
