@@ -19,14 +19,16 @@ const initialState = {
 function tacticalReducer(state, action) {
     switch (action.type) {
         case 'SET_INCIDENTS':
-            return { ...state, incidents: action.payload, isLoading: false };
+            return { ...state, incidents: Array.isArray(action.payload) ? action.payload : [], isLoading: false };
         case 'ADD_INCIDENT':
-            if (state.incidents.some(i => i.id === action.payload.id)) return state;
-            return { ...state, incidents: [action.payload, ...state.incidents] };
+            if (!action.payload || !action.payload.id) return state;
+            if ((state.incidents || []).some(i => i.id === action.payload.id)) return state;
+            return { ...state, incidents: [action.payload, ...(state.incidents || [])] };
         case 'SET_RESPONDERS':
-            return { ...state, responders: action.payload };
+            return { ...state, responders: Array.isArray(action.payload) ? action.payload : [] };
         case 'UPDATE_RESPONDER': {
-            const filtered = state.responders.filter(r => r.id !== action.payload.id);
+            if (!action.payload || !action.payload.id) return state;
+            const filtered = (state.responders || []).filter(r => r.id !== action.payload.id);
             return { ...state, responders: [...filtered, action.payload] };
         }
         case 'SET_BOTTOM_SHEET':

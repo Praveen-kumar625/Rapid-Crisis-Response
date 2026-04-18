@@ -93,7 +93,7 @@ export const TacticalMap = ({
         return () => clearInterval(interval);
     }, [fetchEarthquakes]);
 
-    const markers = useMemo(() => incidents.map((inc) => {
+    const markers = useMemo(() => (incidents || []).map((inc) => {
         const lat = parseFloat(inc.location?.coordinates[1] || inc.lat);
         const lng = parseFloat(inc.location?.coordinates[0] || inc.lng);
         if (isNaN(lat) || isNaN(lng)) return null;
@@ -161,7 +161,7 @@ export const TacticalMap = ({
                     
                     {markers}
 
-                    {responders.filter(r => r.status !== 'OFF_DUTY').map(r => (
+                    {(responders || []).filter(r => r.status !== 'OFF_DUTY').map(r => (
                         <AdvancedMarker 
                             key={r.id}
                             position={{ lat: r.lat || RESPONDER_HQ.lat, lng: r.lng || RESPONDER_HQ.lng }}
@@ -172,7 +172,7 @@ export const TacticalMap = ({
                         </AdvancedMarker>
                     ))}
 
-                    {earthquakes.map(quake => (
+                    {(earthquakes || []).map(quake => (
                         <AdvancedMarker 
                             key={quake.id}
                             position={{ 

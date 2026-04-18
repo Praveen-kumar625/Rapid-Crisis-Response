@@ -90,7 +90,7 @@ export const IntelFeed = ({ incidents, onSelectIncident, onAcknowledge }) => {
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 <AnimatePresence mode="popLayout">
-                    {incidents.map((inc) => (
+                    {(incidents || []).map((inc) => (
                         <IncidentCard 
                             key={inc.id} 
                             incident={inc} 
@@ -100,7 +100,7 @@ export const IntelFeed = ({ incidents, onSelectIncident, onAcknowledge }) => {
                     ))}
                 </AnimatePresence>
 
-                {incidents.length === 0 && (
+                {(incidents || []).length === 0 && (
                     <div className="h-64 flex flex-col items-center justify-center opacity-20 text-center">
                         <Radio size={40} className="mb-4 animate-pulse" />
                         <p className="text-[9px] font-black uppercase tracking-[0.4em]">Node_Scanning...</p>
