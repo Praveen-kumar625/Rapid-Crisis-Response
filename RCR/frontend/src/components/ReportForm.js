@@ -237,7 +237,7 @@ function ReportForm() {
             }, 5000);
 
             try {
-                let mediaUrl = null;
+                let mediaUrl;
                 if (mediaFile) {
                     const fileName = mediaFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
                     const { data: urlData } = await api.get(`/api/incidents/upload-url?fileName=${fileName}&mimeType=${mediaType}`);
@@ -246,7 +246,7 @@ function ReportForm() {
                         mediaUrl = urlData.fileUrl;
                     }
                 }
-                await api.post('/api/incidents', { ...payload, mediaUrl });
+                await api.post('/api/incidents', { ...payload, ...(mediaUrl && { mediaUrl }) });
                 clearTimeout(timeoutId);
                 toast.success('Incident Dispatched', { id: toastId });
                 setForm({ title: '', description: '', severity: 3, category: '', floorLevel: 1, roomNumber: '', wingId: '' });
